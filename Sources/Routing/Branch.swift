@@ -218,6 +218,12 @@ public class Branch<Output> { // TODO: Rename Context
 
         let link = key.characters.first == ":" ? ":" : key
         let next = subBranches[link] ?? type(of: self).init(name: key, output: nil)
+        if next.name != key {
+            var warning = "[WARNING] Mismatched Slugs:\n"
+            warning += "Attempted to overwrite \(next.name) with \(key)\n"
+            warning += "Please use the same slug name for all routes on shared branch"
+            print(warning)
+        }
         next.parent = self
         // trigger lazy loads at extension time -- seek out cleaner way to do this
         _ = next.path
