@@ -35,6 +35,7 @@ extension Branch {
 
 extension Branch {
     private var hasOutput: Bool { return output != nil }
+
     internal var branchesWithOutput: [Branch] {
         var outputs = [Branch]()
         if hasOutput {
@@ -42,6 +43,15 @@ extension Branch {
         }
 
         return outputs
+    }
+}
+
+extension Branch {
+    // Get all individual branch nodes extending out from, and including self
+    internal var allIndividualBranchesInTreeIncludingSelf: [Branch] {
+        var branches: [Branch] = [self]
+        branches += subBranches.values.flatMap { $0.allIndividualBranchesInTreeIncludingSelf }
+        return branches
     }
 }
 

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import Routing
+@testable import Routing
 
 class RouteExtractionTests: XCTestCase {
     func testRouteLog() throws {
@@ -19,5 +19,21 @@ class RouteExtractionTests: XCTestCase {
 
         let wild = base.extend(["*", ":foo"], output: 3)
         XCTAssertEqual(wild.route, "/a/*/:foo")
+    }
+
+    func testIndividualBranches() throws {
+        let a = Branch<Int>(name: "a")
+        let b = Branch<Int>(name: "b")
+        let c = Branch<Int>(name: "c")
+        let d = Branch<Int>(name: "d")
+        let e = Branch<Int>(name: "e")
+
+        a.testableSetBranch(key: "b", branch: b)
+        a.testableSetBranch(key: "c", branch: c)
+        c.testableSetBranch(key: "d", branch: d)
+        c.testableSetBranch(key: "e", branch: e)
+
+        let allBranches = a.allIndividualBranchesInTreeIncludingSelf.map { $0.name }
+        XCTAssertEqual(allBranches, [a, b, c, d, e].map { $0.name })
     }
 }

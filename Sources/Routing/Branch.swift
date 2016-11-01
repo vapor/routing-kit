@@ -123,7 +123,7 @@ public class Branch<Output> { // TODO: Rename Context
          If it is `:`, it is a slug point and the name
          represents a key for a dynamic value.
     */
-    internal private(set) var subBranches: [String: Branch] = [:]
+    internal fileprivate(set) var subBranches: [String: Branch] = [:]
 
 
     /**
@@ -231,5 +231,11 @@ public class Branch<Output> { // TODO: Rename Context
         _ = next.slugIndexes
         subBranches[link] = next
         return next.extend(path, output: output)
+    }
+}
+
+extension Branch {
+    internal func testableSetBranch(key: String, branch: Branch) {
+        subBranches[key] = branch
     }
 }
