@@ -34,15 +34,8 @@ extension Branch {
 }
 
 extension Branch {
-    private var hasOutput: Bool { return output != nil }
-
-    internal var branchesWithOutput: [Branch] {
-        var outputs = [Branch]()
-        if hasOutput {
-            outputs.append(self)
-        }
-
-        return outputs
+    internal var allBranchesWithOutputIncludingSelf: [Branch] {
+        return allIndividualBranchesInTreeIncludingSelf.filter { $0.output != nil }
     }
 }
 
