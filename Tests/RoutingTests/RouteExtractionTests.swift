@@ -35,6 +35,14 @@ extension Foo: NodeConvertible {
 }
 
 class RouteExtractionTests: XCTestCase {
+    static let allTests = [
+        ("testRouteLog", testRouteLog),
+        ("testIndividualBranches", testIndividualBranches),
+        ("testIndividualBranchesWithOutput", testIndividualBranchesWithOutput),
+        ("testBranchRoutes", testBranchRoutes),
+        ("testRouterRoutes", testRouterRoutes),
+    ]
+
     func testRouteLog() throws {
         let base = Branch<Int>(name: "a")
         XCTAssertEqual(base.route, "/a")
@@ -61,7 +69,6 @@ class RouteExtractionTests: XCTestCase {
         let allBranches = a.allIndividualBranchesInTreeIncludingSelf.map { $0.name }
         XCTAssertEqual(allBranches, [a, b, c, d, e].map { $0.name })
     }
-
 
     func testIndividualBranchesWithOutput() throws {
         let a = Branch<Int>(name: "a", output: 1)
