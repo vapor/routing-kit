@@ -123,7 +123,7 @@ public class Branch<Output> { // TODO: Rename Context
          If it is `:`, it is a slug point and the name
          represents a key for a dynamic value.
     */
-    private var subBranches: [String: Branch] = [:]
+    internal private(set) var subBranches: [String: Branch] = [:]
 
 
     /**
