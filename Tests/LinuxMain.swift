@@ -11,6 +11,7 @@ XCTMain([
     testCase(RouteCollectionTests.allTests),
     testCase(RouterTests.allTests),
     testCase(RouteTests.allTests),
+    testCase(RouteExtractionTests.allTests),
 
     // HTTPRouting
     testCase(AddTests.allTests),
