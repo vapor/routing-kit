@@ -9,13 +9,19 @@
 import Foundation
 
 extension Router {
-    public var routes: [String] {
-        
-        return []
-    }
-
-    public func logRoutes(logger: (String) -> Void) {
-
+    public func routes(includeHost: Bool = false) -> [String] {
+        var routes = [String]()
+        tree.forEach { host, methodTree in
+            methodTree.forEach { method, branch in
+                var base = ""
+                if includeHost {
+                    base += "\(host): "
+                }
+                base += "\(method) "
+                routes += branch.routes.map { base + $0 }
+            }
+        }
+        return routes
     }
 }
 
@@ -43,7 +49,10 @@ extension Branch {
 extension Branch {
     // The individual route leading to the calling branch
     internal var route: String {
-        var route = "/\(name)"
+        var route = ""
+        if !name.isEmpty {
+            route += "/\(name)"
+        }
         if let parent = parent {
             route = parent.route + route
         }

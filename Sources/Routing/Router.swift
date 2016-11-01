@@ -15,7 +15,7 @@ public class Router<Output> {
     /**
         Internal router tree representation.
     */
-    private final var tree: [Host: [Method: Branch<Output>]] = [:]
+    internal private(set) final var tree: [Host: [Method: Branch<Output>]] = [:]
 
     // MARK: Init
 

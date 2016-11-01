@@ -8,6 +8,31 @@
 
 import XCTest
 @testable import Routing
+import HTTP
+
+import Node
+
+enum Foo: String {
+    case a,b,c
+}
+
+extension Foo: NodeConvertible {
+    enum ConversionError: Swift.Error {
+        case failed
+    }
+
+    init(node: Node, in context: Context) throws {
+        guard
+            let rawValue = node.string,
+            let foo = Foo(rawValue: rawValue)
+            else { throw ConversionError.failed }
+        self = foo
+    }
+
+    func makeNode(context: Context) throws -> Node {
+        return .string(rawValue)
+    }
+}
 
 class RouteExtractionTests: XCTestCase {
     func testRouteLog() throws {
@@ -68,5 +93,26 @@ class RouteExtractionTests: XCTestCase {
 
         let expectation = ["/a", "/a/c", "/a/c/e"]
         XCTAssertEqual(a.routes, expectation)
+    }
+
+    func testRouterRoutes() throws {
+        let handler: RequestHandler = { _ in return Response(body: "Rawr") }
+
+        let router = Router<RequestHandler>()
+        router.add(path: ["*", "GET", "foo", ":bar", "*"], value: handler)
+        router.add(path: ["*", "POST", "foo"], value: handler)
+        router.add(path: ["*", "PUT", "users", ":id"], value: handler)
+
+        let routes = router.routes(includeHost: true)
+        let expectation = [
+            "*: GET /foo/:bar",
+            "*: GET /foo/:bar/*",
+            "*: POST /foo",
+            "*: PUT /users/:id",
+        ]
+
+        let a = Set(routes)
+        let b = Set(expectation)
+        XCTAssertEqual(a, b)
     }
 }
