@@ -19,17 +19,9 @@ extension Router {
     }
 }
 
-func gatherRoutes<T>(_ dict: [Method: Branch<T>]) {
-
-}
-
 extension Branch {
     public var routes: [String] {
-        var routes = [String]()
-        var base = "/\(name)/"
-
-
-        return routes
+        return allBranchesWithOutputIncludingSelf.map { $0.route }
     }
 }
 

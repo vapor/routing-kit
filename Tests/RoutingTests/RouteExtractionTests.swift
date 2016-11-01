@@ -53,4 +53,20 @@ class RouteExtractionTests: XCTestCase {
         let allBranches = a.allBranchesWithOutputIncludingSelf.map { $0.name }
         XCTAssertEqual(allBranches, [a, c, e].map { $0.name })
     }
+
+    func testBranchRoutes() throws {
+        let a = Branch<Int>(name: "a", output: 1)
+        let b = Branch<Int>(name: "b")
+        let c = Branch<Int>(name: "c", output: 2)
+        let d = Branch<Int>(name: "d")
+        let e = Branch<Int>(name: "e", output: 3)
+
+        a.testableSetBranch(key: "b", branch: b)
+        a.testableSetBranch(key: "c", branch: c)
+        c.testableSetBranch(key: "d", branch: d)
+        c.testableSetBranch(key: "e", branch: e)
+
+        let expectation = ["/a", "/a/c", "/a/c/e"]
+        XCTAssertEqual(a.routes, expectation)
+    }
 }

@@ -59,7 +59,7 @@ public class Branch<Output> { // TODO: Rename Context
     /**
         The immediate parent of this branch. `nil` if current branch is a terminator
     */
-    public private(set) var parent: Branch?
+    public fileprivate(set) var parent: Branch?
 
     /*
         The leading path that corresponds to this given branch.
@@ -237,5 +237,6 @@ public class Branch<Output> { // TODO: Rename Context
 extension Branch {
     internal func testableSetBranch(key: String, branch: Branch) {
         subBranches[key] = branch
+        branch.parent = self
     }
 }
