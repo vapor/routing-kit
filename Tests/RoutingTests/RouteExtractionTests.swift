@@ -10,7 +10,6 @@ import XCTest
 import Routing
 
 class RouteExtractionTests: XCTestCase {
-
     func testRouteLog() throws {
         let base = Branch<Int>(name: "a")
         XCTAssertEqual(base.route, "/a")

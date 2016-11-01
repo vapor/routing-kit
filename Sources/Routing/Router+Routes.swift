@@ -34,7 +34,20 @@ extension Branch {
 }
 
 extension Branch {
-    public var route: String {
+    private var hasOutput: Bool { return output != nil }
+    internal var branchesWithOutput: [Branch] {
+        var outputs = [Branch]()
+        if hasOutput {
+            outputs.append(self)
+        }
+
+        return outputs
+    }
+}
+
+extension Branch {
+    // The individual route leading to the calling branch
+    internal var route: String {
         var route = "/\(name)"
         if let parent = parent {
             route = parent.route + route
@@ -42,15 +55,3 @@ extension Branch {
         return route
     }
 }
-
-/*
- 
- foo -> bar
-        :baz
- 
- =>
- 
- foo/bar
- foo/:baz
- 
- */
