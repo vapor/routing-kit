@@ -10,30 +10,6 @@ import XCTest
 @testable import Routing
 import HTTP
 
-import Node
-
-enum Foo: String {
-    case a,b,c
-}
-
-extension Foo: NodeConvertible {
-    enum ConversionError: Swift.Error {
-        case failed
-    }
-
-    init(node: Node, in context: Context) throws {
-        guard
-            let rawValue = node.string,
-            let foo = Foo(rawValue: rawValue)
-            else { throw ConversionError.failed }
-        self = foo
-    }
-
-    func makeNode(context: Context) throws -> Node {
-        return .string(rawValue)
-    }
-}
-
 class RouteExtractionTests: XCTestCase {
     static let allTests = [
         ("testRouteLog", testRouteLog),
