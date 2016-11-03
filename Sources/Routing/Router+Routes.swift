@@ -9,15 +9,11 @@
 import Foundation
 
 extension Router {
-    public func routes(includeHost: Bool = false) -> [String] {
+    public var routes: [String] {
         var routes = [String]()
         tree.forEach { host, methodTree in
             methodTree.forEach { method, branch in
-                var base = ""
-                if includeHost {
-                    base += "\(host): "
-                }
-                base += "\(method) "
+                let base = "\(host) \(method) "
                 routes += branch.routes.map { base + $0 }
             }
         }
