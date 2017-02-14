@@ -1,5 +1,5 @@
-private typealias Host = String
-private typealias Method = String
+internal typealias Host = String
+internal typealias Method = String
 
 // MARK: Router
 
@@ -15,7 +15,7 @@ public class Router<Output> {
     /**
         Internal router tree representation.
     */
-    private final var tree: [Host: [Method: Branch<Output>]] = [:]
+    internal private(set) final var tree: [Host: [Method: Branch<Output>]] = [:]
 
     // MARK: Init
 
