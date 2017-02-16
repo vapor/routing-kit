@@ -21,7 +21,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".bytes)
+        XCTAssertEqual(bytes, "show".makeBytes())
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -36,7 +36,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/devices/etc/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".bytes)
+        XCTAssertEqual(bytes, "show".makeBytes())
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -51,7 +51,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/devices/etc/even/deeper/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".bytes)
+        XCTAssertEqual(bytes, "show".makeBytes())
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -70,6 +70,6 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "host-only", host: "192.168.0.1")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "host".bytes)
+        XCTAssertEqual(bytes, "host".makeBytes())
     }
 }

@@ -17,7 +17,7 @@ class AddTests: XCTestCase {
         let request = Request(method: .get, path: "ferret")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "foo".bytes)
+        XCTAssertEqual(bytes, "foo".makeBytes())
     }
 
     func testVariadic() throws {
@@ -29,7 +29,7 @@ class AddTests: XCTestCase {
         let request = Request(method: .trace, path: "foo/bar/baz")
         let bytes = try request.bytes(running: router)
         
-        XCTAssertEqual(bytes, "1337".bytes)
+        XCTAssertEqual(bytes, "1337".makeBytes())
     }
 
     func testWithSlash() throws {
@@ -41,6 +41,6 @@ class AddTests: XCTestCase {
         let request = Request(method: .get, path: "foo/bar")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "foo".bytes)
+        XCTAssertEqual(bytes, "foo".makeBytes())
     }
 }
