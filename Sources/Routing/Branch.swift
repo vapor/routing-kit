@@ -15,7 +15,7 @@ extension Branch {
     public func slugs(for path: [String]) -> Node {
         var slugs: [String: Node] = [:]
         slugIndexes.forEach { key, index in
-            guard let val = path[safe: index].flatMap({ percentDecoded($0.bytes) }) else { return }
+            guard let val = path[safe: index].flatMap({ percentDecoded($0.makeBytes()) }) else { return }
             slugs[key] = Node.string(val.string)
         }
         return Node.object(slugs)

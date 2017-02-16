@@ -22,7 +22,7 @@ class GroupTests: XCTestCase {
         let request = Request(method: .get, path: "users/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".bytes)
+        XCTAssertEqual(bytes, "show".makeBytes())
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -37,7 +37,7 @@ class GroupTests: XCTestCase {
         let request = Request(method: .get, path: "users/devices/etc/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".bytes)
+        XCTAssertEqual(bytes, "show".makeBytes())
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -56,7 +56,7 @@ class GroupTests: XCTestCase {
         let request = Request(method: .get, path: "host-only", host: "192.168.0.1")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "host".bytes)
+        XCTAssertEqual(bytes, "host".makeBytes())
     }
 
     func testHostMiss() throws {
@@ -74,6 +74,6 @@ class GroupTests: XCTestCase {
         let request = Request(method: .get, path: "host-only", host: "BADHOST")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "nothost".bytes)
+        XCTAssertEqual(bytes, "nothost".makeBytes())
     }
 }
