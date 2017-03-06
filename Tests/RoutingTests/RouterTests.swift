@@ -173,4 +173,20 @@ class RouterTests: XCTestCase {
         let response = try handler?(request).makeResponse()
         XCTAssert(response?.body.bytes?.string == "Hello, World!")
     }
+
+    func testRouterDualSlugRoutes() throws {
+        let router = Router<Int>()
+        router.register(path: ["*", "GET", "foo", ":a", "one"], output: 1)
+        router.register(path: ["*", "GET", "foo", ":b", "two"], output: 2)
+
+        let containerOne = BasicContainer()
+        let outputOne = router.route(path: ["*", "GET", "foo", "slug-val", "one"], with: containerOne)
+        XCTAssertEqual(outputOne, 1)
+        XCTAssertEqual(containerOne.parameters["a"], "slug-val")
+
+        let containerTwo = BasicContainer()
+        let outputTwo = router.route(path: ["*", "GET", "foo", "slug-val", "two"], with: containerTwo)
+        XCTAssertEqual(outputTwo, 2)
+        XCTAssertEqual(containerTwo.parameters["b"], "slug-val")
+    }
 }
