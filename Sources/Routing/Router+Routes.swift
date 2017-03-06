@@ -37,7 +37,7 @@ extension Branch {
     // Get all individual branch nodes extending out from, and including self
     internal var allIndividualBranchesInTreeIncludingSelf: [Branch] {
         var branches: [Branch] = [self]
-        branches += subBranches.values.flatMap { $0.allIndividualBranchesInTreeIncludingSelf }
+        branches += subBranches.allBranches.flatMap { $0.allIndividualBranchesInTreeIncludingSelf }
         return branches
     }
 }

@@ -115,23 +115,14 @@ public class Branch<Output> { // TODO: Rename Context
         return output != nil
     }
 
-    /**
-         key or : or *
-
-         If it is a `key`, then it connects to an additional branch.
-
-         If it is `:`, it is a slug point and the name
-         represents a key for a dynamic value.
-    */
-    internal fileprivate(set) var subBranches: [String: Branch] = [:]
-
+    internal fileprivate(set) var subBranches = SubBranchMap()
 
     /**
          Fallback routes allow various handlers to "catch" any subsequent paths on its branch that
          weren't otherwise matched
     */
     private var fallback: Output? {
-        return subBranches["*"]?.value
+        return subBranches.wildcard?.value
     }
 
     /**
@@ -173,23 +164,29 @@ public class Branch<Output> { // TODO: Rename Context
         var comps = path
         guard let key = comps.next() else { return BranchResult(self, comps) }
 
-        if let result = subBranches[key]?.fetch(comps), result.branch.hasValidOutput {
+        // first check if direct path exists
+        if let result = subBranches.paramBranches[key]?.fetch(comps), result.branch.hasValidOutput {
             return result
         }
 
-        if let result = subBranches[":"]?.fetch(comps), result.branch.hasValidOutput {
+        // next attempt to find slug matches if any exist
+        for slug in subBranches.slugBranches {
+            guard let result = slug.fetch(comps), result.branch.hasValidOutput else { continue }
             return result
         }
 
-        if let result = subBranches["*"]?.fetch(comps), result.branch.hasValidOutput {
+        // see if wildcard with path exists
+        if let result = subBranches.wildcard?.fetch(comps), result.branch.hasValidOutput {
             return result
         }
 
-        if let wildcard = subBranches["*"], wildcard.hasValidOutput {
+        // use fallback
+        if let wildcard = subBranches.wildcard, wildcard.hasValidOutput {
             let subRoute = [key] + comps
             return BranchResult(wildcard, subRoute.makeIterator())
         }
 
+        // unmatchable route
         return nil
     }
 
@@ -216,27 +213,21 @@ public class Branch<Output> { // TODO: Rename Context
             return self
         }
 
-        let link = key.characters.first == ":" ? ":" : key
-        let next = subBranches[link] ?? type(of: self).init(name: key, output: nil)
-        if next.name != key {
-            var warning = "[WARNING] Mismatched Slugs:\n"
-            warning += "Attempted to overwrite \(next.name) with \(key)\n"
-            warning += "Please use the same slug name for all routes on shared branch"
-            print(warning)
-        }
+        let next = subBranches[key] ?? type(of: self).init(name: key, output: nil)
         next.parent = self
         // trigger lazy loads at extension time -- seek out cleaner way to do this
         _ = next.path
         _ = next.depth
         _ = next.slugIndexes
-        subBranches[link] = next
+
+        subBranches[key] = next
         return next.extend(path, output: output)
     }
 }
 
 extension Branch {
     internal func testableSetBranch(key: String, branch: Branch) {
-        subBranches[key] = branch
+        subBranches.paramBranches[key] = branch
         branch.parent = self
     }
 }
