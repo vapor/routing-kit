@@ -115,7 +115,7 @@ public class Branch<Output> { // TODO: Rename Context
         return output != nil
     }
 
-    internal fileprivate(set) var subBranches = SubBranchMap()
+    internal fileprivate(set) var subBranches = SubBranchMap<Output>()
 
     /**
          Fallback routes allow various handlers to "catch" any subsequent paths on its branch that

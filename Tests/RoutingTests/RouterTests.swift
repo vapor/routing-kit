@@ -6,7 +6,7 @@ import URI
 extension String: Swift.Error {}
 
 class RouterTests: XCTestCase {
-    static var allTests = [
+    static let allTests = [
         ("testRouter", testRouter),
         ("testWildcardMethod", testWildcardMethod),
         ("testWildcardHost", testWildcardHost),
@@ -15,7 +15,8 @@ class RouterTests: XCTestCase {
         ("testWildcardPath", testWildcardPath),
         ("testParameters", testParameters),
         ("testEmpty", testEmpty),
-        ("testNoHostWildcard", testNoHostWildcard)
+        ("testNoHostWildcard", testNoHostWildcard),
+        ("testRouterDualSlugRoutes", testRouterDualSlugRoutes),
     ]
 
     func testRouter() throws {
