@@ -43,7 +43,7 @@ class RouteExtractionTests: XCTestCase {
         c.testableSetBranch(key: "e", branch: e)
 
         let allBranches = a.allIndividualBranchesInTreeIncludingSelf.map { $0.name }
-        XCTAssertEqual(allBranches, [a, b, c, d, e].map { $0.name })
+        XCTAssertEqual(Set(allBranches), Set([a, b, c, d, e].map { $0.name }))
     }
 
     func testIndividualBranchesWithOutput() throws {
