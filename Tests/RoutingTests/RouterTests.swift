@@ -183,11 +183,11 @@ class RouterTests: XCTestCase {
         let containerOne = BasicContainer()
         let outputOne = router.route(path: ["*", "GET", "foo", "slug-val", "one"], with: containerOne)
         XCTAssertEqual(outputOne, 1)
-        XCTAssertEqual(containerOne.parameters["a"], "slug-val")
+        XCTAssertEqual(containerOne.parameters["a"]?.string, "slug-val")
 
         let containerTwo = BasicContainer()
         let outputTwo = router.route(path: ["*", "GET", "foo", "slug-val", "two"], with: containerTwo)
         XCTAssertEqual(outputTwo, 2)
-        XCTAssertEqual(containerTwo.parameters["b"], "slug-val")
+        XCTAssertEqual(containerTwo.parameters["b"]?.string, "slug-val")
     }
 }
