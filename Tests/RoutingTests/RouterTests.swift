@@ -18,6 +18,7 @@ class RouterTests: XCTestCase {
         ("testEmpty", testEmpty),
         ("testNoHostWildcard", testNoHostWildcard),
         ("testRouterDualSlugRoutes", testRouterDualSlugRoutes),
+        ("testRouteLogs", testRouteLogs)
     ]
 
     func testRouter() throws {
@@ -172,4 +173,34 @@ class RouterTests: XCTestCase {
         let requestTwo = Request(method: .get, path: "foo/slug-val/two")
         let responseTwo = try router.respond(to: requestTwo)
         XCTAssertEqual(responseTwo.body.bytes?.string, "2")    }
+
+    func testRouteLogs() throws {
+        let router = Router()
+        let responder = Request.Handler { _ in return Response() }
+        router.register(path: ["foo", "bar", ":id"], responder: responder)
+        router.register(path: ["foo", "bar", ":id", "zee"], responder: responder)
+        router.register(path: ["1/2/3/4/5/6/7"], responder: responder)
+        router.register(method: .post, path: ["multi-path"], responder: responder)
+        router.register(method: .put, path: ["multi-path"], responder: responder)
+
+        let expectation = [
+            "* POST multi-path",
+            "* PUT multi-path",
+            "* GET 1/2/3/4/5/6/7",
+            "* GET foo/bar/:id",
+            "* GET foo/bar/:id/zee"
+        ]
+
+        XCTAssertEqual(Set(router.routes), Set(expectation))
+    }
+
+    func testRouterThrows() {
+        let router = Router()
+
+        do {
+            let request = Request(method: .get, path: "asfd")
+            _ = try router.respond(to: request)
+            XCTFail("Should throw missing route")
+        } catch {}
+    }
 }

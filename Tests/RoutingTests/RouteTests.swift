@@ -2,11 +2,13 @@ import XCTest
 import HTTP
 import URI
 import Routing
+import Node
 
 class RouteTests: XCTestCase {
     static let allTests = [
         ("testRoute", testRoute),
         ("testRouteParams", testRouteParams),
+        ("testParameters", testParameters),
     ]
 
     func testRoute() throws {
@@ -48,5 +50,11 @@ class RouteTests: XCTestCase {
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.string, path.prefix(3).joined(separator: ":"))
         }
+    }
+
+    func testParameters() throws {
+        let request = Request(method: .get, path: "")
+        let params = request.parameters
+        XCTAssertEqual(params, Node([:]))
     }
 }

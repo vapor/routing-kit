@@ -29,7 +29,8 @@ extension RouteBuilder {
         _ path: String ...,
         _ value: @escaping RequestHandler
     ) {
-        register(host: nil, method: method, path: path, responder: value)
+        let responder = Request.Handler { try value($0).makeResponse() }
+        register(method: method, path: path, responder: responder)
     }
 
 }

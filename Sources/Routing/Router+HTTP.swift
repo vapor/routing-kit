@@ -29,6 +29,7 @@ public class Router {
     public func route(_ request: Request) -> Responder? {
         let path = request.path()
         let result = base.fetch(path)
+
         request.parameters = result?.slugs(for: path) ?? [:]
         return result?.output
     }

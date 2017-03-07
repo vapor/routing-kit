@@ -36,14 +36,6 @@ internal final class RouteGroup: RouteBuilder {
     }
 }
 
-extension Middleware {
-    fileprivate func chain(to responder: Responder) -> Responder {
-        return Request.Handler { request in
-            return try self.respond(to: request, chainingTo: responder)
-        }
-    }
-}
-
 extension Collection where Iterator.Element == Middleware {
     fileprivate func chain(to responder: Responder) -> Responder {
         return reversed().reduce(responder) { nextResponder, nextMiddleware in
