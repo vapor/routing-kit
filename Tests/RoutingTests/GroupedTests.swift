@@ -79,7 +79,7 @@ class GroupedTests: XCTestCase {
         }
 
         let router = Router()
-        let builder = router.grouped("a", "path").grouped(middleware: Middy()).grouped(host: "9.9.9.9")
+        let builder = router.grouped("a", "path").grouped(Middy()).grouped(host: "9.9.9.9")
         builder.add(.get, "/") { req in
             return "got it"
         }

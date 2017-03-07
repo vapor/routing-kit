@@ -33,14 +33,14 @@ extension RouteBuilder {
 
     /// Group all subsequent routes to pass through specified middleware
     /// use `,` separated list for multiple middleware
-    public func grouped(middleware: Middleware...) -> RouteBuilder {
-        return grouped(middleware: middleware)
+    public func grouped(_ middleware: Middleware...) -> RouteBuilder {
+        return grouped(middleware)
     }
 
     // FIXME: External arg necessary on middleware groups?
 
     /// - see grouped(middleware: Middleware...)
-    public func grouped(middleware: [Middleware]) -> RouteBuilder {
+    public func grouped(_ middleware: [Middleware]) -> RouteBuilder {
         return RouteGroup(host: nil, pathPrefix: [], middleware: middleware, parent: self)
     }
 }
@@ -74,7 +74,7 @@ extension RouteBuilder {
 
     /// Closure based variant of grouped(middleware: [Middleware])
     public func group(middleware: [Middleware], handler: (RouteBuilder) -> ()) {
-        let builder = grouped(middleware: middleware)
+        let builder = grouped(middleware)
         handler(builder)
     }
 }
