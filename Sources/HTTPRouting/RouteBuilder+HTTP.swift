@@ -13,7 +13,7 @@ extension Routing.RouteBuilder where Value == HTTP.Responder {
         _ value: @escaping (HTTP.Request) throws -> HTTP.ResponseRepresentable
     ) {
         add(
-            path: ["*", method.description] + path.splitPaths(),
+            path: ["*", method.description] + path.pathComponents,
             value: HTTP.Request.Handler({ request in
                 return try value(request).makeResponse()
             })
@@ -28,7 +28,7 @@ extension Routing.RouteBuilder where Value == HTTP.Responder {
     public func group(_ path: String ..., closure: (Routing.RouteGroup<Value, Self>) -> ()) {
         return group(
             prefix: [nil, nil],
-            path: path.splitPaths(),
+            path: path.pathComponents,
             map: nil,
             closure: closure
         )
@@ -56,7 +56,7 @@ extension Routing.RouteBuilder where Value == HTTP.Responder {
     public func grouped(_ path: String ...) -> Routing.RouteGroup<Value, Self> {
         return grouped(
             prefix: [nil, nil],
-            path: path.splitPaths(),
+            path: path.pathComponents,
             map: nil
         )
     }

@@ -2,26 +2,27 @@ import XCTest
 import HTTP
 import HTTPRouting
 
-class GroupedTests: XCTestCase {
-    static var allTests = [
+class GroupTests: XCTestCase {
+    static let allTests = [
         ("testBasic", testBasic),
         ("testVariadic", testVariadic),
+        ("testHost", testHost),
         ("testChained", testChained),
-        ("testHost", testHost)
+        ("testMultiChained", testMultiChained),
     ]
 
     func testBasic() throws {
         let router = Router()
 
         let users = router.grouped("users")
-        users.add(.get, ":id") { request in
+        users.register(method: .get, path: [":id"]) { request in
             return "show"
         }
 
         let request = Request(method: .get, path: "users/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".makeBytes())
+        XCTAssertEqual(bytes.string, "show")
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -40,6 +41,20 @@ class GroupedTests: XCTestCase {
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
+    func testHost() throws {
+        let router = HTTPRouter()
+        let host = router.grouped(host: "192.168.0.1")
+        host.register(method: .get, path: ["host-only"]) { request in
+            return "host group found"
+        }
+
+        router.register(method: .get, path: ["host-only"]) { _ in return "nothost" }
+        let request = Request(method: .get, path: "host-only", host: "192.168.0.1")
+        let bytes = try request.bytes(running: router)
+
+        XCTAssertEqual(bytes.string, "host group found")
+    }
+
     func testChained() throws {
         let router = Router()
 
@@ -51,25 +66,33 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/devices/etc/even/deeper/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes, "show".makeBytes())
+        XCTAssertEqual(bytes.string, "show")
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
-    func testHost() throws {
+    func testMultiChained() throws {
+        class Middy: Middleware {
+            func respond(to request: Request, chainingTo next: Responder) throws -> Response {
+                request.storage["middleware"] = true
+                return try next.respond(to: request)
+            }
+        }
+
         let router = Router()
-
-        let host = router.grouped(host: "192.168.0.1")
-        host.add(.get, "host-only") { request in
-            return "host"
+        let builder = router.grouped("a", "path").grouped(middleware: Middy()).grouped(host: "9.9.9.9")
+        builder.add(.get, "/") { req in
+            return "got it"
         }
 
-        router.add(.get, "host-only") { req in
-            return "nothost"
-        }
+        let request = Request(method: .get, path: "a/path", host: "9.9.9.9")
+        let responder = router.route(request)
+        let response = try responder?.respond(to: request)
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.body.bytes?.string, "got it")
+        let middleware = request.storage["middleware"] as? Bool
+        XCTAssertEqual(middleware, true)
 
-        let request = Request(method: .get, path: "host-only", host: "192.168.0.1")
-        let bytes = try request.bytes(running: router)
-
-        XCTAssertEqual(bytes, "host".makeBytes())
+        let bad = Request(method: .get, path: "a/path", host: "0.0.0.0")
+        XCTAssertNil(router.route(bad))
     }
 }

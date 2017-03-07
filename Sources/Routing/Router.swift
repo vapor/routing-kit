@@ -43,11 +43,8 @@ public class Router<Output> {
     */
     public func route(path: [String], with container: ParametersContainer) -> Output? {
         let path = path.filter { !$0.isEmpty }
-        let result = base.fetch(path)
-        container.parameters = result?.branch.slugs(for: path) ?? [:]
-        guard let output = result?.branch.output else {
-            return nil
-        }
-        return output
+        let branch = base.fetch(path)
+        container.parameters = branch?.slugs(for: path) ?? [:]
+        return branch?.output
     }
 }

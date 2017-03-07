@@ -11,13 +11,7 @@ extension String {
 }
 
 extension Sequence where Iterator.Element == String {
-    func splitPaths() -> [String] {
-        var split: [String] = []
-
-        for path in self {
-            split += path.pathComponents
-        }
-
-        return split
+    var pathComponents: [String] {
+        return flatMap { $0.pathComponents }
     }
 }
