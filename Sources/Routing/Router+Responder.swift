@@ -40,7 +40,7 @@ extension RouterError {
                 "verify the host and httpmethod for the request are as expected",
                 "log the routes of your router with `router.routes`"
             ]
-        case .unspecified(let error):
+        case .unspecified(_):
             return [
                 "look into upgrading to a version that expects this error",
                 "try to understand which module threw this error and where it came from"
