@@ -1,6 +1,5 @@
 
 extension Branch {
-    // FIXME: Should this return [[String]]
     public var routes: [String] {
         return allBranchesWithOutputIncludingSelf.map { $0.route }
     }

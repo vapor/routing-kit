@@ -18,7 +18,8 @@ class RouterTests: XCTestCase {
         ("testEmpty", testEmpty),
         ("testNoHostWildcard", testNoHostWildcard),
         ("testRouterDualSlugRoutes", testRouterDualSlugRoutes),
-        ("testRouteLogs", testRouteLogs)
+        ("testRouteLogs", testRouteLogs),
+        ("testRouterThrows", testRouterThrows),
     ]
 
     func testRouter() throws {
@@ -201,6 +202,8 @@ class RouterTests: XCTestCase {
             let request = Request(method: .get, path: "asfd")
             _ = try router.respond(to: request)
             XCTFail("Should throw missing route")
-        } catch {}
+        } catch {
+            print(error)
+        }
     }
 }
