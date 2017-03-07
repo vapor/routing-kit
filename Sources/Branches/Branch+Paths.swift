@@ -21,6 +21,12 @@ extension Branch {
 }
 
 extension Branch {
+    public var allSubBranches: [Branch] {
+        return subBranches.allBranches
+    }
+}
+
+extension Branch {
     // The individual route leading to the calling branch
     internal var route: String {
         var route = ""
