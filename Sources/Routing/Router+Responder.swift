@@ -2,10 +2,6 @@ import HTTP
 import Branches
 import Debugging
 
-extension HTTP.Method {
-    static let standard: [Method] = [.get, .post, .put, .patch, .delete]
-}
-
 public var supportOptionsRequests = true
 
 extension Router: Responder {
