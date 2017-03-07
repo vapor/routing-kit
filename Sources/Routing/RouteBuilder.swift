@@ -8,26 +8,28 @@ public protocol RouteBuilder: class {
 }
 
 extension RouteBuilder {
-    public func register(method: Method = .get, path: [String], responder: Responder) {
-        register(host: nil, method: method, path: path, responder: responder)
+    public func register(
+        host: String? = nil,
+        method: Method = .get,
+        path: [String] = [],
+        responder: @escaping RequestHandler
+    ) {
+        let re = Request.Handler { try responder($0).makeResponse() }
+        let path = path.pathComponents
+        register(host: host, method: method, path: path, responder: re)
     }
 
-    public func register(method: Method = .get, path: [String], responder: @escaping RequestHandler) {
-        let re = Request.Handler { try responder($0).makeResponse() }
-        register(host: nil, method: method, path: path, responder: re)
+    public func register(method: Method = .get, path: [String] = [], responder: Responder) {
+        let path = path.pathComponents
+        register(host: nil, method: method, path: path, responder: responder)
     }
 
     public func add(
         _ method: HTTP.Method,
         _ path: String ...,
-        _ value: @escaping (HTTP.Request) throws -> HTTP.ResponseRepresentable
+        _ value: @escaping RequestHandler
     ) {
-        let path = path.pathComponents
-        let responder = Request.Handler { request in
-            return try value(request).makeResponse()
-        }
-
-        register(host: nil, method: method, path: path, responder: responder)
+        register(host: nil, method: method, path: path, responder: value)
     }
 
 }

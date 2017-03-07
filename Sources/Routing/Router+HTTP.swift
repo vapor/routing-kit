@@ -58,6 +58,7 @@ extension Router {
 
 extension Router: RouteBuilder {}
 
+// FIXME: Swift.Debuggable
 public enum RouterError: Swift.Error {
     case missingRoute(for: Request)
 }
