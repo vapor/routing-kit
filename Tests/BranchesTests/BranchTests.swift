@@ -1,5 +1,5 @@
 import XCTest
-import Routing
+import Branches
 
 class BranchTests: XCTestCase {
     static let allTests = [
@@ -16,14 +16,14 @@ class BranchTests: XCTestCase {
         let base = Branch<String>(name: "[base]", output: nil)
         base.extend(["a", "b", "c"], output: "abc")
         let result = base.fetch(["a", "b", "c"])
-        XCTAssert(result?.branch.output == "abc")
+        XCTAssert(result?.output == "abc")
     }
 
     func testWildcard() {
         let base = Branch<String>(name: "[base]", output: nil)
         base.extend(["a", "b", "c", "*"], output: "abc")
         let result = base.fetch(["a", "b", "c"])
-        XCTAssert(result?.branch.output == "abc")
+        XCTAssert(result?.output == "abc")
     }
 
     func testWildcardTrailing() {
@@ -34,8 +34,7 @@ class BranchTests: XCTestCase {
             return
         }
 
-        XCTAssert(result.branch.output == "abc")
-        XCTAssert(Array(result.remaining) == ["d", "e", "f"])
+        XCTAssert(result.output == "abc")
     }
 
     func testParams() {
@@ -47,12 +46,11 @@ class BranchTests: XCTestCase {
             return
         }
 
-        let params = result.branch.slugs(for: path)
+        let params = result.slugs(for: path)
         XCTAssert(params["a"] == "zero")
         XCTAssert(params["b"] == "one")
         XCTAssert(params["c"] == "two")
-        XCTAssert(result.branch.output == "abc")
-        XCTAssert(Array(result.remaining) == ["d", "e", "f"])
+        XCTAssert(result.output == "abc")
     }
 
     func testOutOfBoundsParams() {
@@ -64,12 +62,11 @@ class BranchTests: XCTestCase {
             return
         }
 
-        let params = result.branch.slugs(for: ["zero", "one"])
+        let params = result.slugs(for: ["zero", "one"])
         XCTAssert(params["a"] == "zero")
         XCTAssert(params["b"] == "one")
         XCTAssert(params["c"] == nil)
-        XCTAssert(result.branch.output == "abc")
-        XCTAssert(Array(result.remaining) == ["d", "e", "f"])
+        XCTAssert(result.output == "abc")
     }
 
     func testLeadingPath() {

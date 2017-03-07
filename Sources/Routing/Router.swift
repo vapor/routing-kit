@@ -1,86 +1,60 @@
-internal typealias Host = String
-internal typealias Method = String
+import Branches
+import HTTP
 
-// MARK: Router
+public class Router {
+    /// The base branch from which all routing stems outward
+    public final let base = Branch<Responder>(name: "", output: nil)
 
-/**
-    A simple, flexible, and efficient HTTP Router built on top of Branches
- 
-    Output represents the object, closure, etc. that the router should be registering and returning
-*/
-public class Router<Output> {
-
-    // MARK: Private Tree Representation
-
-    /**
-        Internal router tree representation.
-    */
-    internal private(set) final var tree: [Host: [Method: Branch<Output>]] = [:]
-
-    // MARK: Init
-
-    /**
-        Base Initializer
-    */
+    /// Init
     public init() {}
 
-    // MARK: Registration
-
-    /**
-        Register a given path. Use `*` for host OR method to define wildcards that will be matched
-        if no concrete match exists.
-
-        - parameter host: the host to match, ie: '0.0.0.0', or `*` to match any
-        - parameter method: the method to match, ie: `GET`, or `*` to match any
-        - parameter path: the path that should be registered
-        - parameter output: the associated output of this path, usually a responder, or `nil`
-     */
-    public func register(path: [String], output: Output?) {
-        let path = path.filter { !$0.isEmpty }
-        var iterator = path.makeIterator()
-
-        //get the current root for the host, or create one if none
-        let host = iterator.next() ?? "*"
-        var base = tree[host] ?? [:]
-
-        //look for a branch for the method, or create one if none
-        let method = iterator.next() ?? "*"
-        let branch = base[method] ?? Branch(name: "", output: nil)
-
-        //assign the branch and root to the tree
-        base[method] = branch
-        tree[host] = base
-
-        branch.extend(Array(iterator), output: output)
+    /// Register a given path. Use `*` for host OR method to define wildcards that will be matched
+    /// if no concrete match exists.
+    ///
+    /// - parameter host: the host to match, ie: '0.0.0.0', or `*` to match any
+    /// - parameter method: the method to match, ie: `GET`, or `*` to match any
+    ///     - parameter path: the path that should be registered
+    /// - parameter output: the associated output of this path, usually a responder, or `nil`
+    public func register(host: String?, method: Method, path: [String], responder: Responder) {
+        let host = host ?? "*"
+        let path = [host, method.description] + path.filter { !$0.isEmpty }
+        base.extend(path, output: responder)
     }
 
-    // MARK: Route
 
-    /**
-        Routes an incoming path, filling the parameters container
-        with any found parameters.
-     
-        If an Output is found, it is returned.
-    */
-    public func route(path: [String], with container: ParametersContainer) -> Output? {
-        let path = path.filter { !$0.isEmpty }
+    /// Routes an incoming request
+    /// the request will be populated with any found parameters (aka slugs).
+    ///
+    /// If a handler is found, it is returned.
+    public func route(_ request: Request) -> Responder? {
+        let path = request.path()
+        let result = base.fetch(path)
 
-        var iterator = path.makeIterator()
-        let host = iterator.next() ?? "*"
-        let method = iterator.next() ?? "*"
-
-        let seg = Array(iterator)
-
-        // fetch the result using fallbacks
-        let result = tree[host]?[method]?.fetch(seg)
-            ?? tree["*"]?[method]?.fetch(seg)
-            ?? tree[host]?["*"]?.fetch(seg)
-            ?? tree["*"]?["*"]?.fetch(seg)
-
-        container.parameters = result?.branch.slugs(for: seg) ?? [:]
-        guard let output = result?.branch.output else {
-            return nil
-        }
-        return output
+        request.parameters = result?.slugs(for: path) ?? [:]
+        return result?.output
     }
 }
+
+extension Request {
+    fileprivate func path() -> [String] {
+        var host: String = uri.host
+        if host.isEmpty { host = "*" }
+        let method = self.method.description
+        let components = uri.path.pathComponents
+        return [host, method] + components
+    }
+}
+
+extension Router {
+    public var routes: [String] {
+        return base.routes.map { input in
+            var comps = input.pathComponents.makeIterator()
+            let host = comps.next() ?? "*"
+            let method = comps.next() ?? "*"
+            let path = comps.joined(separator: "/")
+            return "\(host) \(method) \(path)"
+        }
+    }
+}
+
+extension Router: RouteBuilder {}

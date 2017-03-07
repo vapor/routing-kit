@@ -4,11 +4,11 @@ let package = Package(
     name: "Routing",
     targets: [
         // Routing
-        Target(name: "Routing"),
-        Target(name: "HTTPRouting", dependencies: ["Routing"]),
+        Target(name: "Branches"),
+        Target(name: "Routing", dependencies: ["Branches"]),
 
         // Type Safe
-        Target(name: "TypeSafeRouting", dependencies: ["Routing", "HTTPRouting"]),
+        Target(name: "TypeSafeRouting", dependencies: ["Branches", "Routing"]),
         // Target(name: "TypeSafeGenerator"),
     ],
     dependencies: [

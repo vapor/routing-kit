@@ -1,52 +1,28 @@
+import XCTest
 import HTTP
 import Routing
-import Node
+import URI
 
-public typealias RequestHandler = (Request) throws -> ResponseRepresentable
+extension Request {
+    convenience init(method: HTTP.Method, path: String, host: String = "0.0.0.0") {
+        let uri = URI(host: host, path: path)
+        try! self.init(method: method, uri: uri)
+    }
 
-private let parametersKey = "parameters"
-extension HTTP.Request: Routing.ParametersContainer {
-    public var parameters: Node {
-        get {
-            let node: Node
+    enum BytesError: Error {
+        case routingFailed
+        case invalidResponse
+    }
 
-            if let existing = storage[parametersKey] as? Node {
-                node = existing
-            } else {
-                node = Node.object([:])
-                storage[parametersKey] = node
-            }
-
-            return node
+    func bytes(running router: Router) throws -> Bytes {
+        guard let responder = router.route(self) else {
+            throw BytesError.routingFailed
         }
-        set {
-            storage[parametersKey] = newValue
+
+        guard let bytes = try responder.respond(to: self).body.bytes else {
+            throw BytesError.invalidResponse
         }
-    }
-}
 
-
-extension Routing.Router {
-    public func route(_ request: Request) -> Output? {
-        let host = request.uri.host.isEmpty ? "*" : request.uri.host
-        return route(
-            path: [host, request.method.description] + request.uri.path.pathComponents,
-            with: request
-        )
-    }
-}
-
-extension String {
-    fileprivate var pathComponents: [String] {
-        return characters
-            .split(separator: "/", omittingEmptySubsequences: true)
-            .map { String($0) }
-    }
-}
-
-class BasicContainer: ParametersContainer {
-    var parameters: Node
-    init() {
-        parameters = Node.object([:])
+        return bytes
     }
 }

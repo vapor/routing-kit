@@ -1,30 +1,30 @@
 import XCTest
 import HTTP
-import Routing
 import URI
+import Routing
+import Node
 
 class RouteTests: XCTestCase {
-    static var allTests = [
+    static let allTests = [
         ("testRoute", testRoute),
         ("testRouteParams", testRouteParams),
+        ("testParameters", testParameters),
     ]
 
     func testRoute() throws {
-        let router = Router<RequestHandler>()
-        router.register(path: ["0.0.0.0", Method.get.description, "hello"]) { req in
+        let router = Router()
+        router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { req in
             return Response(body: "HI")
         }
 
         let request = try Request(method: .get, uri: "http://0.0.0.0/hello")
-        let handler = router.route(request)
-        XCTAssert(handler != nil)
-        let response = try handler?(request).makeResponse()
-        XCTAssert(response?.body.bytes?.string == "HI")
+        let response = try router.respond(to: request)
+        XCTAssertEqual(response.body.bytes?.string, "HI")
     }
 
     func testRouteParams() throws {
-        let router = Router<RequestHandler>()
-        router.register(path: ["0.0.0.0", Method.get.description, ":zero", ":one", ":two", "*"]) { req in
+        let router = Router()
+        router.register(host: "0.0.0.0", method: .get, path: [":zero", ":one", ":two", "*"]) { req in
             let zero = req.parameters["zero"]?.string ?? "[fail]"
             let one = req.parameters["one"]?.string ?? "[fail]"
             let two = req.parameters["two"]?.string ?? "[fail]"
@@ -47,10 +47,14 @@ class RouteTests: XCTestCase {
                 fragment: nil
             )
             let request = try Request(method: .get, uri: uri)
-            let handler = router.route(request)
-            XCTAssert(handler != nil)
-            let response = try handler?(request).makeResponse()
-            XCTAssert(response?.body.bytes?.string == path.prefix(3).joined(separator: ":"))
+            let response = try router.respond(to: request)
+            XCTAssertEqual(response.body.bytes?.string, path.prefix(3).joined(separator: ":"))
         }
+    }
+
+    func testParameters() throws {
+        let request = Request(method: .get, path: "")
+        let params = request.parameters
+        XCTAssertEqual(params, Node([:]))
     }
 }

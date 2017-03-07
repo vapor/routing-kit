@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Routing
+@testable import Branches
 import HTTP
 
 class RouteExtractionTests: XCTestCase {
@@ -16,7 +16,6 @@ class RouteExtractionTests: XCTestCase {
         ("testIndividualBranches", testIndividualBranches),
         ("testIndividualBranchesWithOutput", testIndividualBranchesWithOutput),
         ("testBranchRoutes", testBranchRoutes),
-        ("testRouterRoutes", testRouterRoutes),
     ]
 
     func testRouteLog() throws {
@@ -76,26 +75,5 @@ class RouteExtractionTests: XCTestCase {
 
         let expectation = ["/a", "/a/c", "/a/c/e"]
         XCTAssertEqual(a.routes, expectation)
-    }
-
-    func testRouterRoutes() throws {
-        let handler: RequestHandler = { _ in return Response(body: "Rawr") }
-
-        let router = Router<RequestHandler>()
-        router.add(path: ["*", "GET", "foo", ":bar", "*"], value: handler)
-        router.add(path: ["*", "POST", "foo"], value: handler)
-        router.add(path: ["*", "PUT", "users", ":id"], value: handler)
-
-        let routes = router.routes
-        let expectation = [
-            "* GET /foo/:bar",
-            "* GET /foo/:bar/*",
-            "* POST /foo",
-            "* PUT /users/:id",
-        ]
-
-        let a = Set(routes)
-        let b = Set(expectation)
-        XCTAssertEqual(a, b)
     }
 }

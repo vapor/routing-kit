@@ -1,48 +1,36 @@
-import Foundation
+import HTTP
 
-/**
-    Conforming to RouteBuilder allows
-    an object to gain all of the available
-    route building extensions.
- 
-    This is useful for a class that has 
-    a reference to a Router or another RouteBuilder
-    and would like route building methods to
-    be called directly on the class.
-*/
-public protocol RouteBuilder {
-    /**
-        The type of Value this RouteBuilder
-        accepts for adding. This will be equivalent
-        to the underlying Router's Output.
-    */
-    associatedtype Value
+public typealias RequestHandler = (Request) throws -> ResponseRepresentable
 
-    /**
-        Adds the Value to the underlying
-        Router at the given path.
-    */
-    func add(path: [String], value: Value)
+/// Used to define behavior of objects capable of building routes
+public protocol RouteBuilder: class {
+    func register(host: String?, method: Method, path: [String], responder: Responder)
 }
 
-/**
-    Conforms the default Router to RouteBuilder.
-    All route building methods are added to RouteBuilder.
-*/
-extension Router: RouteBuilder {
-    /**
-        The RouteBuilder's Value should be
-        equal to the Router's Output.
-     
-        This means the RouteBuilder extensions
-        can only add types that the router can hold.
-    */
-    public typealias Value = Output
-
-    /**
-        - see: RouteBuilder
-    */
-    public func add(path: [String], value: Value) {
-        register(path: path, output: value)
+extension RouteBuilder {
+    public func register(
+        host: String? = nil,
+        method: Method = .get,
+        path: [String] = [],
+        responder: @escaping RequestHandler
+    ) {
+        let re = Request.Handler { try responder($0).makeResponse() }
+        let path = path.pathComponents
+        register(host: host, method: method, path: path, responder: re)
     }
+
+    public func register(method: Method = .get, path: [String] = [], responder: Responder) {
+        let path = path.pathComponents
+        register(host: nil, method: method, path: path, responder: responder)
+    }
+
+    public func add(
+        _ method: HTTP.Method,
+        _ path: String ...,
+        _ value: @escaping RequestHandler
+    ) {
+        let responder = Request.Handler { try value($0).makeResponse() }
+        register(method: method, path: path, responder: responder)
+    }
+
 }

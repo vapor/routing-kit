@@ -1,25 +1,3 @@
-//
-//  Router+Routes.swift
-//  Routing
-//
-//  Created by Logan Wright on 11/1/16.
-//
-//
-
-import Foundation
-
-extension Router {
-    public var routes: [String] {
-        var routes = [String]()
-        tree.forEach { host, methodTree in
-            methodTree.forEach { method, branch in
-                let base = "\(host) \(method) "
-                routes += branch.routes.map { base + $0 }
-            }
-        }
-        return routes
-    }
-}
 
 extension Branch {
     public var routes: [String] {

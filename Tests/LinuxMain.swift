@@ -2,21 +2,19 @@
 
 import XCTest
 @testable import RoutingTests
-@testable import HTTPRoutingTests
+@testable import BranchesTests
 
 XCTMain([
-    // Routing
+    // Branches
     testCase(BranchTests.allTests),
-    testCase(RouteBuilderTests.allTests),
-    testCase(RouteCollectionTests.allTests),
-    testCase(RouterTests.allTests),
-    testCase(RouteTests.allTests),
     testCase(RouteExtractionTests.allTests),
 
-    // HTTPRouting
+    // Routing
     testCase(AddTests.allTests),
     testCase(GroupedTests.allTests),
     testCase(GroupTests.allTests),
+    testCase(RouterTests.allTests),
+    testCase(RouteTests.allTests),
 ])
 
 #endif

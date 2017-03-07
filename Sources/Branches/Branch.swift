@@ -23,21 +23,6 @@ extension Branch {
 }
 
 /**
-    Branch result is used to encapsulate some metadata when fetching a branch.
- 
-    Less useful now, but will likely play role in chaining in future using remaining iterator.
-*/
-public class BranchResult<Output> {
-    public let branch: Branch<Output>
-    public let remaining: IndexingIterator<[String]>
-
-    init(_ branch: Branch<Output>, _ remaining: IndexingIterator<[String]>) {
-        self.branch = branch
-        self.remaining = remaining
-    }
-}
-
-/**
      When routing requests, different branches will be established,
      in a linked list style stemming from their host and request method.
      It can be represented as:
@@ -115,6 +100,10 @@ public class Branch<Output> { // TODO: Rename Context
         return output != nil
     }
 
+    /// A branch has a singular parent, but multiple children with
+    /// varying levels of priority
+    /// named branches match first, followed by slugs, followed by 
+    /// wildcard
     internal fileprivate(set) var subBranches = SubBranchMap<Output>()
 
     /**
@@ -147,7 +136,7 @@ public class Branch<Output> { // TODO: Rename Context
 
          - returns: a request handler or nil if not supported
     */
-    public func fetch(_ path: [String]) -> BranchResult<Output>? {
+    public func fetch(_ path: [String]) -> Branch? {
         return fetch(path.makeIterator())
     }
 
@@ -160,30 +149,29 @@ public class Branch<Output> { // TODO: Rename Context
 
          - returns: a request handler or nil if not supported
     */
-    public func fetch(_ path: IndexingIterator<[String]>) -> BranchResult<Output>? {
+    public func fetch(_ path: IndexingIterator<[String]>) -> Branch? {
         var comps = path
-        guard let key = comps.next() else { return BranchResult(self, comps) }
+        guard let key = comps.next() else { return self }
 
         // first check if direct path exists
-        if let result = subBranches.paramBranches[key]?.fetch(comps), result.branch.hasValidOutput {
-            return result
+        if let branch = subBranches.paramBranches[key]?.fetch(comps), branch.hasValidOutput {
+            return branch
         }
 
         // next attempt to find slug matches if any exist
         for slug in subBranches.slugBranches {
-            guard let result = slug.fetch(comps), result.branch.hasValidOutput else { continue }
-            return result
+            guard let branch = slug.fetch(comps), branch.hasValidOutput else { continue }
+            return branch
         }
 
         // see if wildcard with path exists
-        if let result = subBranches.wildcard?.fetch(comps), result.branch.hasValidOutput {
-            return result
+        if let branch = subBranches.wildcard?.fetch(comps), branch.hasValidOutput {
+            return branch
         }
 
         // use fallback
         if let wildcard = subBranches.wildcard, wildcard.hasValidOutput {
-            let subRoute = [key] + comps
-            return BranchResult(wildcard, subRoute.makeIterator())
+            return wildcard
         }
 
         // unmatchable route

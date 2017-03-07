@@ -1,54 +1,47 @@
-/**
-    RouteGroups store a prefix map, hard coded path,
-    and value map that are added to the underlying
-    RouteBuilder when used.
-*/
-public class RouteGroup<Wrapped, Builder: RouteBuilder> where Builder.Value == Wrapped {
-    /**
-        A closure that maps values
-        to other values, useful for middleware.
-    */
-    public typealias Map = (Value) -> (Value)
+import HTTP
 
-    /**
-        The underlying RouteBuilder.
-        All route building calls sent to 
-        the group will end up here.
-    */
-    public let builder: Builder
+/// RouteGroup is a step in the RouteBuilder chain that
+/// allows users to collect metadata about various endpoints
+///
+/// for example, if we have several routes that begin with "some/prefix/path"
+/// we might want to group those together so that we can easily append
+internal final class RouteGroup: RouteBuilder {
+    let host: String?
+    let pathPrefix: [String]
+    let middleware: [Middleware]
+    let parent: RouteBuilder
 
-    /**
-        An optional array of strings
-        for overriding parts of the path.
-    */
-    public let prefix: [String?]
+    init(host: String?, pathPrefix: [String], middleware: [Middleware], parent: RouteBuilder) {
+        self.host = host
+        self.pathPrefix = pathPrefix
+        self.middleware = middleware
+        self.parent = parent
+    }
 
-    /**
-        An array of Strings the will
-        be added between the prefix
-        and the incoming paths.
-    */
-    public let path: [String]
+    func register(host: String?, method: Method, path: [String], responder: Responder) {
+        let host = host ?? self.host
+        let path = self.pathPrefix + path
 
-    /**
-        An optional value map.
-    */
-    public let map: Map?
+        let res: Responder
+        if middleware.isEmpty {
+            res = responder
+        } else {
+            let middleware = self.middleware
+            res = Request.Handler { request in
+                return try middleware.chain(to: responder).respond(to: request)
+            }
+        }
 
-    /**
-        Creates a RouteGroup. This should normally
-        be done using the `.group` or `.grouped`
-        calls on `RouteBuilder`.
-    */
-    init(
-        builder: Builder,
-        prefix: [String?],
-        path: [String],
-        map: Map?
-    ) {
-        self.builder = builder
-        self.prefix = prefix
-        self.path = path
-        self.map = map
+        parent.register(host: host, method: method, path: path, responder: res)
+    }
+}
+
+extension Collection where Iterator.Element == Middleware {
+    fileprivate func chain(to responder: Responder) -> Responder {
+        return reversed().reduce(responder) { nextResponder, nextMiddleware in
+            return Request.Handler { request in
+                return try nextMiddleware.respond(to: request, chainingTo: nextResponder)
+            }
+        }
     }
 }

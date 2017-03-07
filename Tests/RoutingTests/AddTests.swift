@@ -1,11 +1,12 @@
 import XCTest
 import HTTP
-import HTTPRouting
+import Routing
 
 class AddTests: XCTestCase {
     static var allTests = [
         ("testBasic", testBasic),
-        ("testVariadic", testVariadic)
+        ("testVariadic", testVariadic),
+        ("testWithSlash", testWithSlash),
     ]
 
     func testBasic() throws {
