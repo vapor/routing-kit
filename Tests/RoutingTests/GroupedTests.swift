@@ -1,6 +1,6 @@
 import XCTest
 import HTTP
-import HTTPRouting
+import Routing
 
 class GroupTests: XCTestCase {
     static let allTests = [

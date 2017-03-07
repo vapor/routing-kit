@@ -6,9 +6,9 @@
  
     Last generated: 2016-08-25 20:09:29 +0000
 */
-import Routing
+import Branches
 import HTTP
-import HTTPRouting
+import Routing
 import WebSockets
  
 // TODO: FIX GENERATION CODE TO USE THIS EXTENSION

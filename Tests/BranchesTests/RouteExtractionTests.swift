@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Routing
+@testable import Branches
 import HTTP
 
 class RouteExtractionTests: XCTestCase {

@@ -1,5 +1,5 @@
 import XCTest
-import Routing
+import Branches
 
 class BranchTests: XCTestCase {
     static let allTests = [
