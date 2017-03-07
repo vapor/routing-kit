@@ -1,51 +1,7 @@
 import Routing
 import HTTP
 
-//extension Routing.Router {
-//    /**
-//        Registers a route using an Request.
-//        The Request will also be used as the ParametersContainer.
-//    */
-//    public func route(_ request: HTTP.Request) -> Output? {
-//        return route(request, with: request)
-//    }
-//
-//    /**
-//        Registers a route using a Request 
-//        and a ParamatersContainer.
-//    */
-//    public func route(_ request: HTTP.Request, with container: Routing.ParametersContainer) -> Output? {
-//        return route(
-//            host: request.uri.host,
-//            method: request.method,
-//            path: request.uri.path,
-//            with: request
-//        )
-//    }
-//
-//    /**
-//        Queries the Router for a result using a 
-//        host, method, and path string.
-//    */
-//    public func route(
-//        host: String?,
-//        method: HTTP.Method,
-//        path: String,
-//        with container: Routing.ParametersContainer
-//    ) -> Output? {
-//        var host = host
-//        if host?.isEmpty == true {
-//            host = nil
-//        }
-//
-//        return route(path: [
-//            host ?? "*",
-//            method.description,
-//        ] + path.pathComponents, with: container)
-//    }
-//}
-
-public class HTTPRouter {
+public class Router {
     /// The base branch from which all routing stems outward
     public final let base = Branch<Responder>(name: "", output: nil)
 
@@ -78,7 +34,17 @@ public class HTTPRouter {
     }
 }
 
-extension HTTPRouter {
+extension Request {
+    fileprivate func path() -> [String] {
+        var host: String = uri.host
+        if host.isEmpty { host = "*" }
+        let method = self.method.description
+        let components = uri.path.pathComponents
+        return [host, method] + components
+    }
+}
+
+extension Router {
     public var routes: [String] {
         return base.routes.map { input in
             var comps = input.pathComponents.makeIterator()
@@ -105,7 +71,7 @@ extension HTTPRouteBuilder {
     }
 }
 
-extension HTTPRouter: HTTPRouteBuilder {}
+extension Router: HTTPRouteBuilder {}
 
 public final class Grouping: HTTPRouteBuilder {
     let host: String?
@@ -218,58 +184,5 @@ extension Collection where Iterator.Element == Middleware {
                 return try nextMiddleware.respond(to: request, chainingTo: nextResponder)
             }
         }
-    }
-}
-
-
-public struct HTTPRouteGroup {
-
-    public let chain: HTTPRouteBuilder
-
-    public let host: String
-    public let pathPrefix: [String]
-    public let middleware: [Middleware]
-}
-
-//public func group(_ middleware: Middleware ..., closure: (RouteGroup<Value, Self>) ->()) {
-//    group(collection: middleware, closure: closure)
-//}
-//
-//public func grouped(_ middleware: Middleware ...) -> RouteGroup<Value, Self> {
-//    return grouped(collection: middleware)
-//}
-//
-//public func group(collection middlewares: [Middleware], closure: (RouteGroup<Value, Self>) ->()) {
-//    group(prefix: [nil, nil], path: [], map: { handler in
-//        return Request.Handler { request in
-//            return try middlewares.chain(to: handler).respond(to: request)
-//        }
-//    }, closure: closure)
-//}
-//
-//public func grouped(collection middlewares: [Middleware]) -> RouteGroup<Value, Self> {
-//    return grouped(prefix: [nil, nil], path: [], map: { handler in
-//        return Request.Handler { request in
-//            return try middlewares.chain(to: handler).respond(to: request)
-//        }
-//    })
-//}
-
-public class Routable {
-    let host: String = "*"
-    let pathPrefix: [String] = []
-
-    public func register(method: String, path: [String]) {
-
-    }
-}
-
-extension Request {
-    fileprivate func path() -> [String] {
-        var host: String = uri.host
-        if host.isEmpty { host = "*" }
-        let method = self.method.description
-        let components = uri.path.pathComponents
-        return [host, method] + components
     }
 }

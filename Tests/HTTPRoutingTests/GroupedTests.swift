@@ -42,7 +42,7 @@ class GroupTests: XCTestCase {
     }
 
     func testHost() throws {
-        let router = HTTPRouter()
+        let router = Router()
         let host = router.grouped(host: "192.168.0.1")
         host.register(method: .get, path: ["host-only"]) { request in
             return "host group found"
