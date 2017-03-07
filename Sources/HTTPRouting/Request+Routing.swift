@@ -4,25 +4,22 @@ import Node
 
 private let parametersKey = "parameters"
 
-/**
-    Allows Requests to be used as a
-    ParametersContainer.
- 
-    Request by default has a parameters dictionary
-    so no additional methods are necessary.
-*/
 extension HTTP.Request {
+    /// when routing a url with slug parameters, ie:
+    /// foo/:id
+    /// the request will populate these values before passing to handeler
+    /// for example:
+    /// given route: /foo/:id
+    /// and request with path `/foo/123`
+    /// parameters will be `["id": 123]`
     public var parameters: Node {
         get {
-            let node: Node
-
             if let existing = storage[parametersKey] as? Node {
-                node = existing
-            } else {
-                node = Node.object([:])
-                storage[parametersKey] = node
+                return existing
             }
 
+            let node = Node([:])
+            storage[parametersKey] = node
             return node
         }
         set {

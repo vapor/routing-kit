@@ -12,7 +12,7 @@ import HTTPRouting
 import WebSockets
  
 // TODO: FIX GENERATION CODE TO USE THIS EXTENSION
-extension HTTPRouteBuilder {
+extension RouteBuilder {
     /**
        Establishes a WebSocket connection
        at the given path. WebSocket connections
