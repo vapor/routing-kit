@@ -78,6 +78,18 @@ public class HTTPRouter {
     }
 }
 
+extension HTTPRouter {
+    public var routes: [String] {
+        return base.routes.map { input in
+            var comps = input.pathComponents.makeIterator()
+            let host = comps.next() ?? "*"
+            let method = comps.next() ?? "*"
+            let path = comps.joined(separator: "/")
+            return "\(host) \(method) \(path)"
+        }
+    }
+}
+
 public protocol HTTPRouteBuilder: class {
     func register(host: String?, method: Method, path: [String], responder: Responder)
 }

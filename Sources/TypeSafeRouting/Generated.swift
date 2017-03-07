@@ -11,7 +11,8 @@ import HTTP
 import HTTPRouting
 import WebSockets
  
-extension Routing.RouteBuilder where Value == HTTP.Responder {
+// TODO: FIX GENERATION CODE TO USE THIS EXTENSION
+extension HTTPRouteBuilder {
     /**
        Establishes a WebSocket connection
        at the given path. WebSocket connections

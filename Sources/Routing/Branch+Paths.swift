@@ -1,26 +1,6 @@
-//
-//  Router+Routes.swift
-//  Routing
-//
-//  Created by Logan Wright on 11/1/16.
-//
-//
-
-import Foundation
-
-extension Router {
-    public var routes: [String] {
-        return base.routes.map { input in
-            var comps = input.characters.split(separator: "/").map(String.init).makeIterator()
-            let host = comps.next() ?? "*"
-            let method = comps.next() ?? "*"
-            let path = comps.joined(separator: "/")
-            return "\(host) \(method) \(path)"
-        }
-    }
-}
 
 extension Branch {
+    // FIXME: Should this return [[String]]
     public var routes: [String] {
         return allBranchesWithOutputIncludingSelf.map { $0.route }
     }

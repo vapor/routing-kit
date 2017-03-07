@@ -2,7 +2,6 @@ import Routing
 import HTTP
 import Node
 
-
 private let parametersKey = "parameters"
 
 /**
@@ -12,7 +11,7 @@ private let parametersKey = "parameters"
     Request by default has a parameters dictionary
     so no additional methods are necessary.
 */
-extension HTTP.Request: Routing.ParametersContainer {
+extension HTTP.Request {
     public var parameters: Node {
         get {
             let node: Node
