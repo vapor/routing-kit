@@ -1,10 +1,58 @@
 import HTTP
+import Branches
 import Debugging
+
+extension HTTP.Method {
+    static let standard: [Method] = [.get, .post, .put, .patch, .delete]
+}
+
+public var supportOptionsRequests = true
 
 extension Router: Responder {
     public func respond(to request: Request) throws -> Response {
-        guard let responder = route(request) else { throw RouterError.missingRoute(for: request) }
+        guard let responder = route(request) else { return try fallbackResponse(for: request) }
         return try responder.respond(to: request)
+    }
+
+    private func fallbackResponse(for request: Request) throws -> Response {
+        guard supportOptionsRequests, request.method == .options else { throw RouterError.missingRoute(for: request) }
+        return options(for: request)
+    }
+
+    private func options(for request: Request) -> Response {
+        let opts = supportedMethods(for: request)
+            .map { $0.description }
+            .joined(separator: ", ")
+        return Response(status: .ok, headers: ["Allow": opts])
+    }
+
+    private func supportedMethods(for request: Request) -> [Method] {
+        let request = request.copy()
+        let host = self.host(for: request.uri.host)
+        let allOptions = host.allSubBranches
+        let allPossibleMethods = allOptions.map { Method($0.name) }
+        return allPossibleMethods.filter { method in
+            request.method = method
+            return route(request) != nil
+        }
+    }
+
+    private func host(for host: String) -> Branch<Responder> {
+        // FIXME: RM !
+        return base.fetch([host])!
+    }
+}
+
+extension Request {
+    public func copy() -> Request {
+        return Request(
+            method: method,
+            uri: uri,
+            version: version,
+            headers: headers,
+            body: body,
+            peerAddress: peerAddress
+        )
     }
 }
 

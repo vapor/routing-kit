@@ -24,6 +24,7 @@ extension RouteBuilder {
         register(host: nil, method: method, path: path, responder: responder)
     }
 
+    // FIXME: This function feels like it might not fit
     public func add(
         _ method: HTTP.Method,
         _ path: String ...,

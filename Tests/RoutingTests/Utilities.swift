@@ -6,7 +6,7 @@ import URI
 extension Request {
     convenience init(method: HTTP.Method, path: String, host: String = "0.0.0.0") {
         let uri = URI(host: host, path: path)
-        try! self.init(method: method, uri: uri)
+        self.init(method: method, uri: uri)
     }
 
     enum BytesError: Error {

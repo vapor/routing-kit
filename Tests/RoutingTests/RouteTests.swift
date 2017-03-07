@@ -46,7 +46,7 @@ class RouteTests: XCTestCase {
                 query: nil,
                 fragment: nil
             )
-            let request = try Request(method: .get, uri: uri)
+            let request = Request(method: .get, uri: uri)
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.string, path.prefix(3).joined(separator: ":"))
         }
