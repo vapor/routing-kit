@@ -10,14 +10,13 @@ import Foundation
 
 extension Router {
     public var routes: [String] {
-        var routes = [String]()
-        tree.forEach { host, methodTree in
-            methodTree.forEach { method, branch in
-                let base = "\(host) \(method) "
-                routes += branch.routes.map { base + $0 }
-            }
+        return base.routes.map { input in
+            var comps = input.characters.split(separator: "/").map(String.init).makeIterator()
+            let host = comps.next() ?? "*"
+            let method = comps.next() ?? "*"
+            let path = comps.joined(separator: "/")
+            return "\(host) \(method) \(path)"
         }
-        return routes
     }
 }
 

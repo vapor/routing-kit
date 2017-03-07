@@ -88,10 +88,10 @@ class RouteExtractionTests: XCTestCase {
 
         let routes = router.routes
         let expectation = [
-            "* GET /foo/:bar",
-            "* GET /foo/:bar/*",
-            "* POST /foo",
-            "* PUT /users/:id",
+            "* GET foo/:bar",
+            "* GET foo/:bar/*",
+            "* POST foo",
+            "* PUT users/:id",
         ]
 
         let a = Set(routes)

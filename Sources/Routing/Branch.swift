@@ -115,6 +115,10 @@ public class Branch<Output> { // TODO: Rename Context
         return output != nil
     }
 
+    /// A branch has a singular parent, but multiple children with
+    /// varying levels of priority
+    /// named branches match first, followed by slugs, followed by 
+    /// wildcard
     internal fileprivate(set) var subBranches = SubBranchMap<Output>()
 
     /**
