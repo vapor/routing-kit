@@ -2,7 +2,7 @@ import XCTest
 import HTTP
 import Routing
 
-class GroupTests: XCTestCase {
+class GroupedTests: XCTestCase {
     static let allTests = [
         ("testBasic", testBasic),
         ("testVariadic", testVariadic),
