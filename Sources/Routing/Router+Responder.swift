@@ -24,7 +24,7 @@ extension Router: Responder {
 
     private func supportedMethods(for request: Request) -> [Method] {
         let request = request.copy()
-        let host = self.host(for: request.uri.host)
+        guard let host = self.host(for: request.uri.host) else { return [] }
         let allOptions = host.allSubBranches
         let allPossibleMethods = allOptions.map { Method($0.name) }
         return allPossibleMethods.filter { method in
@@ -33,9 +33,8 @@ extension Router: Responder {
         }
     }
 
-    private func host(for host: String) -> Branch<Responder> {
-        // FIXME: RM !
-        return base.fetch([host])!
+    private func host(for host: String) -> Branch<Responder>? {
+        return base.fetch([host])
     }
 }
 
