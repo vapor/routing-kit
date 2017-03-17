@@ -30,7 +30,7 @@ class RouterTests: XCTestCase {
 
         let request = try Request(method: .get, uri: "http://0.0.0.0/hello")
         let response = try router.respond(to: request)
-        XCTAssert(response.body.bytes?.string == "Hello, World!")
+        XCTAssert(response.body.bytes?.makeString() == "Hello, World!")
     }
 
     func testWildcardMethod() throws {
@@ -43,7 +43,7 @@ class RouterTests: XCTestCase {
         try method.forEach { method in
             let request = try Request(method: method, uri: "http://0.0.0.0/hello")
             let response = try router.respond(to: request)
-            XCTAssertEqual(response.body.bytes?.string, "Hello, World!")
+            XCTAssertEqual(response.body.bytes?.makeString(), "Hello, World!")
         }
     }
 
@@ -57,7 +57,7 @@ class RouterTests: XCTestCase {
         try hosts.forEach { host in
             let request = try Request(method: .get, uri: "http://\(host)/hello")
             let response = try router.respond(to: request)
-            XCTAssertEqual(response.body.bytes?.string, "Hello, World!")
+            XCTAssertEqual(response.body.bytes?.makeString(), "Hello, World!")
         }
     }
 
@@ -74,7 +74,7 @@ class RouterTests: XCTestCase {
         try hosts.forEach { host in
             let request = try Request(method: .get, uri: "http://\(host)/hello")
             let response = try router.respond(to: request)
-            XCTAssert(response.body.bytes?.string == "Host: \(host)")
+            XCTAssert(response.body.bytes?.makeString() == "Host: \(host)")
         }
     }
 
@@ -106,7 +106,7 @@ class RouterTests: XCTestCase {
         try paths.forEach { path in
             let request = try Request(method: .get, uri: "http://0.0.0.0/\(path)")
             let response = try router.respond(to: request)
-            XCTAssert(response.body.bytes?.string == "Hello, World!")
+            XCTAssert(response.body.bytes?.makeString() == "Hello, World!")
         }
     }
 
@@ -128,7 +128,7 @@ class RouterTests: XCTestCase {
         try namesAndAges.forEach { name, age in
             let request = try Request(method: .get, uri: "http://0.0.0.0/hello/\(name)/\(age)")
             let response = try router.respond(to: request)
-            XCTAssertEqual(response.body.bytes?.string, "Hello, \(name) aged \(age).")
+            XCTAssertEqual(response.body.bytes?.makeString(), "Hello, \(name) aged \(age).")
         }
     }
 
@@ -143,7 +143,7 @@ class RouterTests: XCTestCase {
             let uri = URI(scheme: "http", host: "0.0.0.0", path: emptypath)
             let request = Request(method: .get, uri: uri)
             let response = try router.respond(to: request)
-            XCTAssertEqual(response.body.bytes?.string, "Hello, Empty!")
+            XCTAssertEqual(response.body.bytes?.makeString(), "Hello, Empty!")
         }
     }
 
@@ -159,7 +159,7 @@ class RouterTests: XCTestCase {
         )
         let request = Request(method: .get, uri: uri)
         let response = try router.respond(to: request)
-        XCTAssertEqual(response.body.bytes?.string, "Hello, World!")
+        XCTAssertEqual(response.body.bytes?.makeString(), "Hello, World!")
     }
 
     func testRouterDualSlugRoutes() throws {
@@ -169,11 +169,11 @@ class RouterTests: XCTestCase {
 
         let requestOne = Request(method: .get, path: "foo/slug-val/one")
         let responseOne = try router.respond(to: requestOne)
-        XCTAssertEqual(responseOne.body.bytes?.string, "1")
+        XCTAssertEqual(responseOne.body.bytes?.makeString(), "1")
 
         let requestTwo = Request(method: .get, path: "foo/slug-val/two")
         let responseTwo = try router.respond(to: requestTwo)
-        XCTAssertEqual(responseTwo.body.bytes?.string, "2")    }
+        XCTAssertEqual(responseTwo.body.bytes?.makeString(), "2")    }
 
     func testRouteLogs() throws {
         let router = Router()

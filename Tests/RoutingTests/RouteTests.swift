@@ -19,7 +19,7 @@ class RouteTests: XCTestCase {
 
         let request = try Request(method: .get, uri: "http://0.0.0.0/hello")
         let response = try router.respond(to: request)
-        XCTAssertEqual(response.body.bytes?.string, "HI")
+        XCTAssertEqual(response.body.bytes?.makeString(), "HI")
     }
 
     func testRouteParams() throws {
@@ -48,7 +48,7 @@ class RouteTests: XCTestCase {
             )
             let request = Request(method: .get, uri: uri)
             let response = try router.respond(to: request)
-            XCTAssertEqual(response.body.bytes?.string, path.prefix(3).joined(separator: ":"))
+            XCTAssertEqual(response.body.bytes?.makeString(), path.prefix(3).joined(separator: ":"))
         }
     }
 
