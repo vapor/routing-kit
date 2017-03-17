@@ -96,6 +96,6 @@ class GroupTests: XCTestCase {
         let response = try router.respond(to: request)
         let middleware = request.storage["middleware"] as? Bool
         XCTAssertEqual(middleware, true)
-        XCTAssertEqual(response.body.bytes?.string, "hello")
+        XCTAssertEqual(response.body.bytes?.makeString(), "hello")
     }
 }

@@ -22,7 +22,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes.string, "show")
+        XCTAssertEqual(bytes.makeString(), "show")
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -52,7 +52,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "host-only", host: "192.168.0.1")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes.string, "host group found")
+        XCTAssertEqual(bytes.makeString(), "host group found")
     }
 
     func testChained() throws {
@@ -66,7 +66,7 @@ class GroupedTests: XCTestCase {
         let request = Request(method: .get, path: "users/devices/etc/even/deeper/5")
         let bytes = try request.bytes(running: router)
 
-        XCTAssertEqual(bytes.string, "show")
+        XCTAssertEqual(bytes.makeString(), "show")
         XCTAssertEqual(request.parameters["id"], "5")
     }
 
@@ -88,7 +88,7 @@ class GroupedTests: XCTestCase {
         let responder = router.route(request)
         let response = try responder?.respond(to: request)
         XCTAssertNotNil(response)
-        XCTAssertEqual(response?.body.bytes?.string, "got it")
+        XCTAssertEqual(response?.body.bytes?.makeString(), "got it")
         let middleware = request.storage["middleware"] as? Bool
         XCTAssertEqual(middleware, true)
 
