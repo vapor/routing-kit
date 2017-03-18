@@ -37,7 +37,7 @@ public class Router {
 
 extension Request {
     fileprivate func path() -> [String] {
-        var host: String = uri.host
+        var host: String = uri.hostname
         if host.isEmpty { host = "*" }
         let method = self.method.description
         let components = uri.path.pathComponents

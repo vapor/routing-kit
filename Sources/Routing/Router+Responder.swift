@@ -24,7 +24,7 @@ extension Router: Responder {
 
     private func supportedMethods(for request: Request) -> [Method] {
         let request = request.copy()
-        guard let host = self.host(for: request.uri.host) else { return [] }
+        guard let host = self.host(for: request.uri.hostname) else { return [] }
         let allOptions = host.allSubBranches
         let allPossibleMethods = allOptions.map { Method($0.name) }
         return allPossibleMethods.filter { method in

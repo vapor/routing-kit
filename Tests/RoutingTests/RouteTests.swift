@@ -40,7 +40,7 @@ class RouteTests: XCTestCase {
             let uri = URI(
                 scheme: "http",
                 userInfo: nil,
-                host: "0.0.0.0",
+                hostname: "0.0.0.0",
                 port: 80,
                 path: path.joined(separator: "/"),
                 query: nil,

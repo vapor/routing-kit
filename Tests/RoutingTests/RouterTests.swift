@@ -140,7 +140,7 @@ class RouterTests: XCTestCase {
 
         let empties: [String] = ["", "/"]
         try empties.forEach { emptypath in
-            let uri = URI(scheme: "http", host: "0.0.0.0", path: emptypath)
+            let uri = URI(scheme: "http", hostname: "0.0.0.0", path: emptypath)
             let request = Request(method: .get, uri: uri)
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.makeString(), "Hello, Empty!")
@@ -155,7 +155,7 @@ class RouterTests: XCTestCase {
 
         let uri = URI(
             scheme: "",
-            host: ""
+            hostname: ""
         )
         let request = Request(method: .get, uri: uri)
         let response = try router.respond(to: request)
