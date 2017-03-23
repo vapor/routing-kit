@@ -1,6 +1,6 @@
 /**
     Any type that conforms to this protocol
-    can be passed as a requirement to Vapor's
+    can be passed by it's initializer as a requirement to Vapor's
     type-safe route calls.
 */
 public protocol StringInitializable {
