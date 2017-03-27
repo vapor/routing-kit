@@ -13,8 +13,8 @@ let package = Package(
     ],
     dependencies: [
         // Core vapor transport layer
-        .Package(url: "https://github.com/vapor/engine.git", Version(2,0,0, prereleaseIdentifiers: ["alpha"])),
-        .Package(url: "https://github.com/vapor/node.git", Version(2,0,0, prereleaseIdentifiers: ["alpha"]))
+        .Package(url: "https://github.com/vapor/engine.git", Version(2,0,0, prereleaseIdentifiers: ["beta"])),
+        .Package(url: "https://github.com/vapor/node.git", Version(2,0,0, prereleaseIdentifiers: ["beta"]))
     ],
     exclude: [
         "Sources/TypeSafeGenerator"
