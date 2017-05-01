@@ -25,10 +25,10 @@ class RouterTests: XCTestCase {
     func testRouter() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { request in
-            return Response(body: "Hello, World!")
+            return Response(status: .ok, body: "Hello, World!")
         }
 
-        let request = try Request(method: .get, uri: "http://0.0.0.0/hello")
+        let request = Request(method: .get, uri: "http://0.0.0.0/hello")
         let response = try router.respond(to: request)
         XCTAssert(response.body.bytes?.makeString() == "Hello, World!")
     }
@@ -36,12 +36,12 @@ class RouterTests: XCTestCase {
     func testWildcardMethod() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .wildcard, path: ["hello"]) { request in
-            return Response(body: "Hello, World!")
+            return Response(status: .ok, body: "Hello, World!")
         }
 
         let method: [HTTP.Method] = [.get, .post, .put, .patch, .delete, .trace, .head, .options]
         try method.forEach { method in
-            let request = try Request(method: method, uri: "http://0.0.0.0/hello")
+            let request = Request(method: method, uri: "http://0.0.0.0/hello")
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.makeString(), "Hello, World!")
         }
@@ -49,13 +49,13 @@ class RouterTests: XCTestCase {
 
     func testWildcardHost() throws {
         let router = Router()
-        router.register(host: "*", path: ["hello"]) { request in
-            return Response(body: "Hello, World!")
+        router.register(host: "*", method: .get, path: ["hello"]) { request in
+            return Response(status: .ok, body: "Hello, World!")
         }
 
         let hosts: [String] = ["0.0.0.0", "chat.app.com", "[255.255.255.255.255]", "slack.app.com"]
         try hosts.forEach { host in
-            let request = try Request(method: .get, uri: "http://\(host)/hello")
+            let request = Request(method: .get, uri: "http://\(host)/hello")
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.makeString(), "Hello, World!")
         }
@@ -64,15 +64,15 @@ class RouterTests: XCTestCase {
     func testHostMatch() throws {
         let router = Router()
 
-        let hosts: [String] = ["0.0.0.0", "chat.app.com", "[255.255.255.255.255]", "slack.app.com"]
+        let hosts: [String] = ["0.0.0.0", "chat.app.com", "255.255.255.255", "slack.app.com"]
         hosts.forEach { host in
             router.register(host: host, path: ["hello"]) { request in
-                return Response(body: "Host: \(host)")
+                return Response(status: .ok, body: "Host: \(host)")
             }
         }
 
         try hosts.forEach { host in
-            let request = try Request(method: .get, uri: "http://\(host)/hello")
+            let request = Request(method: .get, uri: "http://\(host)/hello")
             let response = try router.respond(to: request)
             XCTAssert(response.body.bytes?.makeString() == "Host: \(host)")
         }
@@ -85,7 +85,7 @@ class RouterTests: XCTestCase {
             return "[fail]"
         }
 
-        let request = try Request(method: .get, uri: "http://[255.255.255.255.255]/hello")
+        let request = Request(method: .get, uri: "http://[255.255.255.255.255]/hello")
         let handler = router.route(request)
         XCTAssert(handler == nil)
     }
@@ -104,7 +104,7 @@ class RouterTests: XCTestCase {
         ]
 
         try paths.forEach { path in
-            let request = try Request(method: .get, uri: "http://0.0.0.0/\(path)")
+            let request = Request(method: .get, uri: "http://0.0.0.0/\(path)")
             let response = try router.respond(to: request)
             XCTAssert(response.body.bytes?.makeString() == "Hello, World!")
         }
@@ -126,7 +126,7 @@ class RouterTests: XCTestCase {
         ]
 
         try namesAndAges.forEach { name, age in
-            let request = try Request(method: .get, uri: "http://0.0.0.0/hello/\(name)/\(age)")
+            let request = Request(method: .get, uri: "http://0.0.0.0/hello/\(name)/\(age)")
             let response = try router.respond(to: request)
             XCTAssertEqual(response.body.bytes?.makeString(), "Hello, \(name) aged \(age).")
         }
@@ -135,7 +135,7 @@ class RouterTests: XCTestCase {
     func testEmpty() throws {
         let router = Router()
         router.register(path: []) { request in
-            return Response(body: "Hello, Empty!")
+            return Response(status: .ok, body: "Hello, Empty!")
         }
 
         let empties: [String] = ["", "/"]
@@ -150,7 +150,7 @@ class RouterTests: XCTestCase {
     func testNoHostWildcard() throws {
         let router = Router()
         router.register { request in
-            return Response(body: "Hello, World!")
+            return Response(status: .ok, body: "Hello, World!")
         }
 
         let uri = URI(
@@ -177,7 +177,7 @@ class RouterTests: XCTestCase {
 
     func testRouteLogs() throws {
         let router = Router()
-        let responder = Request.Handler { _ in return Response() }
+        let responder = Request.Handler { _ in return Response(status: .ok) }
         router.register(path: ["foo", "bar", ":id"], responder: responder)
         router.register(path: ["foo", "bar", ":id", "zee"], responder: responder)
         router.register(path: ["1/2/3/4/5/6/7"], responder: responder)

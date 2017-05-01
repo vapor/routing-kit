@@ -45,8 +45,7 @@ extension Request {
             uri: uri,
             version: version,
             headers: headers,
-            body: body,
-            peerAddress: peerAddress
+            body: body
         )
     }
 }

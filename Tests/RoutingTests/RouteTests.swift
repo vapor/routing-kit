@@ -14,10 +14,10 @@ class RouteTests: XCTestCase {
     func testRoute() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { req in
-            return Response(body: "HI")
+            return Response(status: .ok, body: "HI")
         }
 
-        let request = try Request(method: .get, uri: "http://0.0.0.0/hello")
+        let request = Request(method: .get, uri: "http://0.0.0.0/hello")
         let response = try router.respond(to: request)
         XCTAssertEqual(response.body.bytes?.makeString(), "HI")
     }
@@ -28,7 +28,7 @@ class RouteTests: XCTestCase {
             let zero = req.parameters["zero"]?.string ?? "[fail]"
             let one = req.parameters["one"]?.string ?? "[fail]"
             let two = req.parameters["two"]?.string ?? "[fail]"
-            return Response(body: "\(zero):\(one):\(two)")
+            return Response(status: .ok, body: "\(zero):\(one):\(two)")
         }
 
         let paths: [[String]] = [
