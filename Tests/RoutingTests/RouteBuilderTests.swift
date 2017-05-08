@@ -4,7 +4,7 @@ import HTTP
 import Routing
 
 class RouteBuilderTests: XCTestCase {
-    let allTests = [
+    static let allTests = [
         ("testBasic", testBasic),
         ("testVariadic", testVariadic),
         ("testMoreThanThreeArgs", testMoreThanThreeArgs),
