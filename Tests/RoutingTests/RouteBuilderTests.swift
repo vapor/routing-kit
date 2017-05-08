@@ -4,6 +4,11 @@ import HTTP
 import Routing
 
 class RouteBuilderTests: XCTestCase {
+    let allTests = [
+        ("testBasic", testBasic),
+        ("testVariadic", testVariadic),
+        ("testMoreThanThreeArgs", testMoreThanThreeArgs),
+    ]
     
     func testBasic() throws {
         let builder = Dropped()
