@@ -19,12 +19,18 @@ public struct Parameters: StructuredDataWrapper {
 }
 
 extension Parameters {
-    public func next<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
-        let param = self[P.uniqueSlug]
-        guard let next = param?.array?.first?.string ?? param?.string else {
-            throw ParametersError.noMoreParametersFound(forKey: P.uniqueSlug)
-        }
-        return try P.make(for: next)
+    public mutating func next<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
+        let error = ParametersError.noMoreParametersFound(forKey: P.uniqueSlug)
+        guard let param = self[P.uniqueSlug] else { throw error }
+
+        var array = param.array ?? [param]
+        guard !array.isEmpty else { throw error }
+
+        let rawValue = array.remove(at: 0)
+        guard let value = rawValue.string else { throw error }
+
+        self[P.uniqueSlug] = .array(array)
+        return try P.make(for: value)
     }
 }
 
