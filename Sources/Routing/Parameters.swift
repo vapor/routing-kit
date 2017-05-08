@@ -19,7 +19,7 @@ public struct Parameters: StructuredDataWrapper {
 }
 
 extension Parameters {
-    func get<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
+    public func get<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
         let parameter = try get(P.uniqueSlug) as String
         return try P.make(for: parameter)
     }
