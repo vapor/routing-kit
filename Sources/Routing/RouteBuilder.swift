@@ -26,6 +26,9 @@ extension RouteBuilder {
         register(host: nil, method: method, path: path, responder: responder)
     }
 
+}
+
+extension RouteBuilder {
     // FIXME: This function feels like it might not fit
     public func add(
         _ method: HTTP.Method,
@@ -35,15 +38,18 @@ extension RouteBuilder {
         let responder = Request.Handler { try value($0).makeResponse() }
         register(method: method, path: path, responder: responder)
     }
-
-}
-
-extension RouteBuilder {
+    
     public func socket(_ segments: String..., handler: @escaping WebSocketRouteHandler) {
         register(method: .get, path: segments) { req in
             return try req.upgradeToWebSocket {
                 try handler(req, $0)
             }
+        }
+    }
+    
+    public func all(_ segments: String..., handler: @escaping RouteHandler) {
+        register(method: .other(method: "*"), path: segments) {
+            try handler($0).makeResponse()
         }
     }
     

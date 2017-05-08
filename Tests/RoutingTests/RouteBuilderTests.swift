@@ -8,6 +8,8 @@ class RouteBuilderTests: XCTestCase {
         ("testBasic", testBasic),
         ("testVariadic", testVariadic),
         ("testMoreThanThreeArgs", testMoreThanThreeArgs),
+        ("testCustomMethod", testCustomMethod),
+        ("testAll", testAll),
     ]
     
     func testBasic() throws {
@@ -41,13 +43,43 @@ class RouteBuilderTests: XCTestCase {
         }
         
         let request = Request(method: .post, path: "1/messages/10/read")
-        do {
-            let bytes = try request.bytes(running: builder.router)
-            XCTAssertEqual(bytes, "Please don't read this".makeBytes())
-        } catch {
-            XCTFail("Routing failed: \(error)")
+        let bytes = try request.bytes(running: builder.router)
+        
+        XCTAssertEqual(bytes, "Please don't read this".makeBytes())
+    }
+    
+    func testCustomMethod() throws {
+        let builder = Dropped()
+        builder.add(.other(method: "custom"), "custom", "method") { _ in
+            return "Custom method"
         }
         
+        let request = Request(method: .other(method: "custom"), path: "custom/method")
+        let bytes = try request.bytes(running: builder.router)
+        
+        XCTAssertEqual(bytes, "Custom method".makeBytes())
+    }
+    
+    func testAll() throws {
+        let builder = Dropped()
+        builder.all("all", "methods") { _ in
+            return "All around the world (repeat 144)"
+        }
+        
+        let methods: [HTTP.Method] = [
+            .delete, .get, .head, .post, .put, .connect, .options, .trace, .patch, .other(method: "other")
+        ]
+        
+        methods.forEach {
+            let request = Request(method: $0, path: "all/methods")
+            
+            do {
+                let bytes = try request.bytes(running: builder.router)
+                XCTAssertEqual(bytes, "All around the world (repeat 144)".makeBytes())
+            } catch {
+                XCTFail("Routing failed: \(error) for method: \($0)")
+            }
+        }
     }
 }
 
