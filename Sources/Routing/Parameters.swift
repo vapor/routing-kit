@@ -19,8 +19,15 @@ public struct Parameters: StructuredDataWrapper {
 }
 
 extension Parameters {
-    public func get<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
-        let parameter = try get(P.uniqueSlug) as String
-        return try P.make(for: parameter)
+    public func next<P: Parameterizable>(_ p: P.Type = P.self) throws -> P {
+        let param = self[P.uniqueSlug]
+        guard let next = param?.array?.first?.string ?? param?.string else {
+            throw ParametersError.noMoreParametersFound(forKey: P.uniqueSlug)
+        }
+        return try P.make(for: next)
     }
+}
+
+public enum ParametersError: Swift.Error {
+    case noMoreParametersFound(forKey: String)
 }
