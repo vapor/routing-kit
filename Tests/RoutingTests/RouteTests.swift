@@ -55,6 +55,6 @@ class RouteTests: XCTestCase {
     func testParameters() throws {
         let request = Request(method: .get, path: "")
         let params = request.parameters
-        XCTAssertEqual(params, Node([:]))
+        XCTAssertEqual(params, Parameters([:]))
     }
 }
