@@ -1,6 +1,8 @@
 import HTTP
+import WebSockets
 
 public typealias RequestHandler = (Request) throws -> ResponseRepresentable
+public typealias WebSocketRequestHandler = (Request, WebSocket) throws -> Void
 
 /// Used to define behavior of objects capable of building routes
 public protocol RouteBuilder: class {
@@ -34,4 +36,50 @@ extension RouteBuilder {
         register(method: method, path: path, responder: responder)
     }
 
+}
+
+extension RouteBuilder {
+    public func socket(_ segments: String..., handler: @escaping WebSocketRequestHandler) {
+        register(method: .get, path: segments) { req in
+            return try req.upgradeToWebSocket {
+                try handler(req, $0)
+            }
+        }
+    }
+    
+    public func get(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .get, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
+    
+    public func post(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .post, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
+    
+    public func put(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .put, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
+    
+    public func patch(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .patch, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
+    
+    public func delete(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .delete, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
+    
+    public func options(_ segments: String..., handler: @escaping RequestHandler) {
+        register(method: .options, path: segments) {
+            try handler($0).makeResponse()
+        }
+    }
 }
