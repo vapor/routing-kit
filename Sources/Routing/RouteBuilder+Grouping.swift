@@ -49,32 +49,32 @@ extension RouteBuilder {
 
 extension RouteBuilder {
     /// Closure based variant of grouped(host: String)
-    public func group(host: String, handler: (RouteBuilder) -> ()) {
+    public func group(host: String, handler: (RouteBuilder) throws -> ()) rethrows {
         let builder = grouped(host: host)
-        handler(builder)
+        try handler(builder)
     }
 
     /// Closure based variant of grouped(_ path: String...)
-    public func group(_ path: String ..., handler: (RouteBuilder) -> ()) {
-        group(path: path, handler: handler)
+    public func group(_ path: String ..., handler: (RouteBuilder) throws -> ()) rethrows {
+        try group(path: path, handler: handler)
     }
 
     /// Closure based variant of grouped(_ path: [String])
-    public func group(path: [String], handler: (RouteBuilder) -> ()) {
+    public func group(path: [String], handler: (RouteBuilder) throws -> ()) rethrows {
         let path = path.pathComponents
         let builder = grouped(path)
-        handler(builder)
+        try handler(builder)
     }
 
     // FIXME: Need external parameter cohesiveness
     /// Closure based variant of grouped(middleware: Middleware...)
-    public func group(_ middleware: Middleware..., handler: (RouteBuilder) -> ()) {
-        group(middleware: middleware, handler: handler)
+    public func group(_ middleware: Middleware..., handler: (RouteBuilder) throws -> ()) rethrows {
+        try group(middleware: middleware, handler: handler)
     }
 
     /// Closure based variant of grouped(middleware: [Middleware])
-    public func group(middleware: [Middleware], handler: (RouteBuilder) -> ()) {
+    public func group(middleware: [Middleware], handler: (RouteBuilder) throws -> ()) rethrows {
         let builder = grouped(middleware)
-        handler(builder)
+        try handler(builder)
     }
 }
