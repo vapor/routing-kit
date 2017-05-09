@@ -20,6 +20,9 @@ class RouterTests: XCTestCase {
         ("testRouterDualSlugRoutes", testRouterDualSlugRoutes),
         ("testRouteLogs", testRouteLogs),
         ("testRouterThrows", testRouterThrows),
+        ("testParams", testParams),
+        ("testOutOfBoundsParams", testOutOfBoundsParams),
+        ("testParamsDuplicateKey", testParamsDuplicateKey),
     ]
 
     func testRouter() throws {
@@ -205,5 +208,82 @@ class RouterTests: XCTestCase {
         } catch {
             print(error)
         }
+    }
+
+
+    func testParams() {
+        let base = Branch<String>(name: "[base]", output: nil)
+        base.extend([":a", ":b", ":c", "*"], output: "abc")
+        let path = ["zero", "one", "two", "d", "e", "f"]
+        guard let result = base.fetch(path) else {
+            XCTFail("invalid wildcard fetch")
+            return
+        }
+
+        let params = result.slugs(for: path)
+        XCTAssert(params["a"] == "zero")
+        XCTAssert(params["b"] == "one")
+        XCTAssert(params["c"] == "two")
+        XCTAssert(result.output == "abc")
+    }
+
+    func testOutOfBoundsParams() {
+        let base = Branch<String>(name: "[base]", output: nil)
+        base.extend([":a", ":b", ":c", "*"], output: "abc")
+        let path = ["zero", "one", "two", "d", "e", "f"]
+        guard let result = base.fetch(path) else {
+            XCTFail("invalid wildcard fetch")
+            return
+        }
+
+        let params = result.slugs(for: ["zero", "one"])
+        XCTAssert(params["a"] == "zero")
+        XCTAssert(params["b"] == "one")
+        XCTAssert(params["c"] == nil)
+        XCTAssert(result.output == "abc")
+    }
+
+    func testParamsDuplicateKey() {
+        let base = Branch<String>(name: "[base]", output: nil)
+        base.extend([":a", ":a", ":a", "*"], output: "abc")
+        let path = ["zero", "one", "two", "d", "e", "f"]
+        guard let result = base.fetch(path) else {
+            XCTFail("invalid wildcard fetch")
+            return
+        }
+
+        let params = result.slugs(for: ["zero", "one"])
+        XCTAssert(params["a.0"] == "zero")
+        XCTAssert(params["a.1"] == "one")
+        XCTAssert(params["a.2"] == nil)
+        XCTAssert(result.output == "abc")
+    }
+
+    func testParameterizable() throws {
+        let base = Branch<String>(name: "[base]", output: nil)
+        base.extend([Foo.parameter, Foo.parameter, Foo.parameter, "*"], output: "abc")
+        let path = ["zero", "one", "two", "d", "e", "f"]
+        guard let result = base.fetch(path) else {
+            XCTFail("invalid wildcard fetch")
+            return
+        }
+
+        var params = result.slugs(for: ["zero", "one"])
+        let one = try params.next(Foo.self)
+        let two = try params.next(Foo.self)
+        XCTAssert(one.id == "zero")
+        XCTAssert(two.id == "one")
+    }
+}
+
+struct Foo {
+    let id: String
+}
+
+extension Foo: Parameterizable {
+    static let uniqueSlug = "foo-slug"
+
+    static func make(for parameter: String) throws -> Foo {
+        return  .init(id: parameter)
     }
 }

@@ -12,15 +12,15 @@ extension HTTP.Request {
     /// given route: /foo/:id
     /// and request with path `/foo/123`
     /// parameters will be `["id": 123]`
-    public var parameters: Node {
+    public var parameters: Parameters {
         get {
-            if let existing = storage[parametersKey] as? Node {
+            if let existing = storage[parametersKey] as? Parameters {
                 return existing
             }
 
-            let node = Node([:])
-            storage[parametersKey] = node
-            return node
+            let params = Parameters([:])
+            storage[parametersKey] = params
+            return params
         }
         set {
             storage[parametersKey] = newValue

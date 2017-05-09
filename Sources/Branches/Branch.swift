@@ -1,27 +1,6 @@
 import Core
 import Node
 
-extension Branch {
-    /**
-        It is not uncommon to place slugs along our branches representing keys that will
-        match for the path given. When this happens, the path can be laid across here to extract
-        slug values efficiently.
-     
-        Branches: `path/to/:name`
-        Given Path: `path/to/joe`
-        
-            let slugs = branch.slugs(for: givenPath) // ["name": "joe"]
-    */
-    public func slugs(for path: [String]) -> Node {
-        var slugs: [String: Node] = [:]
-        slugIndexes.forEach { key, index in
-            guard let val = path[safe: index].flatMap({ $0.removingPercentEncoding }) else { return }
-            slugs[key] = Node.string(val)
-        }
-        return Node.object(slugs)
-    }
-}
-
 /**
      When routing requests, different branches will be established,
      in a linked list style stemming from their host and request method.

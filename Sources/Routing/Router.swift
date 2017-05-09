@@ -50,6 +50,35 @@ public class Router {
     }
 }
 
+extension Branch {
+    /// It is not uncommon to place slugs along our branches representing keys that will
+    /// match for the path given. When this happens, the path can be laid across here to extract
+    /// slug values efficiently.
+    ///
+    /// Branches: `path/to/:name`
+    /// Given Path: `path/to/joe`
+    ///
+    /// let slugs = branch.slugs(for: givenPath) // ["name": "joe"]
+    public func slugs(for path: [String]) -> Parameters {
+        var slugs: [String: Parameters] = [:]
+        slugIndexes.forEach { key, index in
+            guard let val = path[safe: index]
+                .flatMap({ $0.removingPercentEncoding })
+                .flatMap({ Parameters.string($0) })
+                else { return }
+
+            if let existing = slugs[key] {
+                var array = existing.array ?? [existing]
+                array.append(val)
+                slugs[key] = .array(array)
+            } else {
+                slugs[key] = val
+            }
+        }
+        return .object(slugs)
+    }
+}
+
 
 extension Request {
     // unique routing key for this request

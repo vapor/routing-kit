@@ -6,10 +6,6 @@ let package = Package(
         // Routing
         Target(name: "Branches"),
         Target(name: "Routing", dependencies: ["Branches"]),
-
-        // Type Safe
-        Target(name: "TypeSafeRouting", dependencies: ["Branches", "Routing"]),
-        // Target(name: "TypeSafeGenerator"),
     ],
     dependencies: [
         // Core vapor transport layer

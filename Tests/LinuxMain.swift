@@ -15,6 +15,7 @@ XCTMain([
     testCase(GroupTests.allTests),
     testCase(RouterTests.allTests),
     testCase(RouteTests.allTests),
+    testCase(RouteBuilderTests.allTests),
 ])
 
 #endif
