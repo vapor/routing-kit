@@ -23,3 +23,26 @@ extension Parameterizable {
         return ":" + uniqueSlug
     }
 }
+
+extension String: Parameterizable {
+    public static var uniqueSlug: String {
+        return "string"
+    }
+    
+    public static func make(for parameter: String) throws -> String {
+        return parameter
+    }
+}
+extension Int: Parameterizable {
+    public static var uniqueSlug: String {
+        return "int"
+    }
+    
+    public static func make(for parameter: String) throws -> Int {
+        guard let int = Int(parameter) else {
+            throw RouterError.invalidParameter
+        }
+        
+        return int
+    }
+}

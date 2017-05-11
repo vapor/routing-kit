@@ -51,6 +51,7 @@ extension Request {
 }
 
 public enum RouterError: Debuggable {
+    case invalidParameter
     case missingRoute(for: Request)
     case unspecified(Swift.Error)
 }
@@ -62,11 +63,15 @@ extension RouterError {
             return "missingRoute"
         case .unspecified:
             return "unspecified"
+        case .invalidParameter:
+            return "invalidParameter"
         }
     }
 
     public var reason: String {
         switch self {
+        case .invalidParameter:
+            return "invalid parameter"
         case .missingRoute(let request):
             return "no route found for \(request)"
         case .unspecified(let error):
@@ -87,6 +92,8 @@ extension RouterError {
                 "look into upgrading to a version that expects this error",
                 "try to understand which module threw this error and where it came from"
             ]
+        case .invalidParameter:
+            return []
         }
     }
 
