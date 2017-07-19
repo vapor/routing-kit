@@ -1,4 +1,5 @@
 import Branches
+import Foundation
 import HTTP
 
 public class Router {
@@ -15,7 +16,7 @@ public class Router {
     /// - parameter method: the method to match, ie: `GET`, or `*` to match any
     ///     - parameter path: the path that should be registered
     /// - parameter output: the associated output of this path, usually a responder, or `nil`
-    public func register(host: String?, method: Method, path: [String], responder: Responder) {
+    public func register(host: String?, method: HTTP.Method, path: [String], responder: Responder) {
         let host = host ?? "*"
         let path = [host, method.description] + path.filter { !$0.isEmpty }
         base.extend(path, output: responder)
@@ -23,6 +24,7 @@ public class Router {
     
     // caches static route resolutions
     private var _cache: [String: Responder?] = [:]
+    private var _cacheLock = NSLock()
 
     /// Routes an incoming request
     /// the request will be populated with any found parameters (aka slugs).
@@ -32,7 +34,12 @@ public class Router {
         let key = request.routeKey
         
         // check the static route cache
-        if let cached = _cache[key] {
+
+        _cacheLock.lock()
+        let maybeCached = _cache[key]
+        _cacheLock.unlock()
+
+        if let cached = maybeCached {
             return cached
         }
         
@@ -43,7 +50,9 @@ public class Router {
         
         // if there are no dynamic slugs, we can cache
         if request.parameters.object?.isEmpty == true {
+            _cacheLock.lock()
             _cache[key] = result?.output
+            _cacheLock.unlock()
         }
         
         return result?.output
