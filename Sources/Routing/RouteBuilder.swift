@@ -33,7 +33,7 @@ extension RouteBuilder {
     public func add(
         _ method: HTTP.Method,
         _ path: String ...,
-        _ value: @escaping RouteHandler
+        value: @escaping RouteHandler
     ) {
         let responder = Request.Handler { try value($0).makeResponse() }
         register(method: method, path: path, responder: responder)
