@@ -29,7 +29,16 @@ extension RouteBuilder {
 }
 
 extension RouteBuilder {
-    // FIXME: This function feels like it might not fit
+    #if swift(>=4)
+    public func add(
+        _ method: HTTP.Method,
+        _ path: String ...,
+        value: @escaping RouteHandler
+    ) {
+        let responder = Request.Handler { try value($0).makeResponse() }
+        register(method: method, path: path, responder: responder)
+    }
+    #else
     public func add(
         _ method: HTTP.Method,
         _ path: String ...,
@@ -38,6 +47,7 @@ extension RouteBuilder {
         let responder = Request.Handler { try value($0).makeResponse() }
         register(method: method, path: path, responder: responder)
     }
+    #endif
     
     public func socket(_ segments: String..., handler: @escaping WebSocketRouteHandler) {
         register(method: .get, path: segments) { req in
