@@ -1,7 +1,8 @@
-import XCTest
+import Bits
 import HTTP
 import Routing
 import URI
+import XCTest
 
 extension Request {
     convenience init(method: HTTP.Method, path: String, host: String = "0.0.0.0") {

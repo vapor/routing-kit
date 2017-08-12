@@ -50,7 +50,7 @@ extension Request {
     }
 }
 
-public enum RouterError: Debuggable {
+public enum RouterError: Debuggable, Error {
     case invalidParameter
     case missingRoute(for: Request)
     case unspecified(Swift.Error)
