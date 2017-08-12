@@ -1,6 +1,5 @@
 import Branches
 import HTTP
-import Node
 
 private let parametersKey = "parameters"
 
@@ -18,7 +17,7 @@ extension HTTP.Request {
                 return existing
             }
 
-            let params = Parameters([:])
+            let params = Parameters(data: [:])
             storage[parametersKey] = params
             return params
         }

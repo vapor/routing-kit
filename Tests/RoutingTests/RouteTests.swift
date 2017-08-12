@@ -1,16 +1,9 @@
-import XCTest
 import HTTP
-import URI
 import Routing
-import Node
+import URI
+import XCTest
 
 class RouteTests: XCTestCase {
-    static let allTests = [
-        ("testRoute", testRoute),
-        ("testRouteParams", testRouteParams),
-        ("testParameters", testParameters),
-    ]
-
     func testRoute() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { req in
@@ -25,9 +18,9 @@ class RouteTests: XCTestCase {
     func testRouteParams() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .get, path: [":zero", ":one", ":two", "*"]) { req in
-            let zero = req.parameters["zero"]?.string ?? "[fail]"
-            let one = req.parameters["one"]?.string ?? "[fail]"
-            let two = req.parameters["two"]?.string ?? "[fail]"
+            let zero = req.parameters.data["zero"]?.first ?? "[fail]"
+            let one = req.parameters.data["one"]?.first ?? "[fail]"
+            let two = req.parameters.data["two"]?.first ?? "[fail]"
             return Response(status: .ok, body: "\(zero):\(one):\(two)")
         }
 
@@ -52,9 +45,9 @@ class RouteTests: XCTestCase {
         }
     }
 
-    func testParameters() throws {
-        let request = Request(method: .get, path: "")
-        let params = request.parameters
-        XCTAssertEqual(params, Parameters([:]))
-    }
+
+    static let allTests = [
+        ("testRoute", testRoute),
+        ("testRouteParams", testRouteParams),
+    ]
 }

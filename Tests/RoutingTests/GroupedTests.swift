@@ -23,7 +23,7 @@ class GroupedTests: XCTestCase {
         let bytes = try request.bytes(running: router)
 
         XCTAssertEqual(bytes.makeString(), "show")
-        XCTAssertEqual(request.parameters["id"], "5")
+        XCTAssertEqual(request.parameters["id"]?.first, "5")
     }
 
     func testVariadic() throws {
@@ -38,7 +38,7 @@ class GroupedTests: XCTestCase {
         let bytes = try request.bytes(running: router)
 
         XCTAssertEqual(bytes, "show".makeBytes())
-        XCTAssertEqual(request.parameters["id"], "5")
+        XCTAssertEqual(request.parameters["id"]?.first, "5")
     }
 
     func testHost() throws {
@@ -67,7 +67,7 @@ class GroupedTests: XCTestCase {
         let bytes = try request.bytes(running: router)
 
         XCTAssertEqual(bytes.makeString(), "show")
-        XCTAssertEqual(request.parameters["id"], "5")
+        XCTAssertEqual(request.parameters["id"]?.first, "5")
     }
 
     func testMultiChained() throws {

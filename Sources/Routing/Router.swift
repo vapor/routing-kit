@@ -46,10 +46,10 @@ public class Router {
         let path = request.path()
         let result = base.fetch(path)
 
-        request.parameters = result?.slugs(for: path) ?? [:]
+        request.parameters = result?.slugs(for: path) ?? .empty
         
         // if there are no dynamic slugs, we can cache
-        if request.parameters.object?.isEmpty == true {
+        if request.parameters.data.isEmpty {
             _cacheLock.lock()
             _cache[key] = result?.output
             _cacheLock.unlock()
@@ -69,22 +69,21 @@ extension Branch {
     ///
     /// let slugs = branch.slugs(for: givenPath) // ["name": "joe"]
     public func slugs(for path: [String]) -> Parameters {
-        var slugs: [String: Parameters] = [:]
+        var slugs: [String: [String]] = [:]
         slugIndexes.forEach { key, index in
             guard let val = path[safe: index]
                 .flatMap({ $0.removingPercentEncoding })
-                .flatMap({ Parameters.string($0) })
                 else { return }
 
             if let existing = slugs[key] {
-                var array = existing.array ?? [existing]
+                var array = existing
                 array.append(val)
-                slugs[key] = .array(array)
+                slugs[key] = array
             } else {
-                slugs[key] = val
+                slugs[key] = [val]
             }
         }
-        return .object(slugs)
+        return Parameters(data: slugs)
     }
 }
 

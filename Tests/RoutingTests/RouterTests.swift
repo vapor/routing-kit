@@ -116,8 +116,8 @@ class RouterTests: XCTestCase {
     func testParameters() throws {
         let router = Router()
         router.register(host: "0.0.0.0", method: .get, path: ["hello", ":name", ":age"]) { request in
-            guard let name = request.parameters["name"]?.string else { throw "missing param: name" }
-            guard let age = request.parameters["age"]?.int else { throw "missing or invalid param: age" }
+            guard let name = request.parameters["name"]?.first else { throw "missing param: name" }
+            guard let age = request.parameters["age"]?.first else { throw "missing or invalid param: age" }
             return "Hello, \(name) aged \(age)."
         }
 
@@ -221,9 +221,9 @@ class RouterTests: XCTestCase {
         }
 
         let params = result.slugs(for: path)
-        XCTAssert(params["a"] == "zero")
-        XCTAssert(params["b"] == "one")
-        XCTAssert(params["c"] == "two")
+        XCTAssert(params["a"]?.first == "zero")
+        XCTAssert(params["b"]?.first == "one")
+        XCTAssert(params["c"]?.first == "two")
         XCTAssert(result.output == "abc")
     }
 
@@ -237,9 +237,9 @@ class RouterTests: XCTestCase {
         }
 
         let params = result.slugs(for: ["zero", "one"])
-        XCTAssert(params["a"] == "zero")
-        XCTAssert(params["b"] == "one")
-        XCTAssert(params["c"] == nil)
+        XCTAssert(params["a"]?.first == "zero")
+        XCTAssert(params["b"]?.first == "one")
+        XCTAssert(params["c"]?.first == nil)
         XCTAssert(result.output == "abc")
     }
 
@@ -253,9 +253,9 @@ class RouterTests: XCTestCase {
         }
 
         let params = result.slugs(for: ["zero", "one"])
-        XCTAssert(params["a.0"] == "zero")
-        XCTAssert(params["a.1"] == "one")
-        XCTAssert(params["a.2"] == nil)
+        XCTAssert(params["a"]?[0] == "zero")
+        XCTAssert(params["a"]?[1] == "one")
+        XCTAssert(params["a"]?[safe: 2] == nil)
         XCTAssert(result.output == "abc")
     }
 
