@@ -13,6 +13,13 @@ public protocol PathComponentRepresentable {
     func makePathComponent() -> PathComponent
 }
 
+extension PathComponent: PathComponentRepresentable {
+    /// See PathComponentRepresentable.makePathComponent()
+    public func makePathComponent() -> PathComponent {
+        return self
+    }
+}
+
 // MARK: Array
 
 extension Array where Element == PathComponentRepresentable {
