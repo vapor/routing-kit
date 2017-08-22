@@ -19,7 +19,7 @@ extension SyncRouter {
 public struct BasicSyncResponder: Responder {
     /// Responder closure
     public typealias Closure = (Request) throws -> ResponseRepresentable
-
+    
     /// The stored responder closure.
     public let closure: Closure
 
@@ -31,7 +31,9 @@ public struct BasicSyncResponder: Responder {
     /// See: HTTP.Responder.respond
     public func respond(to req: Request) throws -> Future<Response> {
         let res = try closure(req).makeResponse()
-        return Future { res }
+        let promise = Promise<Response>()
+        try promise.complete(res)
+        return promise.future
     }
 }
 

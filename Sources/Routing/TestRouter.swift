@@ -8,7 +8,7 @@ public final class TestRouter: SyncRouter, AsyncRouter {
     public init() {
         storage = [:]
     }
-
+    
     public func register(responder: Responder, at path: [PathComponent]) {
         let path = path.flatMap {
             switch $0 {
@@ -37,11 +37,15 @@ public struct RouterResponder: Responder {
     public init(router: Router) {
         self.router = router
     }
-
+    
     public func respond(to req: Request) throws -> Future<Response> {
         guard let responder = router.route(request: req) else {
             // TODO: needs to return the error page
-            fatalError("No route")
+            let promise = Promise<Response>()
+            
+            try promise.complete(Response(status: .notFound))
+            
+            return promise.future
         }
 
         return try responder.respond(to: req)
