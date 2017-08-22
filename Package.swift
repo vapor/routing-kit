@@ -7,7 +7,7 @@ let package = Package(
         .library(name: "Routing", targets: ["Routing"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/engine.git", .branch("middleware")),
+        .package(url: "https://github.com/vapor/engine.git", .branch("beta")),
         .package(url: "https://github.com/vapor/core.git", .branch("beta")),
         .package(url: "https://github.com/vapor/debugging.git", .branch("beta")),
     ],
