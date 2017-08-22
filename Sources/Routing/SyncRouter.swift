@@ -22,12 +22,12 @@ public struct BasicSyncResponder: Responder {
     
     /// The stored responder closure.
     public let closure: Closure
-    
+
     /// Create a new basic responder.
     public init(closure: @escaping Closure) {
         self.closure = closure
     }
-    
+
     /// See: HTTP.Responder.respond
     public func respond(to req: Request) throws -> Future<Response> {
         let res = try closure(req).makeResponse()

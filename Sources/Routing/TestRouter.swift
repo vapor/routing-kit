@@ -4,7 +4,7 @@ import HTTP
 /// FIXME: just for testing
 public final class TestRouter: SyncRouter, AsyncRouter {
     var storage: [String: Responder]
-    
+
     public init() {
         storage = [:]
     }
@@ -20,12 +20,12 @@ public final class TestRouter: SyncRouter, AsyncRouter {
             }.joined(separator: "/")
         storage[path] = responder
     }
-    
+
     public func route(path: [String], parameters: inout ParameterBag) -> Responder? {
         guard let responder = storage[path.joined(separator: "/")] else {
             return nil
         }
-        
+
         return responder
     }
 }
@@ -47,8 +47,7 @@ public struct RouterResponder: Responder {
             
             return promise.future
         }
-        
+
         return try responder.respond(to: req)
     }
 }
-
