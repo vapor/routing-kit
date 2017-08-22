@@ -4,7 +4,6 @@ import PackageDescription
 let package = Package(
     name: "Routing",
     products: [
-        .library(name: "Branches", targets: ["Branches"]),
         .library(name: "Routing", targets: ["Routing"]),
     ],
     dependencies: [
@@ -13,9 +12,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/debugging.git", .branch("beta")),
     ],
     targets: [
-        .target(name: "Branches", dependencies: ["Core"]),
-        .testTarget(name: "BranchesTests", dependencies: ["Branches", "HTTP"]),
-        .target(name: "Routing", dependencies: ["Branches", "HTTP", "WebSockets"]),
+        .target(name: "Routing", dependencies: ["Core", "Debugging", "HTTP"]),
         .testTarget(name: "RoutingTests", dependencies: ["Routing"]),
     ]
 )
