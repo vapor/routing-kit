@@ -4,11 +4,11 @@ import HTTP
 /// FIXME: just for testing
 public final class TestRouter: SyncRouter, AsyncRouter {
     var storage: [String: Responder]
-
+    
     public init() {
         storage = [:]
     }
-
+    
     public func register(responder: Responder, at path: [PathComponent]) {
         let path = path.flatMap {
             switch $0 {
@@ -20,12 +20,12 @@ public final class TestRouter: SyncRouter, AsyncRouter {
             }.joined(separator: "/")
         storage[path] = responder
     }
-
+    
     public func route(path: [String], parameters: inout ParameterBag) -> Responder? {
         guard let responder = storage[path.joined(separator: "/")] else {
             return nil
         }
-
+        
         return responder
     }
 }
@@ -37,13 +37,18 @@ public struct RouterResponder: Responder {
     public init(router: Router) {
         self.router = router
     }
-
+    
     public func respond(to req: Request) throws -> Future<Response> {
         guard let responder = router.route(request: req) else {
             // TODO: needs to return the error page
-            fatalError("No route")
+            let promise = Promise<Response>()
+            
+            try promise.complete(Response(status: .notFound))
+            
+            return promise.future
         }
-
+        
         return try responder.respond(to: req)
     }
 }
+
