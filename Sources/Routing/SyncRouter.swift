@@ -32,7 +32,7 @@ public struct BasicSyncResponder: Responder {
     public func respond(to req: Request) throws -> Future<Response> {
         let res = try closure(req).makeResponse()
         let promise = Promise<Response>()
-        try promise.complete(res)
+        promise.complete(res)
         return promise.future
     }
 }

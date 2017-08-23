@@ -35,11 +35,12 @@ public struct BasicAsyncResponder: Responder {
         try closure(req).then { res in
             do {
                 let res = try res.makeResponse()
-                try promise.complete(res)
+                promise.complete(res)
             } catch {
-                // FIXME: what do we do w/ the error here?
-                try? promise.complete(error)
+                promise.fail(error)
             }
+        }.catch { error in
+            promise.fail(error)
         }
 
 
