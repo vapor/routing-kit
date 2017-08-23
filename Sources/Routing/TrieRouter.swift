@@ -157,7 +157,7 @@ final class ConstantNode: TrieRouterNode {
     /// for performance
     var parameterChild: ParameterNode?
 
-    /// This nodes path componenet
+    /// This nodes path component
     let constant: String
 
     /// This node's resopnder
