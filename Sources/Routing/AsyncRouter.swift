@@ -6,7 +6,11 @@ public protocol AsyncRouter: Router { }
 
 extension AsyncRouter {
     /// Registers a route handler at the supplied path.
-    public func on(_ method: Method, to path: PathComponentRepresentable..., use closure: @escaping BasicAsyncResponder.Closure) {
+    public func on<F: FutureType>(
+        _ method: Method,
+        to path: PathComponentRepresentable...,
+        use closure: @escaping BasicAsyncResponder<F>.Closure
+    ) where F.Expectation: ResponseRepresentable {
         let responder = BasicAsyncResponder(closure: closure)
         self.register(
             responder: responder,
@@ -16,9 +20,9 @@ extension AsyncRouter {
 }
 
 /// A basic, closure-based responder.
-public struct BasicAsyncResponder: Responder {
+public struct BasicAsyncResponder<F: FutureType>: Responder where F.Expectation: ResponseRepresentable {
     /// Responder closure
-    public typealias Closure = (Request) throws -> Future<ResponseRepresentable>
+    public typealias Closure = (Request) throws -> F
 
     /// The stored responder closure.
     public let closure: Closure
@@ -30,20 +34,9 @@ public struct BasicAsyncResponder: Responder {
 
     /// See: HTTP.Responder.respond
     public func respond(to req: Request) throws -> Future<Response> {
-        let promise = Promise<Response>()
-
-        try closure(req).then { res in
-            do {
-                let res = try res.makeResponse()
-                promise.complete(res)
-            } catch {
-                promise.fail(error)
-            }
-        }.catch { error in
-            promise.fail(error)
+        return try closure(req).map { rep in
+            return try rep.makeResponse()
         }
-
-
-        return promise.future
     }
 }
+
