@@ -26,12 +26,20 @@ public class Router {
     private var _cache: [String: Responder?] = [:]
     private var _cacheLock = NSLock()
 
+    /// Removes all entries from this router's cache.
+    ///
+    public func flushCache() {
+        _cacheLock.lock()
+        _cache.removeAll()
+        _cacheLock.unlock()
+    }
+
     /// Removes the cached Responder for a given Request.
     /// If there is no cached Responder, returns nil.
     ///
     /// NOTE: If you do not register a new Responder for the
     /// Request, the old Responder will be invoked on a subsequent
-    /// Request and re-cached. I.E. this function does not prune
+    /// Request and re-cached. I.e. this function does not prune
     /// the Branch.
     @discardableResult
     public func flushCache(for request: Request) -> Responder? {
