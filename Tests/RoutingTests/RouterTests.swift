@@ -23,6 +23,8 @@ class RouterTests: XCTestCase {
         ("testParams", testParams),
         ("testOutOfBoundsParams", testOutOfBoundsParams),
         ("testParamsDuplicateKey", testParamsDuplicateKey),
+        ("testSecondRegistrationIgnored", testSecondRegistrationIgnored),
+        ("testCanRegisterAfterRemoveResponse", testCanRegisterAfterRemoveResponse),
     ]
 
     func testRouter() throws {
@@ -273,6 +275,39 @@ class RouterTests: XCTestCase {
         let two = try params.next(Foo.self)
         XCTAssert(one.id == "zero")
         XCTAssert(two.id == "one")
+    }
+
+    func testSecondRegistrationIgnored() throws {
+        let router = Router()
+        router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { request in
+            return Response(status: .ok, body: "Hello, World!")
+        }
+        let request = Request(method: .get, uri: "http://0.0.0.0/hello")
+        var response = try router.respond(to: request)
+        router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { request in
+            return Response(status: .ok, body: "Ciao mondo!")
+        }
+
+        response = try router.respond(to: request)
+        XCTAssert(response.body.bytes?.makeString() == "Hello, World!")
+    }
+
+    func testCanRegisterAfterRemoveResponse() throws {
+        let router = Router()
+        router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { request in
+            return Response(status: .ok, body: "Hello, World!")
+        }
+        let request = Request(method: .get, uri: "http://0.0.0.0/hello")
+        var response = try router.respond(to: request)
+
+        router.flushCache(for: request)
+
+        router.register(host: "0.0.0.0", method: .get, path: ["hello"]) { request in
+            return Response(status: .ok, body: "Ciao, mondo!")
+        }
+
+        response = try router.respond(to: request)
+        XCTAssert(response.body.bytes?.makeString() == "Ciao, mondo!")
     }
 }
 
