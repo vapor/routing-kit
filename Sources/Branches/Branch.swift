@@ -47,7 +47,7 @@ public class Branch<Output> { // TODO: Rename Context
     public private(set) lazy var slugIndexes: [(key: String, idx: Int)] = {
         var params = self.parent?.slugIndexes ?? []
         guard self.name.hasPrefix(":") else { return params }
-        let characters = self.name.characters.dropFirst()
+        let characters = self.name.toCharacterSequence().dropFirst()
         let key = String(characters)
         params.append((key, self.depth - 1))
         return params
@@ -197,4 +197,16 @@ extension Branch {
         subBranches.paramBranches[key] = branch
         branch.parent = self
     }
+}
+
+extension String {
+    #if swift(>=4.0)
+    internal func toCharacterSequence() -> String {
+        return self
+    }
+    #else
+    internal func toCharacterSequence() -> CharacterView {
+        return self.characters
+    }
+    #endif
 }
