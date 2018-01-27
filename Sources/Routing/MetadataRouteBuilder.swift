@@ -1,6 +1,9 @@
 import HTTP
 import WebSockets
 
+/// MetadataRouteBuilder is a secondary routing protocol that is similar to RouteBuilder,
+/// but enables caputring metadata for registered routes
+///
 /// Used to define behavior of objects capable of building routes
 public protocol MetadataRouteBuilder: class {
     func register(host: String?, method: Method, path: [String], metadata: [String: Any], responder: Responder)

@@ -6,7 +6,7 @@ import HTTP
 /// Registered with a MetadataRouteBuilder
 /// It is made up of the basic components of a `route` and contains
 /// optional metadata.
-public final class MetadataRoute {
+public final class Route {
     public let host: String
     public let components: [String]
     public let method: HTTP.Method
@@ -20,7 +20,7 @@ public final class MetadataRoute {
     }
 }
 
-extension MetadataRoute{
+extension Route{
     public var path: String {
         return "/" + components.joined(separator: "/")
     }

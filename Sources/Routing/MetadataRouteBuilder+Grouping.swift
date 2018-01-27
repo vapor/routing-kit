@@ -1,5 +1,7 @@
 import HTTP
 
+/// Grouping implementation similar to RouteBuilder+Grouping but using MetadataRouteBuilder
+
 extension MetadataRouteBuilder {
     /// Group all subsequent routes built with this builder
     /// under this specified host

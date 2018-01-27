@@ -1,10 +1,8 @@
 import HTTP
 
-/// MetadataRouteGroup is a step in the MetadataRouteBuilder chain that
-/// allows users to collect metadata about various endpoints
-///
-/// for example, if we have several routes that begin with "some/prefix/path"
-/// we might want to group those together so that we can easily append
+/// MetadataRouteGroup is similar to the implementation of RouteGroup, instead conforming
+/// to MetadataRouteBuilder which allows for routes to be registered with attached metadata
+
 internal final class MetadataRouteGroup: MetadataRouteBuilder {
     let host: String?
     let pathPrefix: [String]

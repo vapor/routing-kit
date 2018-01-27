@@ -8,8 +8,9 @@ public class Router {
     
     /// A collection of all routes that have been registered with the Router
     /// and their associated metadata.
-    /// Exclusive to the routes registered with the `register` function provided by MetadataRouteBuilder
-    public var metadataRoutes: [MetadataRoute] = []
+    /// Only the routes registered with the `register` function provided by MetadataRouteBuilder
+    /// will have user defined metadata
+    public var routeMetadata: [Route] = []
 
     /// Init
     public init() {}
@@ -23,8 +24,14 @@ public class Router {
     /// - parameter output: the associated output of this path, usually a responder, or `nil`
     public func register(host: String?, method: HTTP.Method, path: [String], responder: Responder) {
         let host = host ?? "*"
-        let path = [host, method.description] + path.filter { !$0.isEmpty }
-        base.extend(path, output: responder)
+        let path = path.filter{ !$0.isEmpty }
+        
+        // Registers `route` metadata
+        let route = Route(host: host, components: path, method: method)
+        routeMetadata.append(route)
+        
+        let fullPath = [host, method.description] + path
+        base.extend(fullPath, output: responder)
     }
     
     public func register(
@@ -38,8 +45,8 @@ public class Router {
         let path = path.filter{ !$0.isEmpty }
         
         // Registers `route` metadata
-        let route = MetadataRoute(host: host, components: path, method: method, metadata: metadata)
-        self.metadataRoutes.append(route)
+        let route = Route(host: host, components: path, method: method, metadata: metadata)
+        routeMetadata.append(route)
         
         let fullPath = [host, method.description] + path
         base.extend(fullPath, output: responder)
