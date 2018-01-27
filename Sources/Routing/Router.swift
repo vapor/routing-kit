@@ -5,6 +5,10 @@ import HTTP
 public class Router {
     /// The base branch from which all routing stems outward
     public final let base = Branch<Responder>(name: "", output: nil)
+    
+    /// A collection of all routes that have been registered with the Router
+    /// and their associated metadata
+    public var routeMetadata: [Route] = []
 
     /// Init
     public init() {}
@@ -16,10 +20,22 @@ public class Router {
     /// - parameter method: the method to match, ie: `GET`, or `*` to match any
     ///     - parameter path: the path that should be registered
     /// - parameter output: the associated output of this path, usually a responder, or `nil`
-    public func register(host: String?, method: HTTP.Method, path: [String], responder: Responder) {
+    public func register(
+        host: String?,
+        method: HTTP.Method,
+        path: [String],
+        metadata: [String: String]? = nil,
+        responder: Responder
+    ) {
         let host = host ?? "*"
-        let path = [host, method.description] + path.filter { !$0.isEmpty }
-        base.extend(path, output: responder)
+        let path = path.filter{ !$0.isEmpty }
+        
+        // Registers `route` metadata
+        let route = Route(host: host, components: path, method: method, metadata: metadata)
+        self.routeMetadata.append(route)
+        
+        let fullPath = [host, method.description] + path
+        base.extend(fullPath, output: responder)
     }
     
     // caches static route resolutions

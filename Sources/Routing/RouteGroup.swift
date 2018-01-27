@@ -18,7 +18,13 @@ internal final class RouteGroup: RouteBuilder {
         self.parent = parent
     }
 
-    func register(host: String?, method: Method, path: [String], responder: Responder) {
+    func register(
+        host: String?,
+        method: Method,
+        path: [String],
+        metadata: [String: String]? = nil,
+        responder: Responder
+    ) {
         let host = host ?? self.host
         let path = self.pathPrefix + path
 
@@ -32,7 +38,7 @@ internal final class RouteGroup: RouteBuilder {
             }
         }
 
-        parent.register(host: host, method: method, path: path, responder: res)
+        parent.register(host: host, method: method, path: path, metadata: metadata, responder: res)
     }
 }
 
