@@ -1,27 +1,27 @@
 import HTTP
 
-/// RouteGroup is a step in the RouteBuilder chain that
+/// MetadataRouteGroup is a step in the MetadataRouteBuilder chain that
 /// allows users to collect metadata about various endpoints
 ///
 /// for example, if we have several routes that begin with "some/prefix/path"
 /// we might want to group those together so that we can easily append
-internal final class RouteGroup: RouteBuilder {
+internal final class MetadataRouteGroup: MetadataRouteBuilder {
     let host: String?
     let pathPrefix: [String]
     let middleware: [Middleware]
-    let parent: RouteBuilder
-
-    init(host: String?, pathPrefix: [String], middleware: [Middleware], parent: RouteBuilder) {
+    let parent: MetadataRouteBuilder
+    
+    init(host: String?, pathPrefix: [String], middleware: [Middleware], parent: MetadataRouteBuilder) {
         self.host = host
         self.pathPrefix = pathPrefix
         self.middleware = middleware
         self.parent = parent
     }
-
-    func register(host: String?, method: Method, path: [String], responder: Responder) {
+    
+    func register(host: String?, method: Method, path: [String], metadata: [String: Any] = [:], responder: Responder) {
         let host = host ?? self.host
         let path = self.pathPrefix + path
-
+        
         let res: Responder
         if middleware.isEmpty {
             res = responder
@@ -31,8 +31,8 @@ internal final class RouteGroup: RouteBuilder {
                 return try middleware.chain(to: responder).respond(to: request)
             }
         }
-
-        parent.register(host: host, method: method, path: path, responder: res)
+        
+        parent.register(host: host, method: method, path: path, metadata: metadata, responder: res)
     }
 }
 
@@ -45,3 +45,4 @@ extension Collection where Iterator.Element == Middleware {
         }
     }
 }
+
