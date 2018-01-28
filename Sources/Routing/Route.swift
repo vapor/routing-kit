@@ -1,9 +1,7 @@
-
 import Foundation
 import HTTP
 
 /// A representation of a `route` or endpoint in your application
-/// Registered with a MetadataRouteBuilder
 /// It is made up of the basic components of a `route` and contains
 /// optional metadata.
 public final class Route {

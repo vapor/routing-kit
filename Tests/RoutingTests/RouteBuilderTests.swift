@@ -95,10 +95,6 @@ final class Dropped: RouteBuilder {
     ) {
         router.register(host: host, method: method, path: path, responder: responder)
     }
-}
-
-/// A mock for RouteBuilder
-extension Dropped: MetadataRouteBuilder {
     
     public func register(
         host: String?,
@@ -106,7 +102,7 @@ extension Dropped: MetadataRouteBuilder {
         path: [String],
         metadata: [String: Any],
         responder: Responder
-        ) {
+    ) {
         router.register(host: host, method: method, path: path, metadata: metadata, responder: responder)
     }
 }
