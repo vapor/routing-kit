@@ -87,7 +87,22 @@ class RouteBuilderTests: XCTestCase {
 final class Dropped: RouteBuilder {
     let router = Router()
     
-    public func register(host: String?, method: HTTP.Method, path: [String], responder: Responder) {
+    public func register(
+        host: String?,
+        method: HTTP.Method,
+        path: [String],
+        responder: Responder
+    ) {
         router.register(host: host, method: method, path: path, responder: responder)
+    }
+    
+    public func register(
+        host: String?,
+        method: HTTP.Method,
+        path: [String],
+        metadata: [String: Any],
+        responder: Responder
+    ) {
+        router.register(host: host, method: method, path: path, metadata: metadata, responder: responder)
     }
 }

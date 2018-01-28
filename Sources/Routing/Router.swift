@@ -5,10 +5,14 @@ import HTTP
 public class Router {
     /// The base branch from which all routing stems outward
     public final let base = Branch<Responder>(name: "", output: nil)
-
+    
+    /// A collection of all routes that have been registered with the Router
+    /// and their associated metadata, if any
+    public var routeMetadata: [Route] = []
+    
     /// Init
     public init() {}
-
+    
     /// Register a given path. Use `*` for host OR method to define wildcards that will be matched
     /// if no concrete match exists.
     ///
@@ -18,14 +22,38 @@ public class Router {
     /// - parameter output: the associated output of this path, usually a responder, or `nil`
     public func register(host: String?, method: HTTP.Method, path: [String], responder: Responder) {
         let host = host ?? "*"
-        let path = [host, method.description] + path.filter { !$0.isEmpty }
-        base.extend(path, output: responder)
+        let path = path.filter{ !$0.isEmpty }
+        
+        // Registers `route` metadata
+        let route = Route(host: host, components: path, method: method)
+        routeMetadata.append(route)
+        
+        let fullPath = [host, method.description] + path
+        base.extend(fullPath, output: responder)
+    }
+    
+    public func register(
+        host: String?,
+        method: HTTP.Method,
+        path: [String],
+        metadata: [String: Any],
+        responder: Responder
+        ) {
+        let host = host ?? "*"
+        let path = path.filter{ !$0.isEmpty }
+        
+        // Registers `route` metadata
+        let route = Route(host: host, components: path, method: method, metadata: metadata)
+        routeMetadata.append(route)
+        
+        let fullPath = [host, method.description] + path
+        base.extend(fullPath, output: responder)
     }
     
     // caches static route resolutions
     private var _cache: [String: Responder?] = [:]
     private var _cacheLock = NSLock()
-
+    
     /// Removes all entries from this router's cache.
     ///
     public func flushCache() {
@@ -33,7 +61,7 @@ public class Router {
         _cache.removeAll()
         _cacheLock.unlock()
     }
-
+    
     /// Removes the cached Responder for a given Request.
     /// If there is no cached Responder, returns nil.
     ///
@@ -46,14 +74,14 @@ public class Router {
         _cacheLock.lock()
         let maybeCached = _cache.removeValue(forKey: request.routeKey)
         _cacheLock.unlock()
-
+        
         if let cached = maybeCached {
             return cached
         } else {
             return nil
         }
     }
-
+    
     /// Routes an incoming request
     /// the request will be populated with any found parameters (aka slugs).
     ///
@@ -62,18 +90,18 @@ public class Router {
         let key = request.routeKey
         
         // check the static route cache
-
+        
         _cacheLock.lock()
         let maybeCached = _cache[key]
         _cacheLock.unlock()
-
+        
         if let cached = maybeCached {
             return cached
         }
         
         let path = request.path()
         let result = base.fetch(path)
-
+        
         request.parameters = result?.slugs(for: path) ?? [:]
         
         // if there are no dynamic slugs, we can cache
@@ -103,7 +131,7 @@ extension Branch {
                 .flatMap({ $0.removingPercentEncoding })
                 .flatMap({ Parameters.string($0) })
                 else { return }
-
+            
             if let existing = slugs[key] {
                 var array = existing.array ?? [existing]
                 array.append(val)
@@ -147,3 +175,4 @@ extension Router {
 }
 
 extension Router: RouteBuilder {}
+

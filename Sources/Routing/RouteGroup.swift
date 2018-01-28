@@ -10,18 +10,18 @@ internal final class RouteGroup: RouteBuilder {
     let pathPrefix: [String]
     let middleware: [Middleware]
     let parent: RouteBuilder
-
+    
     init(host: String?, pathPrefix: [String], middleware: [Middleware], parent: RouteBuilder) {
         self.host = host
         self.pathPrefix = pathPrefix
         self.middleware = middleware
         self.parent = parent
     }
-
+    
     func register(host: String?, method: Method, path: [String], responder: Responder) {
         let host = host ?? self.host
         let path = self.pathPrefix + path
-
+        
         let res: Responder
         if middleware.isEmpty {
             res = responder
@@ -31,8 +31,29 @@ internal final class RouteGroup: RouteBuilder {
                 return try middleware.chain(to: responder).respond(to: request)
             }
         }
-
+        
         parent.register(host: host, method: method, path: path, responder: res)
+    }
+}
+
+/// Override default implementation of RouteBuilder to pass metadata up the RouteBuilder
+/// `register` chain
+extension RouteGroup{
+    func register(host: String?, method: Method, path: [String], metadata: [String: Any], responder: Responder) {
+        let host = host ?? self.host
+        let path = self.pathPrefix + path
+        
+        let res: Responder
+        if middleware.isEmpty {
+            res = responder
+        } else {
+            let middleware = self.middleware
+            res = Request.Handler { request in
+                return try middleware.chain(to: responder).respond(to: request)
+            }
+        }
+        
+        parent.register(host: host, method: method, path: path, metadata: metadata, responder: res)
     }
 }
 
@@ -45,3 +66,4 @@ extension Collection where Iterator.Element == Middleware {
         }
     }
 }
+
