@@ -38,7 +38,7 @@ public class Router {
         host: String?,
         method: HTTP.Method,
         path: [String],
-        metadata: [String: Any] = [:],
+        metadata: [String: Any],
         responder: Responder
     ) {
         let host = host ?? "*"

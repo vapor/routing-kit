@@ -91,9 +91,22 @@ final class Dropped: RouteBuilder {
         host: String?,
         method: HTTP.Method,
         path: [String],
-        metadata: [String: String]? = nil,
         responder: Responder
     ) {
+        router.register(host: host, method: method, path: path, responder: responder)
+    }
+}
+
+/// A mock for RouteBuilder
+extension Dropped: MetadataRouteBuilder {
+    
+    public func register(
+        host: String?,
+        method: HTTP.Method,
+        path: [String],
+        metadata: [String: Any],
+        responder: Responder
+        ) {
         router.register(host: host, method: method, path: path, metadata: metadata, responder: responder)
     }
 }

@@ -12,7 +12,7 @@ extension MetadataRouteBuilder {
     /// grouped(host: "0.0.0.0").grouped(host: "196.08.0.1")
     ///
     /// will bind subsequent additions to '196.08.0.1'
-    public func grouped(host: String) -> MetadataRouteBuilder {
+    public func metadataGrouped(host: String) -> MetadataRouteBuilder {
         return MetadataRouteGroup(host: host, pathPrefix: [], middleware: [], parent: self)
     }
     
@@ -23,26 +23,26 @@ extension MetadataRouteBuilder {
     /// "a/path/to/foo"
     /// "a", "path", "to", "foo"
     /// "a/path", "to/foo"
-    public func grouped(_ path: String...) -> MetadataRouteBuilder {
-        return grouped(path)
+    public func metadataGrouped(_ path: String...) -> MetadataRouteBuilder {
+        return metadataGrouped(path)
     }
     
     /// - see grouped(_ path: String...)
-    public func grouped(_ path: [String]) -> MetadataRouteBuilder {
+    public func metadataGrouped(_ path: [String]) -> MetadataRouteBuilder {
         let components = path.pathComponents
         return MetadataRouteGroup(host: nil, pathPrefix: components, middleware: [], parent: self)
     }
     
     /// Group all subsequent routes to pass through specified middleware
     /// use `,` separated list for multiple middleware
-    public func grouped(_ middleware: Middleware...) -> MetadataRouteBuilder {
-        return grouped(middleware)
+    public func metadataGrouped(_ middleware: Middleware...) -> MetadataRouteBuilder {
+        return metadataGrouped(middleware)
     }
     
     // FIXME: External arg necessary on middleware groups?
     
     /// - see grouped(middleware: Middleware...)
-    public func grouped(_ middleware: [Middleware]) -> MetadataRouteBuilder {
+    public func metadataGrouped(_ middleware: [Middleware]) -> MetadataRouteBuilder {
         return MetadataRouteGroup(host: nil, pathPrefix: [], middleware: middleware, parent: self)
     }
 }
@@ -51,32 +51,32 @@ extension MetadataRouteBuilder {
 
 extension MetadataRouteBuilder {
     /// Closure based variant of grouped(host: String)
-    public func group(host: String, handler: (MetadataRouteBuilder) -> ()) {
-        let builder = grouped(host: host)
+    public func metadataGroup(host: String, handler: (MetadataRouteBuilder) -> ()) {
+        let builder = metadataGrouped(host: host)
         handler(builder)
     }
     
     /// Closure based variant of grouped(_ path: String...)
-    public func group(_ path: String ..., handler: (MetadataRouteBuilder) -> ()) {
-        group(path: path, handler: handler)
+    public func metadataGroup(_ path: String ..., handler: (MetadataRouteBuilder) -> ()) {
+        metadataGroup(path: path, handler: handler)
     }
     
     /// Closure based variant of grouped(_ path: [String])
-    public func group(path: [String], handler: (MetadataRouteBuilder) -> ()) {
+    public func metadataGroup(path: [String], handler: (MetadataRouteBuilder) -> ()) {
         let path = path.pathComponents
-        let builder = grouped(path)
+        let builder = metadataGrouped(path)
         handler(builder)
     }
     
     // FIXME: Need external parameter cohesiveness
     /// Closure based variant of grouped(middleware: Middleware...)
-    public func group(_ middleware: Middleware..., handler: (MetadataRouteBuilder) -> ()) {
-        group(middleware: middleware, handler: handler)
+    public func metadataGroup(_ middleware: Middleware..., handler: (MetadataRouteBuilder) -> ()) {
+        metadataGroup(middleware: middleware, handler: handler)
     }
     
     /// Closure based variant of grouped(middleware: [Middleware])
-    public func group(middleware: [Middleware], handler: (MetadataRouteBuilder) -> ()) {
-        let builder = grouped(middleware)
+    public func metadataGroup(middleware: [Middleware], handler: (MetadataRouteBuilder) -> ()) {
+        let builder = metadataGrouped(middleware)
         handler(builder)
     }
 }

@@ -14,7 +14,7 @@ extension MetadataRouteBuilder {
         host: String? = nil,
         method: Method = .get,
         path: [String] = [],
-        metadata: [String: Any] = [:],
+        metadata: [String: Any],
         responder: @escaping RouteHandler
         ) {
         let re = Request.Handler { try responder($0).makeResponse() }
@@ -22,7 +22,7 @@ extension MetadataRouteBuilder {
         register(host: host, method: method, path: path, metadata: metadata, responder: re)
     }
     
-    public func register(method: Method = .get, path: [String] = [], metadata: [String: Any] = [:], responder: Responder) {
+    public func register(method: Method = .get, path: [String] = [], metadata: [String: Any], responder: Responder) {
         let path = path.pathComponents
         register(host: nil, method: method, path: path, metadata: metadata, responder: responder)
     }
