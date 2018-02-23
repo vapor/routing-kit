@@ -1,9 +1,9 @@
 <p align="center">
-    <img src="https://cloud.githubusercontent.com/assets/1977704/25427184/10acfe5a-2a72-11e7-953f-503d9fb1a115.png" width="320" alt="Routing">
+    <img src="https://user-images.githubusercontent.com/1342803/36578628-7ca4da62-182c-11e8-88de-2949d386bd63.png" height="64" alt="Routing">
     <br>
     <br>
-    <a href="https://docs.vapor.codes/2.0/routing/package/">
-        <img src="http://img.shields.io/badge/read_the-docs-92A8D1.svg" alt="Documentation">
+    <a href="https://docs.vapor.codes/3.0/">
+        <img src="http://img.shields.io/badge/read_the-docs-2196f3.svg" alt="Documentation">
     </a>
     <a href="http://vapor.team">
         <img src="http://vapor.team/badge.svg" alt="Slack Team">
@@ -15,6 +15,6 @@
         <img src="https://circleci.com/gh/vapor/routing.svg?style=shield" alt="Continuous Integration">
     </a>
     <a href="https://swift.org">
-        <img src="http://img.shields.io/badge/swift-3.1-brightgreen.svg" alt="Swift 3.1">
+        <img src="http://img.shields.io/badge/swift-4.1-brightgreen.svg" alt="Swift 4.1">
     </a>
 </p>
