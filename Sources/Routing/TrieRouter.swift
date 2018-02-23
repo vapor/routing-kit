@@ -2,7 +2,8 @@ import Async
 import Foundation
 import Bits
 
-/// A basic router that can route requests depending on the method and URI
+/// Generic router built using the "trie" tree algorithm. 
+/// See https://en.wikipedia.org/wiki/Trie for more information.
 ///
 /// [Learn More →](https://docs.vapor.codes/3.0/routing/router/)
 public final class TrieRouter<Output> {
