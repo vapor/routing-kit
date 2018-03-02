@@ -14,15 +14,15 @@ class RouterTests: XCTestCase {
         let route = Route<Int>(path: [.constants(path), .parameter(.string(User.uniqueSlug))], output: 42)
         router.register(route: route)
 
-        let container = try BasicContainer(
+        let container = BasicContainer(
             config: Config(),
             environment: .development,
             services: Services(),
-            on: DefaultEventLoop(label: "unit-test")
+            on: wrap(EmbeddedEventLoop())
         )
         let params = Params()
         XCTAssertEqual(router.route(path: path + [.string("Tanner")], parameters: params), 42)
-        try XCTAssertEqual(params.parameter(User.self, using: container).blockingAwait().name, "Tanner")
+        try XCTAssertEqual(params.parameter(User.self, using: container).wait().name, "Tanner")
     }
     
     func testCaseSensitiveRouting() throws {
@@ -172,6 +172,6 @@ final class User: Parameter {
     }
 
     static func make(for parameter: String, using container: Container) throws -> Future<User> {
-        return Future(User(name: parameter))
+        return Future.map(on: container) { User(name: parameter) }
     }
 }

@@ -8,7 +8,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
     public enum Parameter {
         case data(Data)
         case bytes([UInt8])
-        case byteBuffer(ByteBuffer)
+        case byteBuffer(BytesBufferPointer)
         case string(String)
         case substring(Substring)
         
@@ -22,7 +22,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
             }
         }
         
-        func withByteBuffer<T>(do closure: (ByteBuffer) -> (T)) -> T {
+        func withByteBuffer<T>(do closure: (BytesBufferPointer) -> (T)) -> T {
             switch self {
             case .data(let data): return data.withByteBuffer(closure)
             case .byteBuffer(let byteBuffer): return closure(byteBuffer)
@@ -32,7 +32,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
                 
                 return string.withCString { pointer in
                     return pointer.withMemoryRebound(to: UInt8.self, capacity: count) { pointer in
-                        return closure(ByteBuffer(start: pointer, count: count))
+                        return closure(BytesBufferPointer(start: pointer, count: count))
                     }
                 }
             case .substring(let substring):
@@ -40,7 +40,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
                 
                 return substring.withCString { pointer in
                     return pointer.withMemoryRebound(to: UInt8.self, capacity: count) { pointer in
-                        return closure(ByteBuffer(start: pointer, count: count))
+                        return closure(BytesBufferPointer(start: pointer, count: count))
                     }
                 }
             }
