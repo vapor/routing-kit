@@ -26,7 +26,7 @@ enum TrieRouterNodeKind {
     case root
     
     // Size is separate to save ARC performance, which had a huge impact here
-    case parameter(data: [UInt8])
+    case parameter
     
     case constant(data: [UInt8], dataSize: Int)
     

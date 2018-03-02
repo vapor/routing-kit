@@ -11,7 +11,7 @@ class RouterTests: XCTestCase {
 
         let path: [PathComponent.Parameter] = [.string("foo"), .string("bar"), .string("baz")]
 
-        let route = Route<Int>(path: [.constants(path), .parameter(.string(User.uniqueSlug))], output: 42)
+        let route = Route<Int>(path: [.constants(path), .parameter], output: 42)
         router.register(route: route)
 
         let container = BasicContainer(
@@ -61,26 +61,26 @@ class RouterTests: XCTestCase {
         
         let route1 = Route<Int>(path: [
             .constants([.string("b")]),
-            .parameter(.string("1")),
+            .parameter,
             .anything
         ], output: 1)
         
         let route2 = Route<Int>(path: [
             .constants([.string("c")]),
-            .parameter(.string("1")),
-            .parameter(.string("2")),
+            .parameter,
+            .parameter,
             .anything
         ], output: 2)
         
         let route3 = Route<Int>(path: [
             .constants([.string("d")]),
-            .parameter(.string("1")),
-            .parameter(.string("2")),
+            .parameter,
+            .parameter,
         ], output: 3)
         
         let route4 = Route<Int>(path: [
             .constants([.string("e")]),
-            .parameter(.string("1")),
+            .parameter,
             .anything,
             .constants([.string("a")])
         ], output: 4)
@@ -133,6 +133,23 @@ class RouterTests: XCTestCase {
             4
         )
     }
+    
+    func testConflictingParameters() throws {
+        let router = TrieRouter<Bool>()
+        
+        let path: [PathComponent.Parameter] = [.string("component")]
+        
+        let route = Route<Bool>(path: [.constants(path), .parameter], output: true)
+        router.register(route: route)
+        
+        let route2 = Route<Bool>(path: [.constants(path), .parameter, .constants(path)], output: false)
+        router.register(route: route2)
+        
+        let params = Params()
+        XCTAssertEqual(router.route(path: [.string("component"), .string("aaa"), .string("component")], parameters: params), false)
+        XCTAssertEqual(router.route(path: [.string("component"), .string("TO")], parameters: params), true)
+        XCTAssertEqual(router.route(path: [.string("component")], parameters: params), nil)
+    }
 
     func testRouterSuffixes() throws {
         let router = TrieRouter<Int>()
@@ -156,6 +173,7 @@ class RouterTests: XCTestCase {
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testAnyRouting", testAnyRouting),
         ("testRouterSuffixes", testRouterSuffixes),
+        ("testConflictingParameters", testConflictingParameters),
     ]
 }
 

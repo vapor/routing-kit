@@ -74,7 +74,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
     case constants([Parameter])
 
     /// A dynamic parameter component.
-    case parameter(Parameter)
+    case parameter
     
     /// Any set of components
     case anything

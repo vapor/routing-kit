@@ -41,7 +41,7 @@ public final class TrieRouter<Output> {
     public func route(path: [PathComponent.Parameter], parameters: ParameterContainer) -> Output? {
         // always start at the root node
         var current: TrieRouterNode = root
-        var parameterNode: (TrieRouterNode<Output>, [UInt8])?
+        var parameterNode: TrieRouterNode<Output>?
         var fallbackNode: TrieRouterNode<Output>?
 
         // traverse the constant path supplied
@@ -69,19 +69,19 @@ public final class TrieRouter<Output> {
                         current = child
                         continue nextComponent
                     }
-                case .parameter(let parameter):
-                    parameterNode = (child, parameter)
+                case .parameter:
+                    parameterNode = child
                 case .root:
                     fatalError("Incorrect nested 'root' routing node")
                 }
             }
             
-            if let (node, parameter) = parameterNode {
+            if let parameterNode = parameterNode {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
-                let lazy = ParameterValue(slug: parameter, value: component.bytes)
+                let lazy = ParameterValue(value: component.bytes)
                 parameters.parameters.append(lazy)
-                current = node
+                current = parameterNode
                 continue nextComponent
             }
             

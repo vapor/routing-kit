@@ -62,13 +62,6 @@ extension ParameterContainer {
         }
 
         let current = parameters[0]
-        guard current.slug == [UInt8](P.uniqueSlug.utf8) else {
-            throw RoutingError(
-                identifier: "invalidParameterType",
-                reason: "Invalid parameter type. Expected \(P.self) got \(current.slug)",
-                source: .capture()
-            )
-        }
 
         guard let string = String(bytes: current.value, encoding: .utf8) else {
             throw RoutingError(
