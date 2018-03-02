@@ -26,11 +26,11 @@ extension TrieRouterNode {
             } else {
                 return self.find(constants: constants.map { $0.bytes })
             }
-        case .parameter(let p):
+        case .parameter:
             if let node = self.findParameterNode() {
                 return node
             } else {
-                let node = TrieRouterNode<Output>(kind: .parameter(data: p.bytes))
+                let node = TrieRouterNode<Output>(kind: .parameter)
                 self.children.append(node)
                 return node
             }

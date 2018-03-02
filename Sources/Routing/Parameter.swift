@@ -9,25 +9,8 @@ public protocol Parameter {
     /// the type of this parameter after it has been resolved.
     associatedtype ResolvedParameter
 
-    /// the unique key to use as a slug in route building
-    static var uniqueSlug: String { get }
-
     // returns the found model for the resolved url parameter
     static func make(for parameter: String, using container: Container) throws -> ResolvedParameter
-}
-
-extension Parameter {
-    /// The path component for this route parameter
-    public static var parameter: PathComponent {
-        return .parameter(.string(uniqueSlug))
-    }
-}
-
-extension Parameter {
-    /// See Parameter.uniqueSlug
-    public static var uniqueSlug: String {
-        return "\(Self.self)".lowercased()
-    }
 }
 
 extension String: Parameter {
@@ -38,7 +21,6 @@ extension String: Parameter {
 }
 
 extension Int: Parameter {
-
     /// Attempts to read the parameter into a `Int`
     public static func make(for parameter: String, using container: Container) throws -> Int {
         guard let number = Int(parameter) else {
