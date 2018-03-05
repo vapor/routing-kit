@@ -62,7 +62,7 @@ extension ParameterContainer {
         }
 
         let current = parameters[0]
-        guard current.slug == [UInt8](P.uniqueSlug.utf8) else {
+        guard current.slug == P.uniqueSlug else {
             throw RoutingError(
                 identifier: "invalidParameterType",
                 reason: "Invalid parameter type. Expected \(P.self) got \(current.slug)",
@@ -70,15 +70,7 @@ extension ParameterContainer {
             )
         }
 
-        guard let string = String(bytes: current.value, encoding: .utf8) else {
-            throw RoutingError(
-                identifier: "convertString",
-                reason: "Could not convert the parameter value to a UTF-8 string.",
-                source: .capture()
-            )
-        }
-
-        let item = try P.make(for: string, using: container)
+        let item = try P.make(for: current.slug, using: container)
         parameters = Array(parameters.dropFirst())
         return item
     }
