@@ -70,7 +70,7 @@ extension ParameterContainer {
             )
         }
 
-        let item = try P.make(for: current.slug, using: container)
+        let item = try P.make(for: current.value, using: container)
         parameters = Array(parameters.dropFirst())
         return item
     }
