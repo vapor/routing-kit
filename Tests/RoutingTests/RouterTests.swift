@@ -5,32 +5,44 @@ import Routing
 import Service
 import XCTest
 
+extension PathComponent {
+    static func string(_ string: String) -> PathComponent {
+        return .init(string: string)
+    }
+}
+
 class RouterTests: XCTestCase {
     func testRouter() throws {
         let router = TrieRouter<Int>()
 
-        let path: [PathComponent.Parameter] = [.string("foo"), .string("bar"), .string("baz")]
+        let path: [PathComponent] = [.string("foo"), .string("bar"), .string("baz")]
 
-        let route = Route<Int>(path: [.constants(path), .parameter(.string(User.uniqueSlug))], output: 42)
+        let route = Route<Int>(
+            path: path.map { .constant($0) } + [.parameter(.string(User.uniqueSlug))],
+            output: 42
+        )
         router.register(route: route)
 
-        let container = try BasicContainer(
+        let container = BasicContainer(
             config: Config(),
             environment: .development,
             services: Services(),
-            on: DefaultEventLoop(label: "unit-test")
+            on: EmbeddedEventLoop()
         )
         let params = Params()
         XCTAssertEqual(router.route(path: path + [.string("Tanner")], parameters: params), 42)
-        try XCTAssertEqual(params.parameter(User.self, using: container).blockingAwait().name, "Tanner")
+        try XCTAssertEqual(params.parameter(User.self, using: container).wait().name, "Tanner")
     }
     
     func testCaseSensitiveRouting() throws {
         let router = TrieRouter<Int>()
         
-        let path: [PathComponent.Parameter] = [.string("path"), .string("TO"), .string("fOo")]
+        let path: [PathComponent] = [.string("path"), .string("TO"), .string("fOo")]
         
-        let route = Route<Int>(path: [.constants(path)], output: 42)
+        let route = Route<Int>(
+            path: path.map { .constant($0) },
+            output: 42
+        )
         router.register(route: route)
         
         let params = Params()
@@ -42,9 +54,9 @@ class RouterTests: XCTestCase {
         let router = TrieRouter<Int>()
         router.caseInsensitive = true
         
-        let path: [PathComponent.Parameter] = [.string("path"), .string("TO"), .string("fOo")]
+        let path: [PathComponent] = [.string("path"), .string("TO"), .string("fOo")]
         
-        let route = Route<Int>(path: [.constants(path)], output: 42)
+        let route = Route<Int>(path: path.map { .constant($0) }, output: 42)
         router.register(route: route)
         
         let params = Params()
@@ -55,34 +67,34 @@ class RouterTests: XCTestCase {
         let router = TrieRouter<Int>()
         
         let route0 = Route<Int>(path: [
-            .constants([.string("a")]),
+            .constant(.string("a")),
             .anything
         ], output: 0)
         
         let route1 = Route<Int>(path: [
-            .constants([.string("b")]),
+            .constant(.string("b")),
             .parameter(.string("1")),
             .anything
         ], output: 1)
         
         let route2 = Route<Int>(path: [
-            .constants([.string("c")]),
+            .constant(.string("c")),
             .parameter(.string("1")),
             .parameter(.string("2")),
             .anything
         ], output: 2)
         
         let route3 = Route<Int>(path: [
-            .constants([.string("d")]),
+            .constant(.string("d")),
             .parameter(.string("1")),
             .parameter(.string("2")),
         ], output: 3)
         
         let route4 = Route<Int>(path: [
-            .constants([.string("e")]),
+            .constant(.string("e")),
             .parameter(.string("1")),
             .anything,
-            .constants([.string("a")])
+            .constant(.string("a"))
         ], output: 4)
         
         router.register(route: route0)
@@ -138,10 +150,10 @@ class RouterTests: XCTestCase {
         let router = TrieRouter<Int>()
         router.caseInsensitive = true
 
-        let path1: [PathComponent.Parameter] = [.string("a")]
-        let path2: [PathComponent.Parameter] = [.string("aa")]
-        let route1 = Route<Int>(path: [.constants(path1)], output: 1)
-        let route2 = Route<Int>(path: [.constants(path2)], output: 2)
+        let path1: PathComponent = .string("a")
+        let path2: PathComponent = .string("aa")
+        let route1 = Route<Int>(path: [.constant(path1)], output: 1)
+        let route2 = Route<Int>(path: [.constant(path2)], output: 2)
         router.register(route: route1)
         router.register(route: route2)
 
@@ -172,6 +184,6 @@ final class User: Parameter {
     }
 
     static func make(for parameter: String, using container: Container) throws -> Future<User> {
-        return Future(User(name: parameter))
+        return Future.map(on: container) { User(name: parameter) }
     }
 }

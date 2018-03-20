@@ -13,7 +13,7 @@ public final class TrieRouter<Output> {
     /// The root node
     var root: TrieRouterNode<Output>
     
-    /// If a route cannot be found, this is the fallback responder that will be used instead
+    /// If a route cannot be found, this is the fallback output that will be used instead
     public var fallback: Output?
     
     /// If `true`, constants are compared case insensitively
@@ -38,7 +38,7 @@ public final class TrieRouter<Output> {
     }
 
     /// See Router.route()
-    public func route(path: [PathComponent.Parameter], parameters: ParameterContainer) -> Output? {
+    public func route(path: [PathComponent], parameters: ParameterContainer) -> Output? {
         // always start at the root node
         var current: TrieRouterNode = root
         var parameterNode: (TrieRouterNode<Output>, [UInt8])?
@@ -79,7 +79,7 @@ public final class TrieRouter<Output> {
             if let (node, parameter) = parameterNode {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
-                let lazy = ParameterValue(slug: parameter, value: component.bytes)
+                let lazy = ParameterValue(slug: String(bytes: parameter, encoding: .utf8)!, value: component.string)
                 parameters.parameters.append(lazy)
                 current = node
                 continue nextComponent
@@ -99,16 +99,4 @@ public final class TrieRouter<Output> {
     }
 }
 
-extension TrieRouterNode {
-    fileprivate func find(constants: [[UInt8]]) -> TrieRouterNode<Output>? {
-        let constant = constants[0]
-        
-        let node = self.findConstant(constant)
-        
-        if constants.count > 1 {
-            return node?.find(constants: Array(constants[1...]))
-        } else {
-            return node
-        }
-    }
-}
+

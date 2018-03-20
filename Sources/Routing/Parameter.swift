@@ -18,8 +18,8 @@ public protocol Parameter {
 
 extension Parameter {
     /// The path component for this route parameter
-    public static var parameter: PathComponent {
-        return .parameter(.string(uniqueSlug))
+    public static var parameter: DynamicPathComponent {
+        return .parameter(.init(string: uniqueSlug))
     }
 }
 

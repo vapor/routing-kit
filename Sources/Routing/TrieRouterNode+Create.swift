@@ -1,31 +1,21 @@
 extension TrieRouterNode {
-    fileprivate func find(constants: [[UInt8]]) -> TrieRouterNode<Output> {
-        let constant = constants[0]
-        
+    fileprivate func find(constant: String) -> TrieRouterNode<Output> {
         let node: TrieRouterNode<Output>
         
         if let found = self.findConstant(constant) {
             node = found
         } else {
-            node = TrieRouterNode<Output>(kind: .constant(data: constant, dataSize: constant.count))
+            node = TrieRouterNode<Output>(kind: .constant(data: [UInt8](constant.utf8), dataSize: constant.count))
             self.children.append(node)
         }
-        
-        if constants.count > 1 {
-            return node.find(constants: Array(constants[1...]))
-        } else {
-            return node
-        }
+
+        return node
     }
     
-    fileprivate func find(component: PathComponent) -> TrieRouterNode<Output> {
+    fileprivate func find(component: DynamicPathComponent) -> TrieRouterNode<Output> {
         switch component {
-        case .constants(let constants):
-            if constants.count == 0 {
-                return self
-            } else {
-                return self.find(constants: constants.map { $0.bytes })
-            }
+        case .constant(let constant):
+            return self.find(constant: constant.string)
         case .parameter(let p):
             if let node = self.findParameterNode() {
                 return node
@@ -56,9 +46,9 @@ extension TrieRouterNode {
         return nil
     }
     
-    func findConstant(_ buffer: [UInt8]) -> TrieRouterNode? {
+    func findConstant(_ buffer: String) -> TrieRouterNode? {
         for child in children {
-            if case .constant(let data, _) = child.kind, data == buffer {
+            if case .constant(let data, _) = child.kind, data == [UInt8](buffer.utf8) {
                 return child
             }
         }
@@ -76,7 +66,7 @@ extension TrieRouterNode {
         return nil
     }
     
-    subscript(path: PathComponent) -> TrieRouterNode<Output> {
+    subscript(path: DynamicPathComponent) -> TrieRouterNode<Output> {
         return self.find(component: path)
     }
 }

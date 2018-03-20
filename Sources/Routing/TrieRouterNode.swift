@@ -24,11 +24,8 @@ final class TrieRouterNode<Output> {
 
 enum TrieRouterNodeKind {
     case root
-    
     // Size is separate to save ARC performance, which had a huge impact here
     case parameter(data: [UInt8])
-    
     case constant(data: [UInt8], dataSize: Int)
-    
     case anything
 }
