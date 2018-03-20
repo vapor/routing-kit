@@ -65,7 +65,7 @@ extension ParameterContainer {
         guard current.slug == P.uniqueSlug else {
             throw RoutingError(
                 identifier: "invalidParameterType",
-                reason: "Invalid parameter type. Expected \(P.self) got \(current.slug)",
+                reason: "Invalid parameter type. Expected \(P.uniqueSlug) got \(current.slug)",
                 source: .capture()
             )
         }
