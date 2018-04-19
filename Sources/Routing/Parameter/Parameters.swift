@@ -1,13 +1,23 @@
-/// A bag for holding parameters resolved during router
-public protocol ParameterContainer: class {
-    /// The parameters, not yet resolved
-    /// so that the `.next()` method can throw any errors.
-    var parameters: [ParameterValue] { get set }
-}
+/// Holds resolved `Parameter` values that are discovered while routing.
+///
+/// After this struct has been filled with parameter values, you can use it
+/// to fetch them out in order using the `next(...)` method.
+///
+///     let id = parameters.next(Int.self)
+///
+public struct Parameters {
+    /// The stored `ParameterValue`s. These can be converted into their associated `Parameter`s
+    /// using the `next(...)` method.
+    ///
+    ///     let id = parameters.next(Int.self)
+    ///
+    public var values: [ParameterValue]
 
-/// MARK: Next
+    /// Creates a new `Parameters`. Pass this into the `Router.route(...)` method to fill with values.
+    public init() {
+        values = []
+    }
 
-extension Array where Element == ParameterValue {
     /// Grabs the next parameter from the parameter bag.
     ///
     /// Note: the parameters _must_ be fetched in the order they
@@ -22,17 +32,17 @@ extension Array where Element == ParameterValue {
     public mutating func next<P>(_ parameter: P.Type, on container: Container) throws -> P.ResolvedParameter
         where P: Parameter
     {
-        guard count > 0 else {
+        guard values.count > 0 else {
             throw RoutingError(identifier: "next", reason: "Insufficient parameters.")
         }
 
-        let current = self[0]
+        let current = values[0]
         guard current.slug == P.routingSlug else {
             throw RoutingError(identifier: "nextType", reason: "Invalid parameter type: \(P.routingSlug) != \(current.slug)")
         }
 
         let item = try P.resolveParameter(current.value, on: container)
-        self = Array(dropFirst())
+        values = Array(values.dropFirst())
         return item
     }
 }

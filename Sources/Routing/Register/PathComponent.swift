@@ -1,4 +1,5 @@
-/// Components of a router path.
+/// A single path component of a `Route`. An array of these components describes
+/// a route's path, including which parts are constant and which parts are dynamic (parameters).
 public enum PathComponent {
     /// A normal, constant path component.
     case constant(String)
@@ -6,12 +7,17 @@ public enum PathComponent {
     /// A dynamic parameter component.
     case parameter(String)
     
-    /// Any set of components
+    /// This route will match and discard any number of constant components after
+    /// this anything component.
     case anything
 }
 
+/// Shortcut for accessing `PathComponent.anything`.
+public let any: PathComponent = .anything
+
 extension Array where Element == PathComponent {
-    var readable: String {
+    /// Creates a readable representation of this array of `PathComponent`.
+    public var readable: String {
         return "/" + map {
             switch $0 {
             case .constant(let s): return s
@@ -22,9 +28,9 @@ extension Array where Element == PathComponent {
     }
 }
 
-/// Capable of being represented by dynamic path components.
+/// Capable of being represented by an array of `PathComponent`.
 public protocol PathComponentsRepresentable {
-    /// Convert to path component.
+    /// Converts self to an array of `PathComponent`.
     func convertToPathComponents() -> [PathComponent]
 }
 

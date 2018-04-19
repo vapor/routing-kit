@@ -1,11 +1,11 @@
 /// A type that is capable of being used as a dynamic route parameter.
 ///
 ///     router.get("users", Int.self) { req in
-///         let id = try req.parameter(Int.self)
+///         let id = try req.parameters.next(Int.self)
 ///         return "user id: \(id)"
 ///     }
 ///
-/// Use the static `parameter` property to generate a `DynamicPathComponent` for this type.
+/// Use the static `parameter` property to generate a `PathComponent` for this type.
 public protocol Parameter {
     /// The type this parameter will convert to once it is looked up.
     /// Most types like `String` and `Int` will simply return self, but some
@@ -36,7 +36,7 @@ public protocol Parameter {
 // MARK: Methods
 
 extension Parameter {
-    /// Creates a `DynamicPathComponent` for this type which can be used
+    /// Creates a `PathComponent` for this type which can be used
     /// when registering routes to a router.
     public static var parameter: PathComponent {
         return .parameter(routingSlug)
