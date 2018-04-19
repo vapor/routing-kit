@@ -1,5 +1,3 @@
-import Foundation
-
 /// A parameter and its resolved value.
 public struct ParameterValue {
     /// The parameter type.

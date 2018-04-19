@@ -1,158 +1,106 @@
-import Async
-import Foundation
-import Service
-
-/// Capable of being used as a route parameter.
+/// A type that is capable of being used as a dynamic route parameter.
 ///
-/// [Learn More →](https://docs.vapor.codes/3.0/routing/parameters/#creating-custom-parameters)
+///     router.get("users", Int.self) { req in
+///         let id = try req.parameter(Int.self)
+///         return "user id: \(id)"
+///     }
+///
+/// Use the static `parameter` property to generate a `DynamicPathComponent` for this type.
 public protocol Parameter {
-    /// the type of this parameter after it has been resolved.
+    /// The type this parameter will convert to once it is looked up.
+    /// Most types like `String` and `Int` will simply return self, but some
+    /// more complex types may wish to perform async lookups or conversions to different types.
     associatedtype ResolvedParameter
 
-    /// the unique key to use as a slug in route building
-    static var uniqueSlug: String { get }
+    /// A unique key to use for identifying this parameter in the URL.
+    /// Defaults to the type name lowercased.
+    static var routingSlug: String { get }
 
-    // returns the found model for the resolved url parameter
-    static func make(for parameter: String, using container: Container) throws -> ResolvedParameter
+    /// Resolves an instance of the `ResolvedParameter` type for this `Parameter`
+    /// based on the concrete `String` found in the URL.
+    ///
+    ///     dynamic path: /users/:id
+    ///     actual path:  /users/42
+    ///
+    /// For example, in the above example the parameter string would be `"42"`.
+    ///
+    /// - parameters:
+    ///     - parameter: Concrete `String` that has been supplied in the URL in the position
+    ///       specified by this dynamic parameter.
+    ///     - container: Reference to a `Container` for creating services
+    /// - returns: An instance of the `ResolvedParameter` type if one could be created.
+    /// - throws: Throws an error if a `ResolvedParameter` could not be created.
+    static func resolveParameter(_ parameter: String, on container: Container) throws -> ResolvedParameter
 }
 
+// MARK: Methods
+
 extension Parameter {
-    /// The path component for this route parameter
-    public static var parameter: DynamicPathComponent {
-        return .parameter(.init(string: uniqueSlug))
+    /// Creates a `DynamicPathComponent` for this type which can be used
+    /// when registering routes to a router.
+    public static var parameter: PathComponent {
+        return .parameter(routingSlug)
     }
 }
 
+// MARK: Optional Requirements
+
 extension Parameter {
-    /// See Parameter.uniqueSlug
-    public static var uniqueSlug: String {
+    /// See `Parameter`.
+    public static var routingSlug: String {
         return "\(Self.self)".lowercased()
     }
 }
 
+// MARK: Default Types
+
 extension String: Parameter {
-    /// Reads the raw parameter
-    public static func make(for parameter: String, using container: Container) throws -> String {
+    /// See `Parameter`.
+    public static func resolveParameter(_ parameter: String, on container: Container) throws -> String {
         return parameter
     }
 }
 
-extension Int: Parameter {
-
-    /// Attempts to read the parameter into a `Int`
-    public static func make(for parameter: String, using container: Container) throws -> Int {
-        guard let number = Int(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an Int", source: .capture())
+extension FixedWidthInteger {
+    /// See `Parameter`.
+    public static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
+        guard let number = Self(parameter) else {
+            throw RoutingError(identifier: "fwi", reason: "The parameter was not convertible to an \(Self.self)")
         }
-
         return number
     }
 }
 
-extension Double: Parameter {
-    /// Attempts to read the parameter into a `Double`
-    public static func make(for parameter: String, using container: Container) throws -> Double {
+extension Int: Parameter { }
+extension Int8: Parameter { }
+extension Int16: Parameter { }
+extension Int32: Parameter { }
+extension Int64: Parameter { }
+extension UInt: Parameter { }
+extension UInt8: Parameter { }
+extension UInt16: Parameter { }
+extension UInt32: Parameter { }
+extension UInt64: Parameter { }
+
+extension BinaryFloatingPoint {
+    /// See `Parameter`.
+    public static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
         guard let number = Double(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to a Double", source: .capture())
+            throw RoutingError(identifier: "bfp", reason: "The parameter was not convertible to a \(Self.self)")
         }
 
-        return number
+        return Self(number)
     }
 }
 
-extension Int8: Parameter {
-    /// Attempts to read the parameter into a `Int8`
-    public static func make(for parameter: String, using container: Container) throws -> Int8 {
-        guard let number = Int8(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an Int8", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension Int16: Parameter {
-    /// Attempts to read the parameter into a `Int16`
-    public static func make(for parameter: String, using container: Container) throws -> Int16 {
-        guard let number = Int16(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an Int16", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension Int32: Parameter {
-    /// Attempts to read the parameter into a `Int32`
-    public static func make(for parameter: String, using container: Container) throws -> Int32 {
-        guard let number = Int32(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an Int32", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension Int64: Parameter {
-    /// Attempts to read the parameter into a `Int64`
-    public static func make(for parameter: String, using container: Container) throws -> Int64 {
-        guard let number = Int64(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an Int64", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension UInt8: Parameter {
-    /// Attempts to read the parameter into a `UInt8`
-    public static func make(for parameter: String, using container: Container) throws -> UInt8 {
-        guard let number = UInt8(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an UInt8", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension UInt16: Parameter {
-    /// Attempts to read the parameter into a `UInt16`
-    public static func make(for parameter: String, using container: Container) throws -> UInt16 {
-        guard let number = UInt16(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an UInt16", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension UInt32: Parameter {
-    /// Attempts to read the parameter into a `UInt32`
-    public static func make(for parameter: String, using container: Container) throws -> UInt32 {
-        guard let number = UInt32(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an UInt32", source: .capture())
-        }
-
-        return number
-    }
-}
-
-extension UInt64: Parameter {
-    /// Attempts to read the parameter into a `UInt64`
-    public static func make(for parameter: String, using container: Container) throws -> UInt64 {
-        guard let number = UInt64(parameter) else {
-            throw RoutingError(identifier: "parameterNotAnInt", reason: "The parameter was not convertible to an UInt64", source: .capture())
-        }
-
-        return number
-    }
-}
+extension Float: Parameter { }
+extension Double: Parameter { }
 
 extension UUID: Parameter {
     /// Attempts to read the parameter into a `UUID`
-    public static func make(for parameter: String, using container: Container) throws -> UUID {
+    public static func resolveParameter(_ parameter: String, on container: Container) throws -> UUID {
         guard let uuid = UUID(uuidString: parameter) else {
-            throw RoutingError(identifier: "parameterNotAUUID", reason: "The parameter was not convertible to a UUID", source: .capture())
+            throw RoutingError(identifier: "uuid", reason: "The parameter was not convertible to a UUID")
         }
 
         return uuid

@@ -1,102 +1,96 @@
-import Async
-import Foundation
-import Bits
-
-/// Generic router built using the "trie" tree algorithm. 
+/// Generic router built using the "trie" tree algorithm.
 /// See https://en.wikipedia.org/wiki/Trie for more information.
-///
-/// [Learn More →](https://docs.vapor.codes/3.0/routing/router/)
 public final class TrieRouter<Output> {
     /// All routes registered to this router
-    public private(set) var routes: [Route<Output>] = []
-    
-    /// The root node
-    var root: TrieRouterNode<Output>
+    public private(set) var routes: [Route<Output>]
     
     /// If a route cannot be found, this is the fallback output that will be used instead
     public var fallback: Output?
     
     /// If `true`, constants are compared case insensitively
-    public var caseInsensitive: Bool
+    public var caseInsensitive: Bool {
+        get { return compareOptions.contains(.caseInsensitive) }
+        set {
+            if newValue {
+                compareOptions.insert(.caseInsensitive)
+            } else {
+                compareOptions.remove(.caseInsensitive)
+            }
+        }
+    }
+
+    /// The root node
+    private var root: TrieRouterNode<Output>
+
+    private var compareOptions: String.CompareOptions
 
     /// Create a new trie router
     public init() {
-        self.caseInsensitive = false
-        self.root = TrieRouterNode<Output>(kind: .root)
+        self.root = TrieRouterNode<Output>(string: "/")
+        self.routes = []
+        self.compareOptions = []
     }
 
-    /// See Router.register()
+    /// Registers a route.
     public func register(route: Route<Output>) {
-        self.routes.append(route)
+        // store the route so that we can access its metadata later if needed
+        routes.append(route)
+
+        // start at the root of the trie branch
         var current = root
-        
+
+        // for each dynamic path in the route get the appropriate
+        // child generating a new one if necessary
         for component in route.path {
-            current = current[component]
+            current = current.child(for: component)
         }
-        
+
+        // after iterating over all path components, we can set the output
+        // on the current node
+        debugOnly {
+            if current.output != nil {
+                print("[Routing] Warning: Overriding route output at: \(route.path.readable)")
+            }
+        }
         current.output = route.output
     }
 
     /// See Router.route()
-    public func route(path: [PathComponent], parameters: ParameterContainer) -> Output? {
+    public func route(path: [String], parameters: ParameterContainer) -> Output? {
         // always start at the root node
-        var current: TrieRouterNode = root
-        var parameterNode: (TrieRouterNode<Output>, [UInt8])?
-        var fallbackNode: TrieRouterNode<Output>?
+        var currentNode: TrieRouterNode = root
 
-        // traverse the constant path supplied
-        nextComponent: for component in path {
-            // Reset state to ensure a previous resolved path isn't interfering
-            parameterNode = nil
-            fallbackNode = nil
-            
-            for child in current.children {
-                switch child.kind {
-                case .anything:
-                    fallbackNode = child
-                case .constant(let data, _):
-                    // if we find a constant route path that matches this component,
-                    // then we should use it.
-                    let match = component.withByteBuffer { buffer -> Bool in
-                        if self.caseInsensitive {
-                            return data.caseInsensitiveEquals(to: buffer)
-                        } else {
-                            return data.elementsEqual(buffer)
-                        }
-                    }
-                    
-                    if match {
-                        current = child
-                        continue nextComponent
-                    }
-                case .parameter(let parameter):
-                    parameterNode = (child, parameter)
-                case .root:
-                    fatalError("Incorrect nested 'root' routing node")
+        // traverse the string path supplied
+        search: for path in path {
+            // check the constants first
+            for constant in currentNode.constants {
+                if path.compare(constant.string, options: compareOptions) == .orderedSame {
+                    currentNode = constant
+                    continue search
                 }
             }
-            
-            if let (node, parameter) = parameterNode {
+
+            // no constants matched, check for dynamic members
+            if let parameter = currentNode.parameter {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
-                let lazy = ParameterValue(slug: String(bytes: parameter, encoding: .utf8)!, value: component.string)
+                let lazy = ParameterValue(slug: parameter.string, value: path)
                 parameters.parameters.append(lazy)
-                current = node
-                continue nextComponent
+                currentNode = parameter
+                continue search
             }
-            
-            guard let fallbackNode = fallbackNode else {
-                // No results found
-                return fallback
+
+            // no constants or dynamic members, check for fallbacks
+            if let fallback = currentNode.fallback {
+                currentNode = fallback
+                continue search
             }
-            
-            current = fallbackNode
+
+            // no matches, stop searching
+            return fallback
         }
         
-        // return the resolved responder if there hasn't
-        // been an early exit.
-        return current.output ?? fallback
+        // return the currently resolved responder if there hasn't been an early exit.
+        return currentNode.output ?? fallback
     }
 }
-
-
