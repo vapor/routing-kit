@@ -47,3 +47,10 @@ extension String: PathComponentsRepresentable {
         return split(separator: "/").map { .constant(.init($0)) }
     }
 }
+
+extension Array: PathComponentsRepresentable where Element == PathComponentsRepresentable {
+    /// Converts self to an array of `PathComponent`.
+    public func convertToPathComponents() -> [PathComponent] {
+        return flatMap { $0.convertToPathComponents() }
+    }
+}
