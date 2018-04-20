@@ -20,7 +20,7 @@ public final class Router<Output> {
     ///
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
-    public init(options: Set<RouterOption> = []) {
+    public init(_ type: Output.Type = Output.self, options: Set<RouterOption> = []) {
         self.root = RouterNode<Output>(value: Data([.forwardSlash]))
         self.routes = []
         self.options = options
@@ -64,7 +64,7 @@ public final class Router<Output> {
     ///
     /// - parameters:
     ///     - path: Array of `RoutableComponent` to route against.
-    ///     - parameters: A mutable `Parameters` to collect dynamic parameters.
+    ///     - params: A mutable `Parameters` to collect dynamic parameters.
     /// - returns: Best-matching output for the supplied path.
     public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
         // always start at the root node

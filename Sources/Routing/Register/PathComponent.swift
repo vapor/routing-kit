@@ -1,6 +1,6 @@
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic (parameters).
-public enum PathComponent {
+public enum PathComponent: ExpressibleByStringLiteral {
     /// A normal, constant path component.
     case constant(String)
 
@@ -10,6 +10,11 @@ public enum PathComponent {
     /// This route will match and discard any number of constant components after
     /// this anything component.
     case anything
+
+    /// See `ExpressibleByStringLiteral`.
+    public init(stringLiteral value: String) {
+        self = .constant(value)
+    }
 }
 
 /// Shortcut for accessing `PathComponent.anything`.

@@ -3,12 +3,8 @@ import XCTest
 
 class RouterTests: XCTestCase {
     func testRouter() throws {
-        let route = Route<Int>(
-            path: [.constant("foo"), .constant("bar"), .constant("baz"), User.parameter],
-            output: 42
-        )
-
-        let router = Router<Int>()
+        let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
+        let router = Router(Int.self)
         router.register(route: route)
 
         let container = BasicContainer(
@@ -100,6 +96,24 @@ class RouterTests: XCTestCase {
         try XCTAssertEqual(params.next(User.self, on: container).wait().name, "Tanner")
     }
 
+    func testDocs() throws {
+        let router = Router(Double.self)
+        router.register(route: Route(path: ["fun", "meaning_of_universe"], output: 42))
+        router.register(route: Route(path: ["fun", "leet"], output: 1337))
+        router.register(route: Route(path: ["math", "pi"], output: 3.14))
+
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
+    }
+
+    func testDocs2() throws {
+        let router = Router(String.self)
+        router.register(route: Route(path: [.constant("users"), .parameter("user_id")], output: "show_user"))
+
+        var params = Parameters()
+        _ = router.route(path: ["users", "42"], parameters: &params)
+        print(params)
+    }
 
     static let allTests = [
         ("testRouter", testRouter),
