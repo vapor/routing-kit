@@ -1,10 +1,10 @@
-/// Generic `Router` built using the "trie" tree algorithm.
+/// Generic `TrieRouter` built using the "trie" tree algorithm.
 ///
 /// Use `register(...)` to register routes into the router. Use `route(...)` to then fetch a matching
 /// route's output.
 ///
 /// See https://en.wikipedia.org/wiki/Trie for more information.
-public final class Router<Output> {
+public final class TrieRouter<Output> {
     /// All routes registered to this router.
     ///
     /// Register new routes by using the `register(...)` method.
@@ -16,7 +16,7 @@ public final class Router<Output> {
     /// The root node.
     private var root: RouterNode<Output>
 
-    /// Create a new `Router`.
+    /// Create a new `TrieRouter`.
     ///
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
@@ -29,7 +29,7 @@ public final class Router<Output> {
     /// Registers a new `Route` to this router.
     ///
     ///     let route = Route<Int>(path: [.constant("users"), User.parameter], output: ...)
-    ///     let router = Router<Int>()
+    ///     let router = TrieRouter<Int>()
     ///     router.register(route: route)
     ///
     /// - parameters:

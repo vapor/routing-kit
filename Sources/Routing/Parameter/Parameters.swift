@@ -13,7 +13,7 @@ public struct Parameters {
     ///
     public var values: [ParameterValue]
 
-    /// Creates a new `Parameters`. Pass this into the `Router.route(...)` method to fill with values.
+    /// Creates a new `Parameters`. Pass this into the `TrieRouter.route(...)` method to fill with values.
     public init() {
         values = []
     }

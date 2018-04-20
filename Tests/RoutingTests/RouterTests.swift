@@ -4,7 +4,7 @@ import XCTest
 class RouterTests: XCTestCase {
     func testRouter() throws {
         let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
-        let router = Router(Int.self)
+        let router = TrieRouter(Int.self)
         router.register(route: route)
 
         let container = BasicContainer(
@@ -20,7 +20,7 @@ class RouterTests: XCTestCase {
     
     func testCaseSensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
-        let router = Router<Int>()
+        let router = TrieRouter<Int>()
         router.register(route: route)
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), nil)
@@ -29,7 +29,7 @@ class RouterTests: XCTestCase {
     
     func testCaseInsensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
-        let router = Router<Int>(options: [.caseInsensitive])
+        let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(route: route)
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), 42)
@@ -42,7 +42,7 @@ class RouterTests: XCTestCase {
         let route3 = Route<Int>(path: [.constant("d"), .parameter("1"), .parameter("2")], output: 3)
         let route4 = Route<Int>(path: [.constant("e"), .parameter("1"), .anything], output: 4)
 
-        let router = Router<Int>()
+        let router = TrieRouter<Int>()
         router.register(route: route0)
         router.register(route: route1)
         router.register(route: route2)
@@ -70,7 +70,7 @@ class RouterTests: XCTestCase {
         let route1 = Route<Int>(path: [.constant("a")], output: 1)
         let route2 = Route<Int>(path: [.constant("aa")], output: 2)
 
-        let router = Router<Int>(options: [.caseInsensitive])
+        let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(route: route1)
         router.register(route: route2)
 
@@ -82,7 +82,7 @@ class RouterTests: XCTestCase {
 
     func testDocBlock() throws {
         let route = Route<Int>(path: [.constant("users"), User.parameter], output: 42)
-        let router = Router<Int>()
+        let router = TrieRouter<Int>()
         router.register(route: route)
 
         let container = BasicContainer(
@@ -97,7 +97,7 @@ class RouterTests: XCTestCase {
     }
 
     func testDocs() throws {
-        let router = Router(Double.self)
+        let router = TrieRouter(Double.self)
         router.register(route: Route(path: ["fun", "meaning_of_universe"], output: 42))
         router.register(route: Route(path: ["fun", "leet"], output: 1337))
         router.register(route: Route(path: ["math", "pi"], output: 3.14))
@@ -107,7 +107,7 @@ class RouterTests: XCTestCase {
     }
 
     func testDocs2() throws {
-        let router = Router(String.self)
+        let router = TrieRouter(String.self)
         router.register(route: Route(path: [.constant("users"), .parameter("user_id")], output: "show_user"))
 
         var params = Parameters()

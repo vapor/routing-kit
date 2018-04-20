@@ -1,4 +1,4 @@
-extension Router {
+extension TrieRouter {
     /// If `true`, constants are compared case insensitively.
     @available(*, deprecated, renamed: "options")
     public var caseInsensitive: Bool {
