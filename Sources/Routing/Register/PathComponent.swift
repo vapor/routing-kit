@@ -7,9 +7,12 @@ public enum PathComponent: ExpressibleByStringLiteral {
     /// A dynamic parameter component.
     case parameter(String)
     
+    /// This route will match everything that is not in other routes
+    case anything
+    
     /// This route will match and discard any number of constant components after
     /// this anything component.
-    case anything
+    case catchall
 
     /// See `ExpressibleByStringLiteral`.
     public init(stringLiteral value: String) {
@@ -28,6 +31,7 @@ extension Array where Element == PathComponent {
             case .constant(let s): return s
             case .parameter(let p): return ":\(p)"
             case .anything: return "*"
+            case .catchall: return "*"
             }
         }.joined(separator: "/")
     }
