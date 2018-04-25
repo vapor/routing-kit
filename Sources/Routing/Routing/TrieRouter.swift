@@ -93,16 +93,22 @@ public final class TrieRouter<Output> {
                 continue search
             }
 
+            // check for anythings
+            if let anything = currentNode.anything {
+                currentNode = anything
+                continue search
+            }
+
             // no constants or dynamic members, check for catchall
             if let catchall = currentNode.catchall {
-                // there is a catchall, short-circuit to its output
+                // there is a catchall and it is final, short-circuit to its output
                 return catchall.output
             }
 
             // no matches, stop searching
             return nil
         }
-        
+
         // return the currently resolved responder if there hasn't been an early exit.
         return currentNode.output
     }

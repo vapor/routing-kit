@@ -13,6 +13,9 @@ final class RouterNode<Output> {
     /// This node should not have any child nodes.
     var catchall: RouterNode<Output>?
 
+    /// Anything child node, if one exists.
+    var anything: RouterNode<Output>?
+
     /// This node's output
     var output: Output?
 
@@ -60,13 +63,22 @@ final class RouterNode<Output> {
                 self.parameter = node
             }
             return node
-        case .anything:
+        case .catchall:
             let node: RouterNode<Output>
             if let fallback = self.catchall {
                 node = fallback
             } else {
                 node = RouterNode<Output>(value: Data([.asterisk]))
                 self.catchall = node
+            }
+            return node
+        case .anything:
+            let node: RouterNode<Output>
+            if let anything = self.anything {
+                node = anything
+            } else {
+                node = RouterNode<Output>(value: Data([.colon]))
+                self.anything = node
             }
             return node
         }
