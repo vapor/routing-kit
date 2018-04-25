@@ -67,8 +67,7 @@ final class RouterNode<Output> {
             let node: RouterNode<Output>
             if let fallback = self.catchall {
                 node = fallback
-            }
-            else {
+            } else {
                 node = RouterNode<Output>(value: Data([.asterisk]))
                 self.catchall = node
             }
