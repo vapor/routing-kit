@@ -36,12 +36,12 @@ class RouterTests: XCTestCase {
     }
 
     func testAnyRouting() throws {
-        let route0 = Route<Int>(path: [.constant("a"), .any], output: 0)
-        let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), .any], output: 1)
-        let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), .any], output: 2)
+        let route0 = Route<Int>(path: [.constant("a"), any], output: 0)
+        let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), any], output: 1)
+        let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), any], output: 2)
         let route3 = Route<Int>(path: [.constant("d"), .parameter("1"), .parameter("2")], output: 3)
-        let route4 = Route<Int>(path: [.constant("e"), .parameter("1"), .all], output: 4)
-        let route5 = Route<Int>(path: [.any, .constant("e"), .parameter("1")], output: 5)
+        let route4 = Route<Int>(path: [.constant("e"), .parameter("1"), all], output: 4)
+        let route5 = Route<Int>(path: [any, .constant("e"), .parameter("1")], output: 5)
 
         let router = TrieRouter<Int>()
         router.register(route: route0)

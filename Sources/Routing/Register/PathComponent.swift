@@ -8,11 +8,11 @@ public enum PathComponent: ExpressibleByStringLiteral {
     case parameter(String)
     
     /// This route will match everything that is not in other routes
-    case any
+    case anything
     
     /// This route will match and discard any number of constant components after
     /// this anything component.
-    case all
+    case catchall
 
     /// See `ExpressibleByStringLiteral`.
     public init(stringLiteral value: String) {
@@ -21,8 +21,8 @@ public enum PathComponent: ExpressibleByStringLiteral {
 }
 
 /// Shortcut for accessing `PathComponent.anything`.
-public let any: PathComponent = .any
-public let all: PathComponent = .all
+public let any: PathComponent = .anything
+public let all: PathComponent = .catchall
 
 
 extension Array where Element == PathComponent {
@@ -32,8 +32,8 @@ extension Array where Element == PathComponent {
             switch $0 {
             case .constant(let s): return s
             case .parameter(let p): return ":\(p)"
-            case .any: return ":"
-            case .all: return "*"
+            case .anything: return ":"
+            case .catchall: return "*"
             }
         }.joined(separator: "/")
     }
