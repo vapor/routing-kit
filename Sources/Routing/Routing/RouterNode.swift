@@ -74,11 +74,11 @@ final class RouterNode<Output> {
             return node
         case .anything:
             let node: RouterNode<Output>
-            if (self.anything == nil) {
+            if let anything = self.anything {
+                node = anything
+            } else {
                 node = RouterNode<Output>(value: Data([.colon]))
                 self.anything = node
-            } else {
-                node = self.anything!
             }
             return node
         }

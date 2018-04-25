@@ -22,6 +22,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
 
 /// Shortcut for accessing `PathComponent.anything`.
 public let any: PathComponent = .anything
+/// Shortcut for accessing `PathComponent.catchall`.
 public let all: PathComponent = .catchall
 
 
