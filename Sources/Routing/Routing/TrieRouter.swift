@@ -9,13 +9,13 @@ public final class TrieRouter<Output> {
     ///
     /// Register new routes by using the `register(...)` method.
     public private(set) var routes: [Route<Output>]
-    
+
     /// Configured options such as case-sensitivity.
     public var options: Set<RouterOption>
-    
+
     /// The root node.
     private var root: RouterNode<Output>
-    
+
     /// Create a new `TrieRouter`.
     ///
     /// - parameters:
@@ -25,7 +25,7 @@ public final class TrieRouter<Output> {
         self.routes = []
         self.options = options
     }
-    
+
     /// Registers a new `Route` to this router.
     ///
     ///     let route = Route<Int>(path: [.constant("users"), User.parameter], output: ...)
@@ -37,18 +37,16 @@ public final class TrieRouter<Output> {
     public func register(route: Route<Output>) {
         // store the route so that we can access its metadata later if needed
         routes.append(route)
-        
+
         // start at the root of the trie branch
         var current = root
-        
-        print("adding:",route.path)
-        
+
         // for each dynamic path in the route get the appropriate
         // child generating a new one if necessary
         for component in route.path {
             current = current.buildOrFetchChild(for: component)
         }
-        
+
         // after iterating over all path components, we can set the output
         // on the current node
         debugOnly {
@@ -58,7 +56,7 @@ public final class TrieRouter<Output> {
         }
         current.output = route.output
     }
-    
+
     /// Routes a `path`, returning the best-matching output and collecting any dynamic parameters.
     ///
     ///     var params = Parameters()
@@ -71,7 +69,7 @@ public final class TrieRouter<Output> {
     public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
         // always start at the root node
         var currentNode: RouterNode = root
-        
+
         // traverse the string path supplied
         search: for path in path {
             // check the constants first
@@ -81,7 +79,7 @@ public final class TrieRouter<Output> {
                     continue search
                 }
             }
-            
+
             // no constants matched, check for dynamic members
             if let parameter = currentNode.parameter {
                 // if no constant routes were found that match the path, but
@@ -94,23 +92,23 @@ public final class TrieRouter<Output> {
                 currentNode = parameter
                 continue search
             }
-            
+
             // check for anythings
             if let anything = currentNode.anything {
                 currentNode = anything
                 continue search
             }
-            
+
             // no constants or dynamic members, check for catchall
             if let catchall = currentNode.catchall {
                 // there is a catchall and it is final, short-circuit to its output
                 return catchall.output
             }
-            
+
             // no matches, stop searching
             return nil
         }
-        
+
         // return the currently resolved responder if there hasn't been an early exit.
         return currentNode.output
     }
