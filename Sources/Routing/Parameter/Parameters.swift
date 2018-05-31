@@ -17,7 +17,33 @@ public struct Parameters {
     public init() {
         values = []
     }
-
+    
+    /// Gets all parameters from the bag that have the
+    /// associated slug.
+    ///
+    ///     let ids: [String] = parametersp["id"]
+    ///
+    /// - parameters:
+    ///   - slug: The slug for the value(s) to fetch.
+    ///
+    /// - returns: All associated parameter values for the slug.
+    public subscript (_ slug: String) -> [String] {
+        return self.values.filter { $0.slug == slug }.map { $0.value }
+    }
+    
+    /// Gets all parameters from the bag that have the
+    /// associated slug and resolves them.
+    ///
+    ///     let comments: [Comments.ResolvedParameter] = parameters["comment", as: Comment.self, on: ...]
+    ///
+    /// - parameters:
+    ///   - slug: The slug for the value(s) to fetch.
+    ///
+    /// - returns: All associated resolved parameter values for the slug.
+    public subscript <P>(_ slug: String, as type: P.Type, on container: Container) -> [P.ResolvedParameter] where P: Parameter {
+        return self.values.filter { $0.slug == slug }.compactMap { try? P.resolveParameter($0.value, on: container) }
+    }
+    
     /// Grabs the next parameter from the parameter bag.
     ///
     /// Note: the parameters _must_ be fetched in the order they
