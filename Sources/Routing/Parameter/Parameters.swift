@@ -21,7 +21,7 @@ public struct Parameters {
     /// Gets all parameters from the bag that have the
     /// associated slug.
     ///
-    ///     let ids: [String] = parametersp["id"]
+    ///     let ids: [String] = parameters["id"]
     ///
     /// - parameters:
     ///   - slug: The slug for the value(s) to fetch.
