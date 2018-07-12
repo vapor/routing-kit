@@ -60,7 +60,7 @@ extension String: PathComponentsRepresentable {
     }
 }
 
-extension Array: PathComponentsRepresentable where Element == PathComponentsRepresentable {
+extension Array where Element: PathComponentsRepresentable {
     /// Converts self to an array of `PathComponent`.
     public func convertToPathComponents() -> [PathComponent] {
         return flatMap { $0.convertToPathComponents() }
