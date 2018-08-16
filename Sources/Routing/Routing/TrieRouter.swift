@@ -35,6 +35,16 @@ public final class TrieRouter<Output> {
     /// - parameters:
     ///     - route: `Route` to register to this router.
     public func register(route: Route<Output>) {
+        
+        for option in options {
+            switch option {
+            case .mount(let mountPath):
+                // Insert path at element 1 as the first element is reserved for GET, PUT, DELETE, etc
+                route.path.insert(contentsOf: mountPath, at: 1)
+            default: break
+            }
+        }
+        
         // store the route so that we can access its metadata later if needed
         routes.append(route)
 
