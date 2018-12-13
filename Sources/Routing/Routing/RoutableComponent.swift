@@ -1,3 +1,5 @@
+import Foundation
+
 /// A type that can be passed as a path component to `TrieRouter.route(...)`.
 public protocol RoutableComponent {
     /// Returns a `Parameter`'s value for this component.

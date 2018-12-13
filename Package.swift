@@ -1,20 +1,14 @@
-// swift-tools-version:4.0
+// swift-tools-version:4.2
 import PackageDescription
 
 let package = Package(
-    name: "Routing",
+    name: "routing",
     products: [
         .library(name: "Routing", targets: ["Routing"]),
     ],
-    dependencies: [
-        // 🌎 Utility package containing tools for byte manipulation, Codable, OS APIs, and debugging.
-        .package(url: "https://github.com/vapor/core.git", from: "3.0.0-rc.2"),
-
-        // 📦 Dependency injection / inversion of control framework.
-        .package(url: "https://github.com/vapor/service.git", from: "1.0.0-rc.2"),
-    ],
+    dependencies: [ ],
     targets: [
-        .target(name: "Routing", dependencies: ["Bits", "Debugging", "Service"]),
+        .target(name: "Routing", dependencies: []),
         .testTarget(name: "RoutingTests", dependencies: ["Routing"]),
     ]
 )

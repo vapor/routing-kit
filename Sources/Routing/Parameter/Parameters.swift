@@ -29,7 +29,7 @@ public struct Parameters {
     ///     let post = try parameters.next(Post.self, on: ...)
     ///     let comment = try parameters.next(Comment.self, on: ...)
     ///
-    public mutating func next<P>(_ parameter: P.Type, on container: Container) throws -> P.ResolvedParameter
+    public mutating func next<P>(_ parameter: P.Type) throws -> P.ResolvedParameter
         where P: Parameter
     {
         guard values.count > 0 else {
@@ -41,7 +41,7 @@ public struct Parameters {
             throw RoutingError(identifier: "nextType", reason: "Invalid parameter type: \(P.routingSlug) != \(current.slug)")
         }
 
-        let item = try P.resolveParameter(current.value, on: container)
+        let item = try P.resolveParameter(current.value)
         values = Array(values.dropFirst())
         return item
     }

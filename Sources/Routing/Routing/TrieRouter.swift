@@ -1,3 +1,5 @@
+import Foundation
+
 /// Generic `TrieRouter` built using the "trie" tree algorithm.
 ///
 /// Use `register(...)` to register routes into the router. Use `route(...)` to then fetch a matching
@@ -21,7 +23,7 @@ public final class TrieRouter<Output> {
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<RouterOption> = []) {
-        self.root = RouterNode<Output>(value: Data([.forwardSlash]))
+        self.root = RouterNode<Output>(value: Data([0x2F]))
         self.routes = []
         self.options = options
     }
@@ -74,7 +76,7 @@ public final class TrieRouter<Output> {
         search: for path in path {
             // check the constants first
             for constant in currentNode.constants {
-                if constant.value.withUnsafeBytes({ path.routerCompare(to: $0, options: options) }) {
+                if constant.value.withUnsafeBytes({ path.routerCompare(to: UnsafeRawBufferPointer(start: $0, count: constant.value.count), options: options) }) {
                     currentNode = constant
                     continue search
                 }

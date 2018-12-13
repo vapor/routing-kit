@@ -1,3 +1,5 @@
+import Foundation
+
 /// A type that is capable of being used as a dynamic route parameter.
 ///
 ///     router.get("users", Int.self) { req in
@@ -30,7 +32,7 @@ public protocol Parameter {
     ///     - container: Reference to a `Container` for creating services
     /// - returns: An instance of the `ResolvedParameter` type if one could be created.
     /// - throws: Throws an error if a `ResolvedParameter` could not be created.
-    static func resolveParameter(_ parameter: String, on container: Container) throws -> ResolvedParameter
+    static func resolveParameter(_ parameter: String) throws -> ResolvedParameter
 }
 
 // MARK: Methods
@@ -56,14 +58,14 @@ extension Parameter {
 
 extension String: Parameter {
     /// See `Parameter`.
-    public static func resolveParameter(_ parameter: String, on container: Container) throws -> String {
+    public static func resolveParameter(_ parameter: String) throws -> String {
         return parameter
     }
 }
 
 extension FixedWidthInteger {
     /// See `Parameter`.
-    public static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
+    public static func resolveParameter(_ parameter: String) throws -> Self {
         guard let number = Self(parameter) else {
             throw RoutingError(identifier: "fwi", reason: "The parameter was not convertible to an \(Self.self)")
         }
@@ -84,7 +86,7 @@ extension UInt64: Parameter { }
 
 extension BinaryFloatingPoint {
     /// See `Parameter`.
-    public static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
+    public static func resolveParameter(_ parameter: String) throws -> Self {
         guard let number = Double(parameter) else {
             throw RoutingError(identifier: "bfp", reason: "The parameter was not convertible to a \(Self.self)")
         }
@@ -98,7 +100,7 @@ extension Double: Parameter { }
 
 extension UUID: Parameter {
     /// Attempts to read the parameter into a `UUID`
-    public static func resolveParameter(_ parameter: String, on container: Container) throws -> UUID {
+    public static func resolveParameter(_ parameter: String) throws -> UUID {
         guard let uuid = UUID(uuidString: parameter) else {
             throw RoutingError(identifier: "uuid", reason: "The parameter was not convertible to a UUID")
         }

@@ -1,3 +1,5 @@
+import Foundation
+
 /// A single node of the `Router`s trie tree of routes.
 final class RouterNode<Output> {
     /// Kind of node
@@ -68,7 +70,7 @@ final class RouterNode<Output> {
             if let fallback = self.catchall {
                 node = fallback
             } else {
-                node = RouterNode<Output>(value: Data([.asterisk]))
+                node = RouterNode<Output>(value: Data([0x2A]))
                 self.catchall = node
             }
             return node
@@ -77,7 +79,7 @@ final class RouterNode<Output> {
             if let anything = self.anything {
                 node = anything
             } else {
-                node = RouterNode<Output>(value: Data([.colon]))
+                node = RouterNode<Output>(value: Data([0x3A]))
                 self.anything = node
             }
             return node
