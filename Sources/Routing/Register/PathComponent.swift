@@ -8,7 +8,7 @@ public protocol LosslessDataConvertible {
 
 public extension LosslessDataConvertible {
     init?(_ data: Data) {
-        guard data.count < MemoryLayout<Self>.size else {
+        guard data.count <= MemoryLayout<Self>.size else {
             return nil
         }
         self = data.withUnsafeBytes { $0.pointee }
