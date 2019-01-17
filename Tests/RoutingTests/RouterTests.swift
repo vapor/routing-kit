@@ -64,21 +64,6 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
         XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
     }
-    
-//    func testTempRoutes() throws {
-//        let route4 = Route<Int>(path: [.constant("e"), .parameter("1", Int.self), all], output: 4)
-//        let route5 = Route<Int>(path: [any, .constant("e"), .parameter("1", Int.self)], output: 5)
-//        
-//        let router = TrieRouter<Int>()
-//        router.register(route: route4)
-//        router.register(route: route5)
-//        
-//        var params = Parameters()
-//        XCTAssertEqual(router.route(path: ["e", "1", "b", "a"], parameters: &params), 4)
-//        XCTAssertEqual(router.route(path: ["f", "e", "1"], parameters: &params), 5)
-//        XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
-//        XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
-//    }
 
     func testRouterSuffixes() throws {
         let route1 = Route<Int>(path: [.constant("a")], output: 1)
