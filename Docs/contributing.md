@@ -30,9 +30,9 @@ existing code to stop compiling _must_ wait until the next major version to be i
 Code that is only additive and will not break any existing code can be included in the next minor release.
 
 ## Maintainers
+- [@twof](https://github.com/twof)
 
-Each repo under the Vapor organization has at least one [volunteer maintainer.](maintainers.md) [vapor/routing](https://github.com/vapor/routing) is 
-currently maintained by [@twof](https://github.com/twof).
+Each repo under the Vapor organization has at least one [volunteer maintainer.](maintainers.md)
 
 ## Extras
 
