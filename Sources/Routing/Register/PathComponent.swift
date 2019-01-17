@@ -4,7 +4,7 @@ public enum PathComponent: ExpressibleByStringLiteral {
     /// A normal, constant path component.
     case constant(String)
 
-    /// A dynamic parameter component.
+    /// A dynamic parameter component. 
     case parameter(String)
     
     /// This route will match everything that is not in other routes
