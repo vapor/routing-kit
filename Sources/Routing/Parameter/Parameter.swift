@@ -7,7 +7,7 @@ import Foundation
 ///         return "user id: \(id)"
 ///     }
 ///
-/// Uspublic e the static `parameter` property to generate a `PathComponent` for this type.
+/// Use the static `parameter` property to generate a `PathComponent` for this type.
 public protocol Parameter {
     /// The type this parameter will convert to once it is looked up.
     /// Most types like `String` and `Int` will simply return self, but some
@@ -43,16 +43,15 @@ public protocol Parameter {
 
 extension Parameter where Self: LosslessDataConvertible {
     public typealias ParameterType = Self
-    /// Creates a `PathComponent` for this type which can be used
-    /// when registering routes to a router.
+   
+    /// See `Parameter`.
     public static var parameter: PathComponent {
         return .parameter(routingSlug, Self.self)
     }
 }
 
 extension Parameter {
-    /// Creates a `PathComponent` for this type which can be used
-    /// when registering routes to a router.
+    /// See `Parameter`.
     public static var parameter: PathComponent {
         return .parameter(routingSlug, ParameterType.self)
     }
