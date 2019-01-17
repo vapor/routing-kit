@@ -7,12 +7,13 @@ import Foundation
 ///         return "user id: \(id)"
 ///     }
 ///
-/// Use the static `parameter` property to generate a `PathComponent` for this type.
+/// Uspublic e the static `parameter` property to generate a `PathComponent` for this type.
 public protocol Parameter {
     /// The type this parameter will convert to once it is looked up.
     /// Most types like `String` and `Int` will simply return self, but some
     /// more complex types may wish to perform async lookups or conversions to different types.
     associatedtype ResolvedParameter
+    associatedtype ParameterType: LosslessDataConvertible
 
     /// A unique key to use for identifying this parameter in the URL.
     /// Defaults to the type name lowercased.
@@ -29,19 +30,31 @@ public protocol Parameter {
     /// - parameters:
     ///     - parameter: Concrete `String` that has been supplied in the URL in the position
     ///       specified by this dynamic parameter.
-    ///     - container: Reference to a `Container` for creating services
     /// - returns: An instance of the `ResolvedParameter` type if one could be created.
     /// - throws: Throws an error if a `ResolvedParameter` could not be created.
     static func resolveParameter(_ parameter: String) throws -> ResolvedParameter
+    
+    /// Creates a `PathComponent` for this type which can be used
+    /// when registering routes to a router.
+    static var parameter: PathComponent { get }
 }
 
 // MARK: Methods
+
+extension Parameter where Self: LosslessDataConvertible {
+    public typealias ParameterType = Self
+    /// Creates a `PathComponent` for this type which can be used
+    /// when registering routes to a router.
+    public static var parameter: PathComponent {
+        return .parameter(routingSlug, Self.self)
+    }
+}
 
 extension Parameter {
     /// Creates a `PathComponent` for this type which can be used
     /// when registering routes to a router.
     public static var parameter: PathComponent {
-        return .parameter(routingSlug)
+        return .parameter(routingSlug, ParameterType.self)
     }
 }
 
@@ -73,16 +86,16 @@ extension FixedWidthInteger {
     }
 }
 
-extension Int: Parameter { }
-extension Int8: Parameter { }
-extension Int16: Parameter { }
-extension Int32: Parameter { }
-extension Int64: Parameter { }
-extension UInt: Parameter { }
-extension UInt8: Parameter { }
-extension UInt16: Parameter { }
-extension UInt32: Parameter { }
-extension UInt64: Parameter { }
+extension Int: Parameter, LosslessDataConvertible { }
+extension Int8: Parameter, LosslessDataConvertible { }
+extension Int16: Parameter, LosslessDataConvertible { }
+extension Int32: Parameter, LosslessDataConvertible { }
+extension Int64: Parameter, LosslessDataConvertible { }
+extension UInt: Parameter, LosslessDataConvertible { }
+extension UInt8: Parameter, LosslessDataConvertible { }
+extension UInt16: Parameter, LosslessDataConvertible { }
+extension UInt32: Parameter, LosslessDataConvertible { }
+extension UInt64: Parameter, LosslessDataConvertible { }
 
 extension BinaryFloatingPoint {
     /// See `Parameter`.
@@ -95,10 +108,10 @@ extension BinaryFloatingPoint {
     }
 }
 
-extension Float: Parameter { }
-extension Double: Parameter { }
+extension Float: Parameter, LosslessDataConvertible{ }
+extension Double: Parameter, LosslessDataConvertible { }
 
-extension UUID: Parameter {
+extension UUID: Parameter, LosslessDataConvertible {
     /// Attempts to read the parameter into a `UUID`
     public static func resolveParameter(_ parameter: String) throws -> UUID {
         guard let uuid = UUID(uuidString: parameter) else {
@@ -106,6 +119,18 @@ extension UUID: Parameter {
         }
 
         return uuid
+    }
+    
+    public init?(_ data: Data) {
+        guard let number = (data.withUnsafeBytes {
+            (pointer: UnsafePointer<UUID>) -> UUID? in
+            if MemoryLayout<UUID>.size != data.count { return nil }
+            return pointer.pointee
+        }) else {
+            return nil
+        }
+        
+        self = number
     }
 }
 

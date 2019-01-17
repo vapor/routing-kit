@@ -73,10 +73,18 @@ public final class TrieRouter<Output> {
         var currentNode: RouterNode = root
 
         // traverse the string path supplied
-        search: for path in path {
+        search: for pathPart in path {
             // check the constants first
             for constant in currentNode.constants {
-                if constant.value.withUnsafeBytes({ path.routerCompare(to: UnsafeRawBufferPointer(start: $0, count: constant.value.count), options: options) }) {
+                if constant.value.withUnsafeBytes({
+                    pathPart.routerCompare(
+                        to: UnsafeRawBufferPointer(
+                            start: $0,
+                            count: constant.value.count
+                        ),
+                        options: options
+                    )
+                }) {
                     currentNode = constant
                     continue search
                 }
@@ -84,15 +92,18 @@ public final class TrieRouter<Output> {
 
             // no constants matched, check for dynamic members
             if let parameter = currentNode.parameter {
-                // if no constant routes were found that match the path, but
-                // a dynamic parameter child was found, we can use it
-                let value = ParameterValue(
-                    slug: String(data: parameter.value, encoding: .utf8) ?? "",
-                    value: path.routerParameterValue
-                )
-                parameters.values.append(value)
-                currentNode = parameter
-                continue search
+                if let pathPartData = pathPart.routerParameterValue.data(using: .utf8), parameter.type.init(pathPartData) != nil {
+                    // pathPart is convertable to the expected type
+                    // if no constant routes were found that match the path, but
+                    // a dynamic parameter child was found, we can use it
+                    let value = ParameterValue(
+                        slug: String(data: parameter.node.value, encoding: .utf8) ?? "",
+                        value: pathPart.routerParameterValue
+                    )
+                    parameters.values.append(value)
+                    currentNode = parameter.node
+                    continue search
+                }
             }
 
             // check for anythings

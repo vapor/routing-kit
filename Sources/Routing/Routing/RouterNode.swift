@@ -9,7 +9,7 @@ final class RouterNode<Output> {
     var constants: [RouterNode<Output>]
 
     /// Parameter child node, if one exists.
-    var parameter: RouterNode<Output>?
+    var parameter: (node: RouterNode<Output>, type: LosslessDataConvertible.Type)?
 
     /// Catchall node, if one exists.
     /// This node should not have any child nodes.
@@ -50,19 +50,20 @@ final class RouterNode<Output> {
             let node = RouterNode<Output>(value: value)
             constants.append(node)
             return node
-        case .parameter(let string):
+        case .parameter(let string, let type):
             // Do string <-> data conversion here
             //
             // Performance doesn't really matter since this code should only
             // be called during registration phase.
+            // TODO: Do we actually do anything with this?
             let value = Data(string.utf8)
 
             let node: RouterNode<Output>
             if let parameter = self.parameter {
-                node = parameter
+                node = parameter.node
             } else {
                 node = RouterNode<Output>(value: value)
-                self.parameter = node
+                self.parameter = (node, type) 
             }
             return node
         case .catchall:
