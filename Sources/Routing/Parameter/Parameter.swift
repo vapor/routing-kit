@@ -29,7 +29,6 @@ public protocol Parameter {
     /// - parameters:
     ///     - parameter: Concrete `String` that has been supplied in the URL in the position
     ///       specified by this dynamic parameter.
-    ///     - container: Reference to a `Container` for creating services
     /// - returns: An instance of the `ResolvedParameter` type if one could be created.
     /// - throws: Throws an error if a `ResolvedParameter` could not be created.
     static func resolveParameter(_ parameter: String) throws -> ResolvedParameter
