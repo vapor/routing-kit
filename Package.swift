@@ -1,14 +1,14 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
-    name: "routing",
+    name: "routing-kit",
     products: [
-        .library(name: "Routing", targets: ["Routing"]),
+        .library(name: "RoutingKit", targets: ["RoutingKit"]),
     ],
     dependencies: [ ],
     targets: [
-        .target(name: "Routing", dependencies: []),
-        .testTarget(name: "RoutingTests", dependencies: ["Routing"]),
+        .target(name: "RoutingKit"),
+        .testTarget(name: "RoutingKitTests", dependencies: ["RoutingKit"]),
     ]
 )

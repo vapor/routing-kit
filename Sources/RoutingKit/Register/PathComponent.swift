@@ -25,7 +25,6 @@ public let any: PathComponent = .anything
 /// Shortcut for accessing `PathComponent.catchall`.
 public let all: PathComponent = .catchall
 
-
 extension Array where Element == PathComponent {
     /// Creates a readable representation of this array of `PathComponent`.
     public var readable: String {
@@ -37,32 +36,5 @@ extension Array where Element == PathComponent {
             case .catchall: return "*"
             }
         }.joined(separator: "/")
-    }
-}
-
-/// Capable of being represented by an array of `PathComponent`.
-public protocol PathComponentsRepresentable {
-    /// Converts self to an array of `PathComponent`.
-    func convertToPathComponents() -> [PathComponent]
-}
-
-extension PathComponent: PathComponentsRepresentable {
-    /// See `PathComponentsRepresentable`.
-    public func convertToPathComponents() -> [PathComponent] {
-        return [self]
-    }
-}
-
-extension String: PathComponentsRepresentable {
-    /// See `PathComponentsRepresentable`.
-    public func convertToPathComponents() -> [PathComponent] {
-        return split(separator: "/").map { .constant(.init($0)) }
-    }
-}
-
-extension Array: PathComponentsRepresentable where Element == PathComponentsRepresentable {
-    /// Converts self to an array of `PathComponent`.
-    public func convertToPathComponents() -> [PathComponent] {
-        return flatMap { $0.convertToPathComponents() }
     }
 }

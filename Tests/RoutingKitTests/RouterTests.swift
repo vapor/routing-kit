@@ -1,4 +1,4 @@
-import Routing
+import RoutingKit
 import XCTest
 
 class RouterTests: XCTestCase {
@@ -6,7 +6,6 @@ class RouterTests: XCTestCase {
         let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
         let router = TrieRouter(Int.self)
         router.register(route: route)
-
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "Tanner"], parameters: &params), 42)
         try XCTAssertEqual(params.next(User.self).name, "Tanner")
@@ -105,6 +104,23 @@ class RouterTests: XCTestCase {
         var params = Parameters()
         _ = router.route(path: ["users", "42"], parameters: &params)
         print(params)
+    }
+    
+    func testPerformance() throws {
+        measure {
+            let router = TrieRouter(String.self)
+            for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
+                router.register(route: Route(path: [
+                    .constant(letter),
+                    .parameter("\(letter)_id")
+                ], output: letter))
+            }
+            
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["a", "42"], parameters: &params)
+            }
+        }
     }
 
     static let allTests = [
