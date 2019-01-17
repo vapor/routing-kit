@@ -119,17 +119,5 @@ extension UUID: Parameter, LosslessDataConvertible {
 
         return uuid
     }
-    
-    public init?(_ data: Data) {
-        guard let number = (data.withUnsafeBytes {
-            (pointer: UnsafePointer<UUID>) -> UUID? in
-            if MemoryLayout<UUID>.size != data.count { return nil }
-            return pointer.pointee
-        }) else {
-            return nil
-        }
-        
-        self = number
-    }
 }
 
