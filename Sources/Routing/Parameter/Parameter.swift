@@ -107,7 +107,7 @@ extension BinaryFloatingPoint {
     }
 }
 
-extension Float: Parameter, LosslessDataConvertible{ }
+extension Float: Parameter, LosslessDataConvertible { }
 extension Double: Parameter, LosslessDataConvertible { }
 
 extension UUID: Parameter, LosslessDataConvertible {
