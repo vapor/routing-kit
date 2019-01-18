@@ -1,26 +1,43 @@
 # Contributing to Vapor
 
-👋 Welcome to the Vapor team! 
+👋 Welcome to the Vapor team! We're happy to have you. Check out our [Code of Conduct](https://github.com/vapor/vapor/blob/master/Docs/code_of_conduct.md) if you haven't already, and join us on [discord](https://vapor.team) if you run into trouble.
 
-## Linux
+## Getting Started
 
-You can use the included bash script to test your PR on macOS and Linux before submitting (you must have Docker installed).
+To get started, you will need to open a Terminal and:
 
-```sh
-Utilities/contributor_test.sh 
+1. Fork this repo and clone it onto your machine.
 ```
+$ git clone https://github.com/<YourGitHubName>/routing
+```
+2. Make some changes. A good place to start if you're looking for ideas are the open [issues](https://github.com/vapor/routing/issues). If nothing looks good to you, but you still want to help, ask around in the [Discord](https://vapor.team)
 
-## Testing
+2.5. Some macOS folks find it easier to do development with Xcode. Xcode projects aren't checked into github, but if you'd like to generate one, run `vapor xcode` in the project directory and answer the prompts.
 
-Once in Xcode, select the `Vapor-Package` scheme and use `CMD+U` to run the tests.
+3. Ensure your tests pass by either running `vapor test` on the command line, or pressing `CMD+U` within Xcode.
 
-You can use the `Boilerplate...` and `Development` executables for testing out your code.
+4. If everything passes, congrats! You've made a successful change 🎉Now you get to open a pull request (PR) on Github.
 
-When adding new tests (please do 😁), don't forget to add the method name to the `allTests` array. 
-If you add a new `XCTestCase` subclass, make sure to add it to the `Tests/LinuxMain.swift` file.
 
-If you are fixing a single GitHub issue in particular, you can add a test named `testGH<issue number>` to ensure
-that your fix is working. This will also help prevent regression.
+## Pull Requests
+
+To open a pull request, go to your fork on Github and select the "New pull request" button. You'll be directed to a new page where you can compare your changes with the current state of the project. Make sure you have `vapor/routing` and `base: master` selected on the left and `<YourGithubUsername>/routing` and `compare: master` selected on the right. Below that you'll see the changes you've made. Make sure you're seeing the changes you expect.
+
+If everything looks right, select the big green "Create pull request" button.
+
+You'll be presented with a pull request template with some sections for you to fill in. Once you've filled out each section and written a title that describes your changes, open your pull request and a maintainer should be by soon to review it.
+
+## Reporting Issues
+	
+Go ahead and [open a new issue](https://github.com/vapor/routing/issues/new). The team will be notified and we should get back to you shortly.
+	
+We give you a few sections to fill out to help us hunt down the issue more effectively. Be sure to fill everything out to help us get everything fixed up as fast as possible.
+
+## Maintainers
+
+- [@twof](https://github.com/twof)
+
+See the [Vapor maintainers doc](https://github.com/vapor/vapor/blob/master/Docs/maintainers.md) for more information.
 
 ## SemVer
 
@@ -29,65 +46,12 @@ existing code to stop compiling _must_ wait until the next major version to be i
 
 Code that is only additive and will not break any existing code can be included in the next minor release.
 
-## Maintainers
-- [@twof](https://github.com/twof)
+## Testing
 
-Each repo under the Vapor organization has at least one [volunteer maintainer.](maintainers.md)
+Once in Xcode, select the `routing-Package` scheme and use `CMD+U` to run the tests.
 
-## Extras
+When adding new tests (please do 😁), don't forget to add the method name to the `allTests` array. 
+If you add a new `XCTestCase` subclass, make sure to add it to the `Tests/LinuxMain.swift` file.
 
-Here are some bash functions to help you test Swift on Linux easily from macOS (you must have Docker installed).
-
-### Swift Linux
-
-```bash
-# Starts docker-machine and exports env variables.
-_docker_start() {
-    docker-machine start default
-    eval "$(docker-machine env default)"
-}
-alias docker-start='_docker_start'
-
-# Executes /usr/bin/swift in a Swift 4.1 docker container
-_swift_linux() {
-    _docker_start
-    docker run -it -v $PWD:/root/code -w /root/code norionomura/swift:swift-4.1-branch /usr/bin/swift $1
-}
-alias swift-linux='_swift_linux'
-```
-
-You can add these methods to your `~/.bash_profile`. Just run `source ~/.bash_profile` after or restart your terminal.
-
-Once added, you can run the following to test Swift projects on both macOS and Linux.
-
-```sh
-swift test
-swift-linux test
-```
-
-### Clean SPM
-
-Add the following code to your bash profile to make cleaning SPM temporary files easy.
-
-```bash
-# Cleans out all temporary SPM files
-_spm_clean() {
-	rm Package.resolved
-	rm -rf .build
-	rm -rf *.xcodeproj
-	rm -rf Packages
-}
-alias spm-clean='_spm_clean'
-```
-
-Once added, you can run `spm-clean`.
-
-```sh
-spm-clean
-```
-
-----------
-
-Join us on Discord if you have any questions: [http://vapor.team](http://vapor.team).
 
 &mdash; Thanks! 🙌
