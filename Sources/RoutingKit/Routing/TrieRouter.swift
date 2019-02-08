@@ -119,10 +119,14 @@ public final class TrieRouter<Output>: CustomStringConvertible {
     }
 }
 
-private extension Sequence where Self.Element == UInt8 {
+private extension Sequence where Self.Element == UInt8, Self: Collection {
     func elementsEqual<T>(caseInsensitive bytes: T) -> Bool
-        where T: Sequence, T.Element == UInt8
+        where T.Element == UInt8, T: Collection
     {
-            return self.elementsEqual(bytes, by: {return ($0 & 0xdf) == ($1 & 0xdf)})
+        // Short circuit early if items are different lengths
+        guard self.count == bytes.count else { return false }
+       
+        // This method short circuits on the first non-match
+        return self.elementsEqual(bytes) { return ($0 & 0xdf) == ($1 & 0xdf) }
     }
 }
