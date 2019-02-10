@@ -37,7 +37,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
         // for each dynamic path in the route get the appropriate
         // child generating a new one if necessary
         for component in route.path {
-            current = current.buildOrFetchChild(for: component)
+            current = current.buildOrFetchChild(for: component, options: self.options)
         }
 
         // after iterating over all path components, we can set the output
