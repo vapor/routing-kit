@@ -70,11 +70,17 @@ public final class TrieRouter<Output>: CustomStringConvertible {
             // check the constants first
             for constant in currentNode.constants {
                 let match: Bool
-                if ci {
-                    match = constant.value.utf8.elementsEqual(caseInsensitive: path.utf8)
+                
+                // Short circuit early if items are different lengths
+                if constant.value.count != path.count {
+                    match = false
+                } else if ci {
+                    // constant.value will already be lowercased
+                    match = constant.value == path.lowercased()
                 } else {
-                    match = constant.value.utf8.elementsEqual(path.utf8)
+                    match = constant.value == path
                 }
+               
                 if match {
                     currentNode = constant
                     continue search
@@ -123,9 +129,6 @@ private extension Sequence where Self.Element == UInt8, Self: Collection {
     func elementsEqual<T>(caseInsensitive bytes: T) -> Bool
         where T.Element == UInt8, T: Collection
     {
-        // Short circuit early if items are different lengths
-        guard self.count == bytes.count else { return false }
-       
         // This method short circuits on the first non-match
         return self.elementsEqual(bytes) { return ($0 & 0xdf) == ($1 & 0xdf) }
     }

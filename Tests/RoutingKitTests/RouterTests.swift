@@ -106,16 +106,33 @@ class RouterTests: XCTestCase {
         print(params)
     }
     
-    func testPerformance() throws {
+    func testCaseSensitivePerformance() throws {
+        let router = TrieRouter(String.self)
+        for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
+            router.register(route: Route(path: [
+                .constant(letter),
+                .parameter("\(letter)_id")
+            ], output: letter))
+        }
+       
         measure {
-            let router = TrieRouter(String.self)
-            for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
-                router.register(route: Route(path: [
-                    .constant(letter),
-                    .parameter("\(letter)_id")
-                ], output: letter))
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["a", "42"], parameters: &params)
             }
-            
+        }
+    }
+    
+    func testCaseInsensitivePerformance() throws {
+        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+        for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
+            router.register(route: Route(path: [
+                .constant(letter),
+                .parameter("\(letter)_id")
+                ], output: letter))
+        }
+        
+        measure {
             var params = Parameters()
             for _ in 0..<100_000 {
                 _ = router.route(path: ["a", "42"], parameters: &params)

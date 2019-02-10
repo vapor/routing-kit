@@ -31,9 +31,14 @@ extension TrieRouter {
         
         /// Fetches the child `RouterNode` for the supplied path component, or builds
         /// a new segment onto the tree if necessary.
-        func buildOrFetchChild(for component: PathComponent) -> Node {
+        func buildOrFetchChild(for component: PathComponent, options: Set<RouterOption> = []) -> Node {
+            let isCaseInsensitive = options.contains(.caseInsensitive)
+            
             switch component {
             case .constant(let string):
+                // We're going to be comparing this path against an incoming losercased path later
+                // so it's more efficient to lowercase it up front
+                let string = (isCaseInsensitive) ? string.lowercased() : string
                 // search for existing constant
                 for constant in self.constants {
                     if constant.value == string {
