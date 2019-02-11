@@ -1,10 +1,8 @@
-#if os(Linux)
-
 import XCTest
-import RouterTests
 
-XCTMain([
-    testCase(RouterTests.allTests),
-])
+import RoutingKitTests
 
-#endif
+var tests = [XCTestCaseEntry]()
+tests += RoutingKitTests.__allTests()
+
+XCTMain(tests)
