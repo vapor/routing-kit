@@ -63,7 +63,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
         // always start at the root node
         var currentNode: Node = self.root
         
-        let ci = self.options.contains(.caseInsensitive)
+        let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
         // traverse the string path supplied
         search: for path in path {
@@ -74,7 +74,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
                 // Short circuit early if items are different lengths
                 if constant.value.count != path.count {
                     match = false
-                } else if ci {
+                } else if isCaseInsensitive {
                     // constant.value will already be lowercased
                     match = constant.value == path.lowercased()
                 } else {

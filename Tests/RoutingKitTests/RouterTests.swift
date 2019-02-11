@@ -129,7 +129,7 @@ class RouterTests: XCTestCase {
             router.register(route: Route(path: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
