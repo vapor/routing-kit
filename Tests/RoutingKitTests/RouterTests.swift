@@ -189,6 +189,22 @@ class RouterTests: XCTestCase {
             }
         }
     }
+    
+    func testMinimalRouterCaseInsensitivePerformance() throws {
+        let router = TrieRouter.init(String.self)
+        for letter in ["a"] {
+            router.register(route: Route(path: [
+                .constant(letter)
+            ], output: letter))
+        }
+        
+        measure {
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["a"], parameters: &params)
+            }
+        }
+    }
 
 
     static let allTests = [
@@ -198,7 +214,9 @@ class RouterTests: XCTestCase {
         ("testAnyRouting", testAnyRouting),
         ("testRouterSuffixes", testRouterSuffixes),
         ("testCaseSensitivePerformance", testCaseSensitivePerformance),
-        ("testCaseInsensitivePerformance", testCaseInsensitivePerformance)
+        ("testCaseInsensitivePerformance", testCaseInsensitivePerformance),
+        ("testMinimalRouterCaseInsensitivePerformance", testMinimalRouterCaseInsensitivePerformance),
+        ("testMinimalRouterCaseSensitivePerformance", testMinimalRouterCaseSensitivePerformance)
     ]
 }
 
