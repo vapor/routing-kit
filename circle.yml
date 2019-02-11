@@ -11,7 +11,7 @@ jobs:
 
 workflows:
   version: 2
-    tests:
-      jobs:
-        - linux
+  tests:
+    jobs:
+      - linux
       
