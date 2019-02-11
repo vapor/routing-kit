@@ -7,7 +7,7 @@ extension TrieRouter {
         var value: String
         
         /// All constant child nodes.
-        var constants: [Node]
+        var constants: [String: Node]
         
         /// Parameter child node, if one exists.
         var parameter: Node?
@@ -26,7 +26,7 @@ extension TrieRouter {
         init(value: String, output: Output? = nil) {
             self.value = value
             self.output = output
-            self.constants = []
+            self.constants = [:]
         }
         
         /// Fetches the child `RouterNode` for the supplied path component, or builds
@@ -39,16 +39,15 @@ extension TrieRouter {
                 // We're going to be comparing this path against an incoming losercased path later
                 // so it's more efficient to lowercase it up front
                 let string = isCaseInsensitive ? string.lowercased() : string
+                
                 // search for existing constant
-                for constant in self.constants {
-                    if constant.value == string {
-                        return constant
-                    }
+                if let node = self.constants[string] {
+                    return node
                 }
                 
                 // none found, add a new node
                 let node = Node(value: string)
-                self.constants.append(node)
+                self.constants[string] = node
                 return node
             case .parameter(let string):
                 let node: Node
@@ -83,12 +82,22 @@ extension TrieRouter {
         var description: String {
             var desc: [String] = []
             desc.append("→ " + self.value)
-            let children = self.constants + [self.parameter, self.catchall, self.anything].compactMap { $0 }
+            let children = self.constants.values + [self.parameter, self.catchall, self.anything].compactMap { $0 }
             for child in children {
                 desc.append(child.description.indented())
             }
             return desc.joined(separator: "\n")
         }
+    }
+}
+
+extension TrieRouter.Node: Hashable {
+    static func == (lhs: TrieRouter<Output>.Node, rhs: TrieRouter<Output>.Node) -> Bool {
+        return lhs.value == rhs.value
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.value)
     }
 }
 

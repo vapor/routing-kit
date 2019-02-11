@@ -68,23 +68,9 @@ public final class TrieRouter<Output>: CustomStringConvertible {
         // traverse the string path supplied
         search: for path in path {
             // check the constants first
-            for constant in currentNode.constants {
-                let match: Bool
-                
-                // Short circuit early if items are different lengths
-                if constant.value.count != path.count {
-                    match = false
-                } else if isCaseInsensitive {
-                    // constant.value will already be lowercased
-                    match = constant.value == path.lowercased()
-                } else {
-                    match = constant.value == path
-                }
-               
-                if match {
-                    currentNode = constant
-                    continue search
-                }
+            if let constant = currentNode.constants[isCaseInsensitive ? path.lowercased() : path] {
+                currentNode = constant
+                continue search
             }
 
             // no constants matched, check for dynamic members

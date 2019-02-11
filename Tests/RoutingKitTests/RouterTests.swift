@@ -139,6 +139,57 @@ class RouterTests: XCTestCase {
             }
         }
     }
+    
+    func testCaseInsensitiveRoutingMatchFirsPerformance() throws {
+        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+        for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
+            router.register(route: Route(path: [
+                .constant(letter),
+                .parameter("\(letter)_id")
+            ], output: letter))
+        }
+        
+        measure {
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["aaaaaaaa", "42"], parameters: &params)
+            }
+        }
+    }
+    
+    func testCaseInsensitiveRoutingMatchLastPerformance() throws {
+        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+        for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
+            router.register(route: Route(path: [
+                .constant(letter),
+                .parameter("\(letter)_id")
+            ], output: letter))
+        }
+        
+        measure {
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["aaaaaaag", "42"], parameters: &params)
+            }
+        }
+    }
+    
+    func testMinimalRouterCaseSensitivePerformance() throws {
+        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+        for letter in ["a"] {
+            router.register(route: Route(path: [
+                .constant(letter)
+            ], output: letter))
+        }
+        
+        measure {
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["a"], parameters: &params)
+            }
+        }
+    }
+
 
     static let allTests = [
         ("testRouter", testRouter),
@@ -146,6 +197,8 @@ class RouterTests: XCTestCase {
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testAnyRouting", testAnyRouting),
         ("testRouterSuffixes", testRouterSuffixes),
+        ("testCaseSensitivePerformance", testCaseSensitivePerformance),
+        ("testCaseInsensitivePerformance", testCaseInsensitivePerformance)
     ]
 }
 
