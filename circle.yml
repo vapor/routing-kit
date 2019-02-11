@@ -15,11 +15,11 @@ jobs:
     steps:
       - run:
           name: Clone Vapor
-          command: git clone -b master https://github.com/vapor/vapor.git
+          command: git clone -b 4 https://github.com/vapor/vapor.git
           working_directory: ~/
       - run:
           name: Switch Vapor to this Routing revision
-          command: swift package edit Routing --revision $CIRCLE_SHA1
+          command: swift package edit RoutingKit --revision $CIRCLE_SHA1
           working_directory: ~/vapor
       - run:
           name: Run Vapor unit tests
