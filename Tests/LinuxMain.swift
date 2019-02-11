@@ -1,7 +1,7 @@
 #if os(Linux)
 
 import XCTest
-@testable import RouterTests
+import RouterTests
 
 XCTMain([
     testCase(RouterTests.allTests),
