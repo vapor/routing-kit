@@ -31,4 +31,5 @@ workflows:
   tests:
     jobs:
       - linux
+      - linux-vapor
       
