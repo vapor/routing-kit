@@ -9,6 +9,23 @@ jobs:
       - run: swift build
       - run: swift test
 
+  linux-vapor:
+    docker:
+      - image: codevapor/swift:5.0
+    steps:
+      - run:
+        name: Clone Vapor
+        command: git clone -b master https://github.com/vapor/vapor.git
+        working_directory: ~/
+      - run:
+        name: Switch Vapor to this Routing revision
+        command: swift package edit Routing --revision $CIRCLE_SHA1
+        working_directory: ~/vapor
+      - run:
+        name: Run Vapor unit tests
+        command: swift test
+        working_directory: ~/vapor
+
 workflows:
   version: 2
   tests:
