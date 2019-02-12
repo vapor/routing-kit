@@ -5,7 +5,7 @@
 ///
 /// `Route` is also `Extendable` and every route registered to the router is stored.
 /// This allows you to attach aribtrary metadata to each route and retrieve it later.
-public final class Route<Output>: Extendable {
+public final class Route<Output> {
     /// Defines this route's dynamic path and how it will match paths
     /// passed to `TrieRouter.route(...)`.
     public var path: [PathComponent]
@@ -15,7 +15,7 @@ public final class Route<Output>: Extendable {
     
     /// A storage place to extend the `Route` with.
     /// Can store metadata like documentation route descriptions.
-    public var extend: Extend
+    public var userInfo: [AnyHashable: Any]
     
     /// Creates a new `Route`.
     ///
@@ -26,6 +26,6 @@ public final class Route<Output>: Extendable {
     public init(path: [PathComponent], output: Output) {
         self.path = path
         self.output = output
-        self.extend = .init()
+        self.userInfo = [:]
     }
 }

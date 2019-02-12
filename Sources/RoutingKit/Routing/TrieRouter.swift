@@ -1,28 +1,24 @@
+import Foundation
+
 /// Generic `TrieRouter` built using the "trie" tree algorithm.
 ///
 /// Use `register(...)` to register routes into the router. Use `route(...)` to then fetch a matching
 /// route's output.
 ///
 /// See https://en.wikipedia.org/wiki/Trie for more information.
-public final class TrieRouter<Output> {
-    /// All routes registered to this router.
-    ///
-    /// Register new routes by using the `register(...)` method.
-    public private(set) var routes: [Route<Output>]
-
+public final class TrieRouter<Output>: CustomStringConvertible {
     /// Configured options such as case-sensitivity.
     public var options: Set<RouterOption>
 
     /// The root node.
-    private var root: RouterNode<Output>
+    private var root: Node
 
     /// Create a new `TrieRouter`.
     ///
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<RouterOption> = []) {
-        self.root = RouterNode<Output>(value: Data([.forwardSlash]))
-        self.routes = []
+        self.root = Node(value: "/")
         self.options = options
     }
 
@@ -35,11 +31,8 @@ public final class TrieRouter<Output> {
     /// - parameters:
     ///     - route: `Route` to register to this router.
     public func register(route: Route<Output>) {
-        // store the route so that we can access its metadata later if needed
-        routes.append(route)
-
         // start at the root of the trie branch
-        var current = root
+        var current = self.root
 
         // for each dynamic path in the route get the appropriate
         // child generating a new one if necessary
@@ -66,15 +59,23 @@ public final class TrieRouter<Output> {
     ///     - path: Array of `RoutableComponent` to route against.
     ///     - params: A mutable `Parameters` to collect dynamic parameters.
     /// - returns: Best-matching output for the supplied path.
-    public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
+    public func route(path: [String], parameters: inout Parameters) -> Output? {
         // always start at the root node
-        var currentNode: RouterNode = root
+        var currentNode: Node = self.root
+        
+        let ci = self.options.contains(.caseInsensitive)
 
         // traverse the string path supplied
         search: for path in path {
             // check the constants first
             for constant in currentNode.constants {
-                if constant.value.withUnsafeBytes({ path.routerCompare(to: $0, options: options) }) {
+                let match: Bool
+                if ci {
+                    match = constant.value.utf8.elementsEqual(caseInsensitive: path.utf8)
+                } else {
+                    match = constant.value.utf8.elementsEqual(path.utf8)
+                }
+                if match {
                     currentNode = constant
                     continue search
                 }
@@ -85,8 +86,8 @@ public final class TrieRouter<Output> {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
                 let value = ParameterValue(
-                    slug: String(data: parameter.value, encoding: .utf8) ?? "",
-                    value: path.routerParameterValue
+                    slug: parameter.value,
+                    value: path
                 )
                 parameters.values.append(value)
                 currentNode = parameter
@@ -111,5 +112,17 @@ public final class TrieRouter<Output> {
 
         // return the currently resolved responder if there hasn't been an early exit.
         return currentNode.output
+    }
+    
+    public var description: String {
+        return self.root.description
+    }
+}
+
+private extension Sequence where Self.Element == UInt8 {
+    func elementsEqual<T>(caseInsensitive bytes: T) -> Bool
+        where T: Sequence, T.Element == UInt8
+    {
+            return self.elementsEqual(bytes, by: {return ($0 & 0xdf) == ($1 & 0xdf)})
     }
 }

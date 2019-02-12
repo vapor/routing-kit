@@ -1,21 +1,11 @@
-import Debugging
-
+#warning("TODO: consider moving to enum")
 /// Errors that can be thrown while working with Routing.
-public struct RoutingError: Debuggable {
-    /// See `Debuggable`.
-    public static let readableName = "Routing Error"
-
+public struct RoutingError: Error {
     /// See `Debuggable`.
     public var identifier: String
 
     /// See `Debuggable`.
     public var reason: String
-
-    /// See `Debuggable`.
-    public var sourceLocation: SourceLocation?
-
-    /// See `Debuggable`.
-    public var stackTrace: [String]
 
     /// Creates a new `RoutingError`.
     public init(
@@ -28,8 +18,6 @@ public struct RoutingError: Debuggable {
     ) {
         self.identifier = identifier
         self.reason = reason
-        self.sourceLocation = SourceLocation(file: file, function: function, line: line, column: column, range: nil)
-        self.stackTrace = RoutingError.makeStackTrace()
     }
 }
 
