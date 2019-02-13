@@ -26,7 +26,7 @@ extension TrieRouter {
         init(value: String, output: Output? = nil) {
             self.value = value
             self.output = output
-            self.constants = [:]
+            self.constants = [String: Node]()
         }
         
         /// Fetches the child `RouterNode` for the supplied path component, or builds
@@ -88,16 +88,6 @@ extension TrieRouter {
             }
             return desc.joined(separator: "\n")
         }
-    }
-}
-
-extension TrieRouter.Node: Hashable {
-    static func == (lhs: TrieRouter<Output>.Node, rhs: TrieRouter<Output>.Node) -> Bool {
-        return lhs.value == rhs.value
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.value)
     }
 }
 

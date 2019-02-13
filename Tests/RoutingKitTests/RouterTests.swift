@@ -140,7 +140,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testCaseInsensitiveRoutingMatchFirsPerformance() throws {
+    func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(route: Route(path: [
@@ -205,6 +205,23 @@ class RouterTests: XCTestCase {
             }
         }
     }
+    
+    
+    func testMinimalEarlyFailPerformance() throws {
+        let router = TrieRouter.init(String.self)
+        for letter in ["aaaaaaaaaaaaaa"] {
+            router.register(route: Route(path: [
+                .constant(letter)
+            ], output: letter))
+        }
+
+        measure {
+            var params = Parameters()
+            for _ in 0..<100_000 {
+                _ = router.route(path: ["baaaaaaaaaaaaa"], parameters: &params)
+            }
+        }
+    }
 
 
     static let allTests = [
@@ -215,8 +232,11 @@ class RouterTests: XCTestCase {
         ("testRouterSuffixes", testRouterSuffixes),
         ("testCaseSensitivePerformance", testCaseSensitivePerformance),
         ("testCaseInsensitivePerformance", testCaseInsensitivePerformance),
+        ("testCaseInsensitiveRoutingMatchFirstPerformance", testCaseInsensitiveRoutingMatchFirstPerformance),
+        ("testCaseInsensitiveRoutingMatchLastPerformance", testCaseInsensitiveRoutingMatchLastPerformance),
         ("testMinimalRouterCaseInsensitivePerformance", testMinimalRouterCaseInsensitivePerformance),
-        ("testMinimalRouterCaseSensitivePerformance", testMinimalRouterCaseSensitivePerformance)
+        ("testMinimalRouterCaseSensitivePerformance", testMinimalRouterCaseSensitivePerformance),
+        ("testMinimalEarlyFailPerformance", testMinimalEarlyFailPerformance),
     ]
 }
 
