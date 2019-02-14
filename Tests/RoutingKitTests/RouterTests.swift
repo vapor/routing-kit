@@ -1,8 +1,8 @@
 import RoutingKit
 import XCTest
 
-class RouterTests: XCTestCase {
-    func testRouter() throws {
+public final class RouterTests: XCTestCase {
+    public func testRouter() throws {
         let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
         let router = TrieRouter(Int.self)
         router.register(route: route)
@@ -11,7 +11,7 @@ class RouterTests: XCTestCase {
         try XCTAssertEqual(params.next(User.self).name, "Tanner")
     }
     
-    func testCaseSensitiveRouting() throws {
+    public func testCaseSensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
         let router = TrieRouter<Int>()
         router.register(route: route)
@@ -20,7 +20,7 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["path", "TO", "fOo"], parameters: &params), 42)
     }
     
-    func testCaseInsensitiveRouting() throws {
+    public func testCaseInsensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
         let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(route: route)
@@ -28,7 +28,7 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), 42)
     }
 
-    func testAnyRouting() throws {
+    public func testAnyRouting() throws {
         let route0 = Route<Int>(path: [.constant("a"), any], output: 0)
         let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), any], output: 1)
         let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), any], output: 2)
@@ -64,7 +64,7 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
     }
 
-    func testRouterSuffixes() throws {
+    public func testRouterSuffixes() throws {
         let route1 = Route<Int>(path: [.constant("a")], output: 1)
         let route2 = Route<Int>(path: [.constant("aa")], output: 2)
 
@@ -78,7 +78,7 @@ class RouterTests: XCTestCase {
     }
 
 
-    func testDocBlock() throws {
+    public func testDocBlock() throws {
         let route = Route<Int>(path: [.constant("users"), User.parameter], output: 42)
         let router = TrieRouter<Int>()
         router.register(route: route)
@@ -87,7 +87,7 @@ class RouterTests: XCTestCase {
         try XCTAssertEqual(params.next(User.self).name, "Tanner")
     }
 
-    func testDocs() throws {
+    public func testDocs() throws {
         let router = TrieRouter(Double.self)
         router.register(route: Route(path: ["fun", "meaning_of_universe"], output: 42))
         router.register(route: Route(path: ["fun", "leet"], output: 1337))
@@ -96,7 +96,7 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
     }
 
-    func testDocs2() throws {
+    public func testDocs2() throws {
         let router = TrieRouter(String.self)
         router.register(route: Route(path: [.constant("users"), .parameter("user_id")], output: "show_user"))
 
@@ -105,7 +105,7 @@ class RouterTests: XCTestCase {
         print(params)
     }
     
-    func testCaseSensitivePerformance() throws {
+    public func testCaseSensitivePerformance() throws {
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(route: Route(path: [
@@ -122,7 +122,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testCaseInsensitivePerformance() throws {
+    public func testCaseInsensitivePerformance() throws {
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(route: Route(path: [
@@ -139,7 +139,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
+    public func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(route: Route(path: [
@@ -156,7 +156,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testCaseInsensitiveRoutingMatchLastPerformance() throws {
+    public func testCaseInsensitiveRoutingMatchLastPerformance() throws {
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(route: Route(path: [
@@ -173,7 +173,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testMinimalRouterCaseSensitivePerformance() throws {
+    public func testMinimalRouterCaseSensitivePerformance() throws {
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
             router.register(route: Route(path: [
@@ -189,7 +189,7 @@ class RouterTests: XCTestCase {
         }
     }
     
-    func testMinimalRouterCaseInsensitivePerformance() throws {
+    public func testMinimalRouterCaseInsensitivePerformance() throws {
         let router = TrieRouter.init(String.self)
         for letter in ["a"] {
             router.register(route: Route(path: [
@@ -206,7 +206,7 @@ class RouterTests: XCTestCase {
     }
     
     
-    func testMinimalEarlyFailPerformance() throws {
+    public func testMinimalEarlyFailPerformance() throws {
         let router = TrieRouter.init(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
             router.register(route: Route(path: [
@@ -223,7 +223,7 @@ class RouterTests: XCTestCase {
     }
 
 
-    static let allTests = [
+    public static let allTests = [
         ("testRouter", testRouter),
         ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
