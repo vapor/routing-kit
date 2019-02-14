@@ -92,7 +92,6 @@ class RouterTests: XCTestCase {
         router.register(route: Route(path: ["fun", "meaning_of_universe"], output: 42))
         router.register(route: Route(path: ["fun", "leet"], output: 1337))
         router.register(route: Route(path: ["math", "pi"], output: 3.14))
-
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
     }
