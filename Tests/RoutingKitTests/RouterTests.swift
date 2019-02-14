@@ -254,6 +254,7 @@ func performance(_ seconds: Double) -> Bool {
     }
     print()
     print("[PERFORMANCE TEST] expected \(seconds) seconds")
+    return true
 }
 
 final class User: Parameter {
