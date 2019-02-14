@@ -105,7 +105,11 @@ public final class RouterTests: XCTestCase {
         print(params)
     }
     
+    // MARK: Performance
+    
     public func testCaseSensitivePerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.024, relative standard deviation: 5.642%")
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(route: Route(path: [
@@ -123,6 +127,8 @@ public final class RouterTests: XCTestCase {
     }
     
     public func testCaseInsensitivePerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.032, relative standard deviation: 0.869%")
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(route: Route(path: [
@@ -140,6 +146,8 @@ public final class RouterTests: XCTestCase {
     }
     
     public func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.045, relative standard deviation: 0.264%")
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(route: Route(path: [
@@ -157,6 +165,8 @@ public final class RouterTests: XCTestCase {
     }
     
     public func testCaseInsensitiveRoutingMatchLastPerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.046, relative standard deviation: 0.086%")
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(route: Route(path: [
@@ -174,6 +184,8 @@ public final class RouterTests: XCTestCase {
     }
     
     public func testMinimalRouterCaseSensitivePerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.016, relative standard deviation: 0.046%")
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
             router.register(route: Route(path: [
@@ -190,6 +202,8 @@ public final class RouterTests: XCTestCase {
     }
     
     public func testMinimalRouterCaseInsensitivePerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.021, relative standard deviation: 0.800%")
         let router = TrieRouter.init(String.self)
         for letter in ["a"] {
             router.register(route: Route(path: [
@@ -207,6 +221,8 @@ public final class RouterTests: XCTestCase {
     
     
     public func testMinimalEarlyFailPerformance() throws {
+        print()
+        print("[EXPECTED] average: 0.013, relative standard deviation: 4.608%")
         let router = TrieRouter.init(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
             router.register(route: Route(path: [
