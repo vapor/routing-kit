@@ -78,7 +78,6 @@ extension TrieRouter {
         
         var description: String {
             var desc: [String] = []
-            // desc.append("→ " + self.value)
             if let (name, parameter) = self.parameter {
                 desc.append("→ \(name)")
                 desc.append(parameter.description.indented())
