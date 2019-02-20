@@ -3,14 +3,11 @@ import Foundation
 extension TrieRouter {
     /// A single node of the `Router`s trie tree of routes.
     final class Node: CustomStringConvertible {
-        /// Kind of node
-        var value: String
-        
         /// All constant child nodes.
         var constants: [String: Node]
         
         /// Parameter child node, if one exists.
-        var parameter: Node?
+        var parameter: (String, Node)?
         
         /// Catchall node, if one exists.
         /// This node should not have any child nodes.
@@ -23,8 +20,7 @@ extension TrieRouter {
         var output: Output?
         
         /// Creates a new `RouterNode`.
-        init(value: String, output: Output? = nil) {
-            self.value = value
+        init(output: Output? = nil) {
             self.output = output
             self.constants = [String: Node]()
         }
@@ -46,16 +42,17 @@ extension TrieRouter {
                 }
                 
                 // none found, add a new node
-                let node = Node(value: string)
+                let node = Node()
                 self.constants[string] = node
                 return node
             case .parameter(let string):
                 let node: Node
-                if let parameter = self.parameter {
-                    node = parameter
+                if let (name, existing) = self.parameter {
+                    node = existing
+                    assert(name == string, "router type mis-match \(name) != \(string)")
                 } else {
-                    node = Node(value: string)
-                    self.parameter = node
+                    node = Node()
+                    self.parameter = (string, node)
                 }
                 return node
             case .catchall:
@@ -63,7 +60,7 @@ extension TrieRouter {
                 if let fallback = self.catchall {
                     node = fallback
                 } else {
-                    node = Node(value: "*")
+                    node = Node()
                     self.catchall = node
                 }
                 return node
@@ -72,7 +69,7 @@ extension TrieRouter {
                 if let anything = self.anything {
                     node = anything
                 } else {
-                    node = Node(value: ":")
+                    node = Node()
                     self.anything = node
                 }
                 return node
@@ -81,10 +78,21 @@ extension TrieRouter {
         
         var description: String {
             var desc: [String] = []
-            desc.append("→ " + self.value)
-            let children = self.constants.values + [self.parameter, self.catchall, self.anything].compactMap { $0 }
-            for child in children {
-                desc.append(child.description.indented())
+            if let (name, parameter) = self.parameter {
+                desc.append("→ \(name)")
+                desc.append(parameter.description.indented())
+            }
+            if let catchall = self.catchall {
+                desc.append("→ *")
+                desc.append(catchall.description.indented())
+            }
+            if let anything = self.anything {
+                desc.append("→ :")
+                desc.append(anything.description.indented())
+            }
+            for (name, constant) in self.constants {
+                desc.append("→ \(name)")
+                desc.append(constant.description.indented())
             }
             return desc.joined(separator: "\n")
         }

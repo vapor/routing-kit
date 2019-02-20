@@ -18,7 +18,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<RouterOption> = []) {
-        self.root = Node(value: "/")
+        self.root = Node()
         self.options = options
     }
 
@@ -74,11 +74,11 @@ public final class TrieRouter<Output>: CustomStringConvertible {
             }
 
             // no constants matched, check for dynamic members
-            if let parameter = currentNode.parameter {
+            if let (name, parameter) = currentNode.parameter {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
                 let value = ParameterValue(
-                    slug: parameter.value,
+                    slug: name,
                     value: path
                 )
                 parameters.values.append(value)
