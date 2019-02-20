@@ -18,7 +18,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<RouterOption> = []) {
-        self.root = Node(value: "/")
+        self.root = Node()
         self.options = options
     }
 
@@ -37,7 +37,7 @@ public final class TrieRouter<Output>: CustomStringConvertible {
         // for each dynamic path in the route get the appropriate
         // child generating a new one if necessary
         for component in route.path {
-            current = current.buildOrFetchChild(for: component)
+            current = current.buildOrFetchChild(for: component, options: self.options)
         }
 
         // after iterating over all path components, we can set the output
@@ -63,30 +63,22 @@ public final class TrieRouter<Output>: CustomStringConvertible {
         // always start at the root node
         var currentNode: Node = self.root
         
-        let ci = self.options.contains(.caseInsensitive)
+        let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
         // traverse the string path supplied
         search: for path in path {
             // check the constants first
-            for constant in currentNode.constants {
-                let match: Bool
-                if ci {
-                    match = constant.value.utf8.elementsEqual(caseInsensitive: path.utf8)
-                } else {
-                    match = constant.value.utf8.elementsEqual(path.utf8)
-                }
-                if match {
-                    currentNode = constant
-                    continue search
-                }
+            if let constant = currentNode.constants[isCaseInsensitive ? path.lowercased() : path] {
+                currentNode = constant
+                continue search
             }
 
             // no constants matched, check for dynamic members
-            if let parameter = currentNode.parameter {
+            if let (name, parameter) = currentNode.parameter {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
                 let value = ParameterValue(
-                    slug: parameter.value,
+                    slug: name,
                     value: path
                 )
                 parameters.values.append(value)
@@ -116,13 +108,5 @@ public final class TrieRouter<Output>: CustomStringConvertible {
     
     public var description: String {
         return self.root.description
-    }
-}
-
-private extension Sequence where Self.Element == UInt8 {
-    func elementsEqual<T>(caseInsensitive bytes: T) -> Bool
-        where T: Sequence, T.Element == UInt8
-    {
-            return self.elementsEqual(bytes, by: {return ($0 & 0xdf) == ($1 & 0xdf)})
     }
 }

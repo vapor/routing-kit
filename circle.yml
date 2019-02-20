@@ -14,6 +14,12 @@ jobs:
     steps:
       - checkout
       - run: swift build -c release
+  linux-performance:
+    docker:
+      - image: vapor/swift:5.0
+    steps:
+      - checkout
+      - run: swift test -c release
 
 workflows:
   version: 2
@@ -21,3 +27,4 @@ workflows:
     jobs:
       - linux
       - linux-release
+      - linux-performance
