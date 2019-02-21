@@ -2,6 +2,32 @@ import RoutingKit
 import XCTest
 
 public final class RouterTests: XCTestCase {
+    
+    
+    override public func recordFailure(withDescription description: String, inFile filePath: String, atLine lineNumber: Int, expected: Bool) {
+        super.recordFailure(withDescription: description, inFile: filePath, atLine: lineNumber, expected: expected)
+        
+        print(description)
+        // does trigger on performance failiure
+    }
+    
+    public override func tearDown() {
+        print()
+        print(RouterTests.defaultTestSuite.tests[0])
+    }
+    
+    public func testTest() throws {
+//        self.add(XCTAttachment(string: "AAAAAAAAAA"))
+        
+//        measure {
+//            for _ in 0...10000 {
+//                let a = 10/10
+//            }
+//        }
+        
+        XCTAssertTrue(true)
+    }
+    
     public func testRouter() throws {
         let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
         let router = TrieRouter(Int.self)
@@ -105,157 +131,14 @@ public final class RouterTests: XCTestCase {
         print(params)
     }
     
-    // MARK: Performance
-    
-    public func testCaseSensitivePerformance() throws {
-        guard performance(expected: 0.024) else { return }
-        let router = TrieRouter(String.self)
-        for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
-            router.register(route: Route(path: [
-                .constant(letter),
-                .parameter("\(letter)_id")
-            ], output: letter))
-        }
-       
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["a", "42"], parameters: &params)
-            }
-        }
-    }
-    
-    public func testCaseInsensitivePerformance() throws {
-        guard performance(expected: 0.032) else { return }
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
-        for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
-            router.register(route: Route(path: [
-                .constant(letter),
-                .parameter("\(letter)_id")
-            ], output: letter))
-        }
-        
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["a", "42"], parameters: &params)
-            }
-        }
-    }
-    
-    public func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
-        guard performance(expected: 0.045) else { return }
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
-        for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
-            router.register(route: Route(path: [
-                .constant(letter),
-                .parameter("\(letter)_id")
-            ], output: letter))
-        }
-        
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["aaaaaaaa", "42"], parameters: &params)
-            }
-        }
-    }
-    
-    public func testCaseInsensitiveRoutingMatchLastPerformance() throws {
-        guard performance(expected: 0.046) else { return }
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
-        for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
-            router.register(route: Route(path: [
-                .constant(letter),
-                .parameter("\(letter)_id")
-            ], output: letter))
-        }
-        
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["aaaaaaag", "42"], parameters: &params)
-            }
-        }
-    }
-    
-    public func testMinimalRouterCaseSensitivePerformance() throws {
-        guard performance(expected: 0.021) else { return }
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
-        for letter in ["a"] {
-            router.register(route: Route(path: [
-                .constant(letter)
-            ], output: letter))
-        }
-        
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["a"], parameters: &params)
-            }
-        }
-    }
-    
-    public func testMinimalRouterCaseInsensitivePerformance() throws {
-        guard performance(expected: 0.016) else { return }
-        let router = TrieRouter.init(String.self)
-        for letter in ["a"] {
-            router.register(route: Route(path: [
-                .constant(letter)
-            ], output: letter))
-        }
-        
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["a"], parameters: &params)
-            }
-        }
-    }
-    
-    
-    public func testMinimalEarlyFailPerformance() throws {
-        guard performance(expected: 0.013) else { return }
-        let router = TrieRouter.init(String.self)
-        for letter in ["aaaaaaaaaaaaaa"] {
-            router.register(route: Route(path: [
-                .constant(letter)
-            ], output: letter))
-        }
-
-        measure {
-            var params = Parameters()
-            for _ in 0..<100_000 {
-                _ = router.route(path: ["baaaaaaaaaaaaa"], parameters: &params)
-            }
-        }
-    }
-
 
     public static let allTests = [
         ("testRouter", testRouter),
         ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testAnyRouting", testAnyRouting),
-        ("testRouterSuffixes", testRouterSuffixes),
-        ("testCaseSensitivePerformance", testCaseSensitivePerformance),
-        ("testCaseInsensitivePerformance", testCaseInsensitivePerformance),
-        ("testCaseInsensitiveRoutingMatchFirstPerformance", testCaseInsensitiveRoutingMatchFirstPerformance),
-        ("testCaseInsensitiveRoutingMatchLastPerformance", testCaseInsensitiveRoutingMatchLastPerformance),
-        ("testMinimalRouterCaseInsensitivePerformance", testMinimalRouterCaseInsensitivePerformance),
-        ("testMinimalRouterCaseSensitivePerformance", testMinimalRouterCaseSensitivePerformance),
-        ("testMinimalEarlyFailPerformance", testMinimalEarlyFailPerformance),
+        ("testRouterSuffixes", testRouterSuffixes)
     ]
-}
-
-func performance(expected seconds: Double, name: String = #function) -> Bool {
-    guard !_isDebugAssertConfiguration() else {
-        print("[PERFORMANCE] Skipping \(name) in debug build mode")
-        return false
-    }
-    print()
-    print("[PERFORMANCE] \(name) expected: \(seconds) seconds")
-    return true
 }
 
 final class User: Parameter {
