@@ -7,13 +7,13 @@ jobs:
     steps:
       - checkout
       - run: swift build
-      - run: swift test
+      - run: swift test --filter "RountingKitTests.RouterTests"
   linux-release:
     docker:
       - image: vapor/swift:5.0
     steps:
       - checkout
-      - run: swift build -c release --filter "RountingKitTests.RouterTests"
+      - run: swift build -c release
   linux-performance:
     docker:
       - image: vapor/swift:5.0
