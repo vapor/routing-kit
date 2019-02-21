@@ -12,7 +12,7 @@ public final class RouterPerformanceTests: XCTestCase {
             router.register(route: Route(path: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -30,7 +30,7 @@ public final class RouterPerformanceTests: XCTestCase {
             router.register(route: Route(path: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -48,7 +48,7 @@ public final class RouterPerformanceTests: XCTestCase {
             router.register(route: Route(path: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -66,7 +66,7 @@ public final class RouterPerformanceTests: XCTestCase {
             router.register(route: Route(path: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -83,7 +83,7 @@ public final class RouterPerformanceTests: XCTestCase {
         for letter in ["a"] {
             router.register(route: Route(path: [
                 .constant(letter)
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -100,7 +100,7 @@ public final class RouterPerformanceTests: XCTestCase {
         for letter in ["a"] {
             router.register(route: Route(path: [
                 .constant(letter)
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -118,7 +118,7 @@ public final class RouterPerformanceTests: XCTestCase {
         for letter in ["aaaaaaaaaaaaaa"] {
             router.register(route: Route(path: [
                 .constant(letter)
-                ], output: letter))
+            ], output: letter))
         }
         
         measure {
@@ -145,7 +145,6 @@ func performance(expected seconds: Double, name: String = #function) -> Bool {
         print("[PERFORMANCE] Skipping \(name) in debug build mode")
         return false
     }
-    print()
     print("[PERFORMANCE] \(name) expected: \(seconds) seconds")
     return true
 }
