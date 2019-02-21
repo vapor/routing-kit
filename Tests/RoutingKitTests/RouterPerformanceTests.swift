@@ -2,9 +2,6 @@ import RoutingKit
 import XCTest
 
 public final class RouterPerformanceTests: XCTestCase {
-
-    // MARK: Performance
-    
     public func testCaseSensitivePerformance() throws {
         guard performance(expected: 0.024) else { return }
         let router = TrieRouter(String.self)
