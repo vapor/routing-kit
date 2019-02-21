@@ -5,6 +5,7 @@ import RoutingKitTests
 
 XCTMain([
     testCase(RouterTests.allTests),
+    testCase(RouterPerformanceTests.allTests)
 ])
 
 #endif
