@@ -8,8 +8,8 @@ jobs:
       - checkout
       - run: swift build
       - run:
-          name: swift test
-          command:swift test --filter "RountingKitTests.RouterTests"
+        name: swift test
+        command: swift test --filter "RountingKitTests.RouterTests"
   linux-release:
     docker:
       - image: vapor/swift:5.0
@@ -22,8 +22,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: swift test
-          command: swift test -c release --filter "RoutingKitTests.RouterPerformanceTests"
+        name: swift test
+        command: swift test -c release --filter "RoutingKitTests.RouterPerformanceTests"
 
 workflows:
   version: 2
