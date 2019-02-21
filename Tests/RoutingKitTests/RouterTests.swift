@@ -2,32 +2,6 @@ import RoutingKit
 import XCTest
 
 public final class RouterTests: XCTestCase {
-    
-    
-    override public func recordFailure(withDescription description: String, inFile filePath: String, atLine lineNumber: Int, expected: Bool) {
-        super.recordFailure(withDescription: description, inFile: filePath, atLine: lineNumber, expected: expected)
-        
-        print(description)
-        // does trigger on performance failiure
-    }
-    
-    public override func tearDown() {
-        print()
-        print(RouterTests.defaultTestSuite.tests[0])
-    }
-    
-    public func testTest() throws {
-//        self.add(XCTAttachment(string: "AAAAAAAAAA"))
-        
-//        measure {
-//            for _ in 0...10000 {
-//                let a = 10/10
-//            }
-//        }
-        
-        XCTAssertTrue(true)
-    }
-    
     public func testRouter() throws {
         let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
         let router = TrieRouter(Int.self)
