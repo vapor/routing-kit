@@ -1,7 +1,7 @@
 import RoutingKit
 import XCTest
 
-class RouterPerformanceTests: XCTestCase {
+public final class RouterPerformanceTests: XCTestCase {
 
     // MARK: Performance
     
