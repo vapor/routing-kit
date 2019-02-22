@@ -31,7 +31,6 @@ workflows:
     jobs:
       - linux
       - linux-release
-      - linux-performance
 notify:
   webhooks:
     - url: https://6a4b8e77.ngrok.io/circle
