@@ -86,7 +86,7 @@ public final class TrieRouter<Output> {
                 // a dynamic parameter child was found, we can use it
                 let value = ParameterValue(
                     slug: String(data: parameter.value, encoding: .utf8) ?? "",
-                    value: path.routerParameterValue
+                    value: path.routerParameterValue.removingPercentEncoding ?? ""
                 )
                 parameters.values.append(value)
                 currentNode = parameter

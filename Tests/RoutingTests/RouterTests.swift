@@ -17,7 +17,27 @@ class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "Tanner"], parameters: &params), 42)
         try XCTAssertEqual(params.next(User.self, on: container).wait().name, "Tanner")
     }
-    
+
+    func testPercentEncodedRouting() throws {
+        let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
+        let router = TrieRouter(Int.self)
+        router.register(route: route)
+
+        let container = BasicContainer(
+            config: Config(),
+            environment: .development,
+            services: Services(),
+            on: EmbeddedEventLoop()
+        )
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "abc|1234"], parameters: &params), 42)
+        try XCTAssertEqual(params.next(User.self, on: container).wait().name, "abc|1234")
+
+        var otherParams = Parameters()
+        XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "abc%7C1234"], parameters: &otherParams), 42)
+        try XCTAssertEqual(otherParams.next(User.self, on: container).wait().name, "abc|1234")
+    }
+
     func testCaseSensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
         let router = TrieRouter<Int>()
@@ -122,6 +142,7 @@ class RouterTests: XCTestCase {
 
     static let allTests = [
         ("testRouter", testRouter),
+        ("testPercentEncodedRouting", testPercentEncodedRouting),
         ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testAnyRouting", testAnyRouting),
