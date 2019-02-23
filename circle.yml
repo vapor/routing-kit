@@ -7,7 +7,9 @@ jobs:
     steps:
       - checkout
       - run: swift build
-      - run: swift test
+      - run:
+          name: swift test
+          command: swift test --filter "RountingKitTests.RouterTests"
   linux-release:
     docker:
       - image: vapor/swift:5.0
@@ -19,7 +21,9 @@ jobs:
       - image: vapor/swift:5.0
     steps:
       - checkout
-      - run: swift test -c release
+      - run:
+          name: swift test
+          command: swift test -c release --filter "RoutingKitTests.RouterPerformanceTests"
 
 workflows:
   version: 2
@@ -27,4 +31,6 @@ workflows:
     jobs:
       - linux
       - linux-release
-      - linux-performance
+notify:
+  webhooks:
+    - url: https://bot-gh.vapor.codes/circle
