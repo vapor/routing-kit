@@ -105,12 +105,23 @@ public final class RouterTests: XCTestCase {
         print(params)
     }
     
+    // https://github.com/vapor/routing/issues/64
+    public func testParameterPercentDecoding() throws {
+        let router = TrieRouter(String.self)
+        router.register(route: Route(path: [.constant("a"), .parameter("b")], output: "c"))
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["a", "te%20st"], parameters: &params), "c")
+        XCTAssertEqual(params.get("b"), "te st")
+    }
 
     public static let allTests = [
         ("testRouter", testRouter),
         ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testAnyRouting", testAnyRouting),
-        ("testRouterSuffixes", testRouterSuffixes)
+        ("testDocBlock", testDocBlock),
+        ("testDocs", testDocs),
+        ("testDocs2", testDocs2),
+        ("testParameterPercentDecoding", testParameterPercentDecoding),
     ]
 }
