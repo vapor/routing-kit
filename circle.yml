@@ -9,7 +9,7 @@ jobs:
       - run: swift build
       - run:
           name: swift test
-          command: swift test --filter "RountingKitTests.RouterTests"
+          command: swift test --filter "RoutingKitTests.RouterTests"
   linux-release:
     docker:
       - image: vapor/swift:5.0
