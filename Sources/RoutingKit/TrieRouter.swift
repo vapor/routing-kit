@@ -157,14 +157,14 @@ extension TrieRouter {
                 let node = Node()
                 self.constants[string] = node
                 return node
-            case .parameter(let string):
+            case .parameter(let name):
                 let node: Node
-                if let (name, existing) = self.parameter {
-                    node = existing
-                    assert(name == string, "router type mis-match \(name) != \(string)")
+                if let (existingName, existingNode) = self.parameter {
+                    node = existingNode
+                    assert(existingName == name, "Route parameter name mis-match \(existingName) != \(name)")
                 } else {
                     node = Node()
-                    self.parameter = (string, node)
+                    self.parameter = (name, node)
                 }
                 return node
             case .catchall:
