@@ -3,12 +3,12 @@ import XCTest
 
 public final class RouterTests: XCTestCase {
     public func testRouter() throws {
-        let route = Route(path: ["foo", "bar", "baz", User.parameter], output: 42)
+        let route = Route(path: ["foo", "bar", "baz", ":user"], output: 42)
         let router = TrieRouter(Int.self)
         router.register(route: route)
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "Tanner"], parameters: &params), 42)
-        try XCTAssertEqual(params.next(User.self).name, "Tanner")
+        XCTAssertEqual(params.get("user"), "Tanner")
     }
     
     public func testCaseSensitiveRouting() throws {
@@ -29,12 +29,12 @@ public final class RouterTests: XCTestCase {
     }
 
     public func testAnyRouting() throws {
-        let route0 = Route<Int>(path: [.constant("a"), any], output: 0)
-        let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), any], output: 1)
-        let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), any], output: 2)
+        let route0 = Route<Int>(path: [.constant("a"), .anything], output: 0)
+        let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), .anything], output: 1)
+        let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), .anything], output: 2)
         let route3 = Route<Int>(path: [.constant("d"), .parameter("1"), .parameter("2")], output: 3)
-        let route4 = Route<Int>(path: [.constant("e"), .parameter("1"), all], output: 4)
-        let route5 = Route<Int>(path: [any, .constant("e"), .parameter("1")], output: 5)
+        let route4 = Route<Int>(path: [.constant("e"), .parameter("1"), .catchall], output: 4)
+        let route5 = Route<Int>(path: [.anything, .constant("e"), .parameter("1")], output: 5)
 
         let router = TrieRouter<Int>()
         router.register(route: route0)
@@ -79,12 +79,12 @@ public final class RouterTests: XCTestCase {
 
 
     public func testDocBlock() throws {
-        let route = Route<Int>(path: [.constant("users"), User.parameter], output: 42)
+        let route = Route<Int>(path: ["users", ":user"], output: 42)
         let router = TrieRouter<Int>()
         router.register(route: route)
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["users", "Tanner"], parameters: &params), 42)
-        try XCTAssertEqual(params.next(User.self).name, "Tanner")
+        XCTAssertEqual(params.get("user"), "Tanner")
     }
 
     public func testDocs() throws {
@@ -113,17 +113,4 @@ public final class RouterTests: XCTestCase {
         ("testAnyRouting", testAnyRouting),
         ("testRouterSuffixes", testRouterSuffixes)
     ]
-}
-
-final class User: Parameter {
-    var name: String
-
-    init(name: String) {
-        self.name = name
-    }
-
-    static func resolveParameter(_ parameter: String) throws -> User {
-        let user = User(name: parameter)
-        return user
-    }
 }
