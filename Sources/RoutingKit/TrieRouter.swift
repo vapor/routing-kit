@@ -82,7 +82,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             if let (name, parameter) = currentNode.parameter {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
-                parameters.set(name, to: path)
+                // parameters.set(name, to: path)
                 currentNode = parameter
                 continue search
             }
