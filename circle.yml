@@ -33,4 +33,4 @@ workflows:
       - linux-release
 notify:
   webhooks:
-    - url: https://bot-gh.vapor.codes/circle
+    - url: https://bot-gh.vapor.codes/circle/result
