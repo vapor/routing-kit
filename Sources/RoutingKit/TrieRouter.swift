@@ -211,6 +211,12 @@ extension TrieRouter {
     }
 }
 
+extension TrieRouter: PrefixGroupable {
+    public func grouped(_ prefix: [PathComponent]) -> PrefixGroupedRouter<Output, TrieRouter> {
+        return PrefixGroupedRouter(Output.self, prefix: prefix, baseRouter: self)
+    }
+}
+
 private extension String {
     func indented() -> String {
         return self.split(separator: "\n").map { line in

@@ -113,6 +113,24 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["a", "te%20st"], parameters: &params), "c")
         XCTAssertEqual(params.get("b"), "te st")
     }
+    
+    public func testGroupedRoutes() throws {
+        let router = TrieRouter(Int.self)
+        let prefixGroup = router.grouped([.constant("foo")])
+
+        prefixGroup.register(route: Route(path: [.constant("bar")], output: 1))
+        prefixGroup.register(route: Route(path: [.constant("baz")], output: 2))
+        
+        let feeGroup = prefixGroup.grouped([.constant("fee")])
+        
+        feeGroup.register(route: Route(path: [.constant("fi")], output: 3))
+        
+        var params = Parameters()
+        
+        XCTAssertEqual(router.route(path: ["foo", "bar"], parameters: &params), 1)
+        XCTAssertEqual(router.route(path: ["foo", "baz"], parameters: &params), 2)
+        XCTAssertEqual(router.route(path: ["foo", "fee", "fi"], parameters: &params), 3)
+    }
 
     public static let allTests = [
         ("testRouter", testRouter),
