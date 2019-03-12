@@ -4,6 +4,10 @@
 public protocol Router {
     /// Type of value stored in routes. This will be returned by the router.
     associatedtype Output
+    associatedtype BaseRouterType: Router
+    
+    var prefix: [PathComponent] { get }
+    var baseRouter: BaseRouterType { get }
     
     /// Registers a new `Route` to the `Router`.
     ///

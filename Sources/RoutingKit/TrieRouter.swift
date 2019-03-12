@@ -17,6 +17,12 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
     /// The root node.
     private var root: Node
+    
+    public let prefix: [PathComponent] = []
+    
+    public var baseRouter: TrieRouter<Output> {
+        return self
+    }
 
     /// Create a new `TrieRouter`.
     ///
@@ -211,11 +217,11 @@ extension TrieRouter {
     }
 }
 
-extension TrieRouter: PrefixGroupable {
-    public func grouped(_ prefix: [PathComponent]) -> PrefixGroupedRouter<Output, TrieRouter> {
-        return PrefixGroupedRouter(Output.self, prefix: prefix, baseRouter: self)
-    }
-}
+//extension TrieRouter: PrefixGroupable {
+//    public func grouped(_ prefix: [PathComponent]) -> PrefixGroupedRouter<Output, TrieRouter> {
+//        return PrefixGroupedRouter(Output.self, prefix: prefix, baseRouter: self)
+//    }
+//}
 
 private extension String {
     func indented() -> String {

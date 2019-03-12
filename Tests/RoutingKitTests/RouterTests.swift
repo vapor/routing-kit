@@ -120,13 +120,13 @@ public final class RouterTests: XCTestCase {
 
         prefixGroup.register(route: Route(path: [.constant("bar")], output: 1))
         prefixGroup.register(route: Route(path: [.constant("baz")], output: 2))
-        
+
         let feeGroup = prefixGroup.grouped([.constant("fee")])
-        
+
         feeGroup.register(route: Route(path: [.constant("fi")], output: 3))
-        
+
         var params = Parameters()
-        
+
         XCTAssertEqual(router.route(path: ["foo", "bar"], parameters: &params), 1)
         XCTAssertEqual(router.route(path: ["foo", "baz"], parameters: &params), 2)
         XCTAssertEqual(router.route(path: ["foo", "fee", "fi"], parameters: &params), 3)
@@ -141,5 +141,6 @@ public final class RouterTests: XCTestCase {
         ("testDocs", testDocs),
         ("testDocs2", testDocs2),
         ("testParameterPercentDecoding", testParameterPercentDecoding),
+        ("testGroupedRoutes", testGroupedRoutes)
     ]
 }
