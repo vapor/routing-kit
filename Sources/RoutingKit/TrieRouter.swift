@@ -18,19 +18,29 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// The root node.
     private var root: Node
     
-    public let prefix: [PathComponent] = []
+    public let prefix: [PathComponent]
     
-    public var baseRouter: TrieRouter<Output> {
-        return self
-    }
+    public let baseRouter: TrieRouter<Output>?
 
     /// Create a new `TrieRouter`.
     ///
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
-    public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = []) {
+    public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = [], prefix: [PathComponent] = [], baseRouter: TrieRouter<Output>? = nil) {
         self.root = Node()
         self.options = options
+        self.prefix = prefix
+        self.baseRouter = baseRouter
+    }
+    
+    public func register(route: Route<Output>) {
+        let prefixedRoute = Route(path: self.prefix + route.path, output: route.output)
+        
+        if let baseRouter = self.baseRouter {
+            baseRouter._register(route: prefixedRoute)
+        } else {
+            self._register(route: prefixedRoute)
+        }
     }
 
     /// Registers a new `Route` to this router.
@@ -41,7 +51,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///
     /// - parameters:
     ///     - route: `Route` to register to this router.
-    public func register(route: Route<Output>) {
+    private func _register(route: Route<Output>) {
         // start at the root of the trie branch
         var current = self.root
 
