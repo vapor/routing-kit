@@ -33,4 +33,4 @@ workflows:
       - linux-release
 notify:
   webhooks:
-    - url: https://6a4b8e77.ngrok.io/circle
+    - url: https://bot-gh.vapor.codes/circle/result
