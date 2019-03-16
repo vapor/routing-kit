@@ -14,7 +14,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["a", "42"], parameters: &params)
             }
         }
@@ -32,7 +32,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["a", "42"], parameters: &params)
             }
         }
@@ -50,7 +50,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["aaaaaaaa", "42"], parameters: &params)
             }
         }
@@ -68,7 +68,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["aaaaaaag", "42"], parameters: &params)
             }
         }
@@ -85,7 +85,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["a"], parameters: &params)
             }
         }
@@ -102,7 +102,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["a"], parameters: &params)
             }
         }
@@ -120,7 +120,7 @@ public final class RouterPerformanceTests: XCTestCase {
         
         measure {
             var params = Parameters()
-            for _ in 0..<100_000 {
+            for _ in 0..<1_000_000 {
                 _ = router.route(path: ["baaaaaaaaaaaaa"], parameters: &params)
             }
         }
