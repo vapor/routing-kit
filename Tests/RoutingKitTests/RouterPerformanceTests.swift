@@ -125,6 +125,25 @@ public final class RouterPerformanceTests: XCTestCase {
             }
         }
     }
+    
+    public func testGroupedRoutePerformance() throws {
+        guard performance(expected: 0.039) else { return }
+        let router = TrieRouter(String.self)
+        let group = router.grouped([.constant("foo")])
+        for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
+            group.register(route: Route(path: [
+                .constant(letter),
+                .parameter("\(letter)_id")
+            ], output: letter))
+        }
+        
+        measure {
+            var params = Parameters()
+            for _ in 0..<1_000_000 {
+                _ = router.route(path: ["foo", "a", "42"], parameters: &params)
+            }
+        }
+    }
 
     public static let allTests = [
         ("testCaseSensitivePerformance", testCaseSensitivePerformance),
@@ -134,6 +153,7 @@ public final class RouterPerformanceTests: XCTestCase {
         ("testMinimalRouterCaseInsensitivePerformance", testMinimalRouterCaseInsensitivePerformance),
         ("testMinimalRouterCaseSensitivePerformance", testMinimalRouterCaseSensitivePerformance),
         ("testMinimalEarlyFailPerformance", testMinimalEarlyFailPerformance),
+        ("testGroupedRoutePerformance", testGroupedRoutePerformance),
     ]
 }
 
