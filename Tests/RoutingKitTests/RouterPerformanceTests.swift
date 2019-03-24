@@ -129,10 +129,10 @@ public final class RouterPerformanceTests: XCTestCase {
     public func testGroupedRoutePerformance() throws {
         guard performance(expected: 0.039) else { return }
         let router = TrieRouter(String.self)
-        let group = router.grouped([.constant("foo")])
+      
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
+            let group = router.grouped([.constant(letter)])
             group.register(route: Route(path: [
-                .constant(letter),
                 .parameter("\(letter)_id")
             ], output: letter))
         }
