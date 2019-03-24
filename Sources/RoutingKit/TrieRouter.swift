@@ -18,21 +18,46 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// The root node.
     private var root: Node
     
+    /// Routers build route prefixes, but still need to register with their base router
     public let prefix: [PathComponent]
     
+    /// The route prefix that exists for this router. If route prefix was [.constant("user"), .parameter("id")], this router could only register routes that start with "/user/:id"
     public let baseRouter: TrieRouter<Output>?
 
     /// Create a new `TrieRouter`.
     ///
     /// - parameters:
     ///     - options: Configured options such as case-sensitivity.
-    public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = [], prefix: [PathComponent] = [], baseRouter: TrieRouter<Output>? = nil) {
+    public init(
+        _ type: Output.Type = Output.self,
+        options: Set<ConfigurationOption> = []
+    ) {
+        self.root = Node()
+        self.options = options
+        self.prefix = []
+        self.baseRouter = nil
+    }
+    
+    fileprivate init(
+        _ type: Output.Type = Output.self,
+        options: Set<ConfigurationOption> = [],
+        prefix: [PathComponent],
+        baseRouter: TrieRouter<Output>?
+    ) {
         self.root = Node()
         self.options = options
         self.prefix = prefix
         self.baseRouter = baseRouter
     }
     
+    /// Registers a new `Route` to this router.
+    ///
+    ///     let route = Route<Int>(path: [.constant("users"), User.parameter], output: ...)
+    ///     let router = TrieRouter<Int>()
+    ///     router.register(route: route)
+    ///
+    /// - parameters:
+    ///     - route: `Route` to register to this router.
     public func register(route: Route<Output>) {
         let prefixedRoute = Route(path: self.prefix + route.path, output: route.output)
         
@@ -227,11 +252,26 @@ extension TrieRouter {
     }
 }
 
-//extension TrieRouter: PrefixGroupable {
-//    public func grouped(_ prefix: [PathComponent]) -> PrefixGroupedRouter<Output, TrieRouter> {
-//        return PrefixGroupedRouter(Output.self, prefix: prefix, baseRouter: self)
-//    }
-//}
+extension TrieRouter {
+    
+    /// Creates a new `Router` that will automatically prepend the supplied path components.
+    ///
+    ///     let users = router.grouped([.constant("users")])
+    ///     // Adding "user/auth/" route to router.
+    ///     users.register(route: Route(path: [.constant("auth")], output: 1))
+    ///     // adding "user/profile/" route to router
+    ///     users.register(route: Route(path: [.constant("profile")], output: 2))
+    ///
+    /// - parameters:
+    ///     - prefix: Group path components.
+    /// - returns: Newly created `Router` wrapped in the path.
+    public func grouped(_ prefix: [PathComponent]) -> TrieRouter<Output> {
+        return TrieRouter(
+            prefix: self.prefix + prefix,
+            baseRouter: self.baseRouter ?? self
+        )
+    }
+}
 
 private extension String {
     func indented() -> String {

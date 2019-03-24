@@ -5,12 +5,6 @@ public protocol Router {
     /// Type of value stored in routes. This will be returned by the router.
     associatedtype Output
     
-    /// The route prefix that exists for this router. If route prefix was [.constant("user"), .parameter("id")], this router could only register routes that start with "/user/:id"
-    var prefix: [PathComponent] { get }
-    
-    /// Routers build route prefixes, but still need to register with their base router
-    var baseRouter: TrieRouter<Output>? { get }
-    
     /// Registers a new `Route` to the `Router`.
     ///
     /// Extraneous information such as `userInfo` may be discarded.
