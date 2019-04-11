@@ -39,7 +39,7 @@ public struct Parameters {
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
     ///
-    public func get<T>(_ name: String, as type: T.Type) -> T?
+    public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
         where T: LosslessStringConvertible
     {
         return self.get(name).flatMap(T.init)
