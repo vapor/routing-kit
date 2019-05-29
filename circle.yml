@@ -61,7 +61,6 @@ workflows:
       - bionic-release
       - xenial
       - xenial-release
-      - linux-performance
 notify:
   webhooks:
     - url: https://bot-gh.vapor.codes/circle/result
