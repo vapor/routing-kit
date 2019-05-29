@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/1342803/36578628-7ca4da62-182c-11e8-88de-2949d386bd63.png" height="64" alt="Routing">
+    <img src="https://user-images.githubusercontent.com/1342803/58581614-f9e97580-821d-11e9-9c7a-39da66e9dbf7.png" alt="RoutingKit">
     <br>
     <br>
     <a href="https://api.vapor.codes/routing/master/RoutingKit/index.html">
