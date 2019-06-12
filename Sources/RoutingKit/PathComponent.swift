@@ -1,26 +1,38 @@
 /// A single path component of a `Route`. An array of these components describes
-/// a route's path, including which parts are constant and which parts are dynamic (parameters).
+/// a route's path, including which parts are constant and which parts are dynamic.
 public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     /// A normal, constant path component.
     case constant(String)
 
-    /// A dynamic parameter component. 
+    /// A dynamic parameter component.
+    ///
+    /// The supplied identifier will be used to fetch the associated
+    /// value from `Parameters`.
+    ///
+    /// Represented as `:` followed by the identifier.
     case parameter(String)
     
-    /// This route will match everything that is not in other routes
+    /// A dynamic parameter component with discarded value.
+    ///
+    /// Represented as `*`
     case anything
     
-    /// This route will match and discard any number of constant components after
-    /// this anything component.
+    /// A fallback component that will match one *or more* dynamic
+    /// parameter components with discarded values.
+    ///
+    /// Catch alls have the lowest precedence, and will only be matched
+    /// if no more specific path components are found.
+    ///
+    /// Represented as `**`
     case catchall
 
     /// `ExpressibleByStringLiteral` conformance.
     public init(stringLiteral value: String) {
         if value.hasPrefix(":") {
             self = .parameter(.init(value.dropFirst()))
-        } else if value == ":" {
-            self = .anything
         } else if value == "*" {
+            self = .anything
+        } else if value == "**" {
             self = .catchall
         } else {
             self = .constant(value)
@@ -30,10 +42,14 @@ public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     /// `CustomStringConvertible` conformance.
     public var description: String {
         switch self {
-        case .anything: return ":"
-        case .catchall: return "*"
-        case .parameter(let name): return ":" + name
-        case .constant(let constant): return constant
+        case .anything:
+            return "*"
+        case .catchall:
+            return "**"
+        case .parameter(let name):
+            return ":" + name
+        case .constant(let constant):
+            return constant
         }
     }
 }

@@ -25,6 +25,7 @@ extension RouterTests {
         ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
         ("testCaseSensitiveRouting", testCaseSensitiveRouting),
         ("testCatchAllNested", testCatchAllNested),
+        ("testCatchAllPrecedence", testCatchAllPrecedence),
         ("testDocBlock", testDocBlock),
         ("testDocs2", testDocs2),
         ("testDocs", testDocs),
