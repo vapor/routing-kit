@@ -1,8 +1,8 @@
 import RoutingKit
 import XCTest
 
-public final class RouterTests: XCTestCase {
-    public func testRouter() throws {
+final class RouterTests: XCTestCase {
+    func testRouter() throws {
         let route = Route(path: ["foo", "bar", "baz", ":user"], output: 42)
         let router = TrieRouter(Int.self)
         router.register(route: route)
@@ -11,7 +11,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(params.get("user"), "Tanner")
     }
     
-    public func testCaseSensitiveRouting() throws {
+    func testCaseSensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
         let router = TrieRouter<Int>()
         router.register(route: route)
@@ -20,7 +20,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["path", "TO", "fOo"], parameters: &params), 42)
     }
     
-    public func testCaseInsensitiveRouting() throws {
+    func testCaseInsensitiveRouting() throws {
         let route = Route<Int>(path: [.constant("path"), .constant("TO"), .constant("fOo")], output: 42)
         let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(route: route)
@@ -28,7 +28,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), 42)
     }
 
-    public func testAnyRouting() throws {
+    func testAnyRouting() throws {
         let route0 = Route<Int>(path: [.constant("a"), .anything], output: 0)
         let route1 = Route<Int>(path: [.constant("b"), .parameter("1"), .anything], output: 1)
         let route2 = Route<Int>(path: [.constant("c"), .parameter("1"), .parameter("2"), .anything], output: 2)
@@ -64,7 +64,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
     }
 
-    public func testRouterSuffixes() throws {
+    func testRouterSuffixes() throws {
         let route1 = Route<Int>(path: [.constant("a")], output: 1)
         let route2 = Route<Int>(path: [.constant("aa")], output: 2)
 
@@ -78,7 +78,7 @@ public final class RouterTests: XCTestCase {
     }
 
 
-    public func testDocBlock() throws {
+    func testDocBlock() throws {
         let route = Route<Int>(path: ["users", ":user"], output: 42)
         let router = TrieRouter<Int>()
         router.register(route: route)
@@ -87,7 +87,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(params.get("user"), "Tanner")
     }
 
-    public func testDocs() throws {
+    func testDocs() throws {
         let router = TrieRouter(Double.self)
         router.register(route: Route(path: ["fun", "meaning_of_universe"], output: 42))
         router.register(route: Route(path: ["fun", "leet"], output: 1337))
@@ -96,7 +96,7 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
     }
 
-    public func testDocs2() throws {
+    func testDocs2() throws {
         let router = TrieRouter(String.self)
         router.register(route: Route(path: [.constant("users"), .parameter("user_id")], output: "show_user"))
 
@@ -106,7 +106,7 @@ public final class RouterTests: XCTestCase {
     }
     
     // https://github.com/vapor/routing/issues/64
-    public func testParameterPercentDecoding() throws {
+    func testParameterPercentDecoding() throws {
         let router = TrieRouter(String.self)
         router.register(route: Route(path: [.constant("a"), .parameter("b")], output: "c"))
         var params = Parameters()
@@ -114,14 +114,30 @@ public final class RouterTests: XCTestCase {
         XCTAssertEqual(params.get("b"), "te st")
     }
 
-    public static let allTests = [
-        ("testRouter", testRouter),
-        ("testCaseInsensitiveRouting", testCaseInsensitiveRouting),
-        ("testCaseSensitiveRouting", testCaseSensitiveRouting),
-        ("testAnyRouting", testAnyRouting),
-        ("testDocBlock", testDocBlock),
-        ("testDocs", testDocs),
-        ("testDocs2", testDocs2),
-        ("testParameterPercentDecoding", testParameterPercentDecoding),
-    ]
+    // https://github.com/vapor/routing-kit/issues/74
+    func testCatchAllNested() throws {
+        let router = TrieRouter(String.self)
+        router.register(route: Route(path: [.catchall], output: "/**"))
+        router.register(route: Route(path: ["a", .catchall], output: "/a/**"))
+        router.register(route: Route(path: ["a", "b", .catchall], output: "/a/b/**"))
+        router.register(route: Route(path: ["a", "b"], output: "/a/b"))
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["a"], parameters: &params), "/**")
+        XCTAssertEqual(router.route(path: ["a", "b"], parameters: &params), "/a/b")
+        XCTAssertEqual(router.route(path: ["a", "b", "c"], parameters: &params), "/a/b/**")
+        XCTAssertEqual(router.route(path: ["a", "c"], parameters: &params), "/a/**")
+        XCTAssertEqual(router.route(path: ["b"], parameters: &params), "/**")
+        XCTAssertEqual(router.route(path: ["b", "c", "d", "e"], parameters: &params), "/**")
+    }
+
+    func testCatchAllPrecedence() throws {
+        let router = TrieRouter(String.self)
+        router.register(route: Route(path: ["v1", "test"], output: "a"))
+        router.register(route: Route(path: ["v1", .catchall], output: "b"))
+        router.register(route: Route(path: ["v1", .anything], output: "c"))
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["v1", "test"], parameters: &params), "a")
+        XCTAssertEqual(router.route(path: ["v1", "test", "foo"], parameters: &params), "b")
+        XCTAssertEqual(router.route(path: ["v1", "foo"], parameters: &params), "c")
+    }
 }

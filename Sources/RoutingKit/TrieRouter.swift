@@ -70,8 +70,15 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
+        var currentCatchall: Node?
+
         // traverse the string path supplied
         search: for path in path {
+            // store catchall in case search hits dead end
+            if let catchall = currentNode.catchall {
+                currentCatchall = catchall
+            }
+
             // check the constants first
             if let constant = currentNode.constants[isCaseInsensitive ? path.lowercased() : path] {
                 currentNode = constant
@@ -93,18 +100,25 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
                 continue search
             }
 
-            // no constants or dynamic members, check for catchall
-            if let catchall = currentNode.catchall {
-                // there is a catchall and it is final, short-circuit to its output
-                return catchall.output
-            }
-
             // no matches, stop searching
-            return nil
+            if let catchall = currentCatchall {
+                // fallback to catchall output if we have one
+                return catchall.output
+            } else {
+                return nil
+            }
         }
 
-        // return the currently resolved responder if there hasn't been an early exit.
-        return currentNode.output
+        if let output = currentNode.output {
+            // return the currently resolved responder if there hasn't been an early exit.
+            return output
+        } else if let catchall = currentCatchall {
+            // fallback to catchall output if we have one
+            return catchall.output
+        } else {
+            // current node has no output and there was not catchall
+            return nil
+        }
     }
     
     public var description: String {
