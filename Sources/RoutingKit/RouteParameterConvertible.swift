@@ -1,6 +1,8 @@
 import Foundation
 
-extension UUID: LosslessStringConvertible {
+public protocol RouteParameterConvertible: LosslessStringConvertible { }
+
+extension UUID: RouteParameterConvertible {
     
     public init?(_ description: String) {
         self.init(uuidString: description)

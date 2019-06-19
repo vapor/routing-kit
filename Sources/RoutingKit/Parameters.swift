@@ -31,7 +31,7 @@ public struct Parameters {
     }
     
     /// Grabs the named parameter from the parameter bag, casting it to
-    /// a `LosslessStringConvertible` type.
+    /// a `RouteParameterConvertible` type.
     ///
     /// For example GET /posts/:post_id/comments/:comment_id
     /// would be fetched using:
@@ -40,7 +40,7 @@ public struct Parameters {
     ///     let commentID = parameters.get("comment_id", as: Int.self)
     ///
     public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
-        where T: LosslessStringConvertible
+        where T: RouteParameterConvertible
     {
         return self.get(name).flatMap(T.init)
     }
