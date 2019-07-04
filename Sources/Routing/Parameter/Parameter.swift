@@ -108,10 +108,7 @@ extension UUID: Parameter {
 }
 
 extension RawRepresentable where Self: Parameter, RawValue: Parameter, RawValue == RawValue.ResolvedParameter {
-    static func resolveParameter(
-        _ parameter: String,
-        on container: Container
-        ) throws -> Self {
+    static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
         let rawValue = try RawValue.resolveParameter(parameter, on: container)
         guard let value = Self(rawValue: rawValue) else {
             throw RoutingError(identifier: "noMatchingCase", reason: "Could not create value of \(Self.self), string \(parameter) does not match any existing cases.")
