@@ -107,3 +107,11 @@ extension UUID: Parameter {
     }
 }
 
+extension RawRepresentable: Parameter {
+    static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
+        guard let value = Self(rawValue: parameter) else {
+            throw FluentError(identifier: "noMatchingCase", reason: "Could not create value of \(Self.self), string \(parameter) does not match any existing cases.")
+        }
+        return value
+    }
+}
