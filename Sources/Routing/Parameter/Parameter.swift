@@ -107,8 +107,25 @@ extension UUID: Parameter {
     }
 }
 
+/// Allows enums defined with raw values to be used as dynamic route parameters.
+/// This allows routes such as
+///
+///     router.get("users", Team.self) { req in
+///         let team = try req.parameters.next(Team.self)
+///         return "user team: \(team)"
+///     }
+///
+/// where `Team` could be an enum of the following
+///
+///     enum Team: String {
+///         case red
+///         case blue
+///     }
+///
+/// this would turn a route into `/users/red` for example.
+
 extension RawRepresentable where Self: Parameter, RawValue: Parameter, RawValue == RawValue.ResolvedParameter {
-    static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
+    public static func resolveParameter(_ parameter: String, on container: Container) throws -> Self {
         let rawValue = try RawValue.resolveParameter(parameter, on: container)
         guard let value = Self(rawValue: rawValue) else {
             throw RoutingError(identifier: "noMatchingCase", reason: "Could not create value of \(Self.self), string \(parameter) does not match any existing cases.")
