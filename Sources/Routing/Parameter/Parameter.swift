@@ -110,7 +110,7 @@ extension UUID: Parameter {
 /// Allows enums defined with raw values to be used as dynamic route parameters.
 /// This allows routes such as
 ///
-///     router.get("users", Team.self) { req in
+///     router.get("users", Team.parameter) { req in
 ///         let team = try req.parameters.next(Team.self)
 ///         return "user team: \(team)"
 ///     }
