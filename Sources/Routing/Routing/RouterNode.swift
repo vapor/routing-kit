@@ -19,6 +19,7 @@ final class RouterNode<Output> {
     /// This node's output
     var output: Output?
     
+    /// The human readable path for this node.
     var path: String?
 
     /// Creates a new `RouterNode`.
