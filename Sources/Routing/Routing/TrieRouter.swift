@@ -55,8 +55,9 @@ public final class TrieRouter<Output> {
             }
         }
         current.output = route.output
+        current.path = route.path.readable
     }
-
+    
     /// Routes a `path`, returning the best-matching output and collecting any dynamic parameters.
     ///
     ///     var params = Parameters()
@@ -65,8 +66,8 @@ public final class TrieRouter<Output> {
     /// - parameters:
     ///     - path: Array of `RoutableComponent` to route against.
     ///     - params: A mutable `Parameters` to collect dynamic parameters.
-    /// - returns: Best-matching output for the supplied path.
-    public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
+    /// - returns: Best-matching output for the supplied path & human readable path if available.
+    public func route<C>(path: [C], parameters: inout Parameters) -> (Output?, String?) where C: RoutableComponent {
         // always start at the root node
         var currentNode: RouterNode = root
 
@@ -102,14 +103,27 @@ public final class TrieRouter<Output> {
             // no constants or dynamic members, check for catchall
             if let catchall = currentNode.catchall {
                 // there is a catchall and it is final, short-circuit to its output
-                return catchall.output
+                return (catchall.output, catchall.path)
             }
 
             // no matches, stop searching
-            return nil
+            return (nil, nil)
         }
 
         // return the currently resolved responder if there hasn't been an early exit.
-        return currentNode.output
+        return (currentNode.output, currentNode.path)
+    }
+
+    /// Routes a `path`, returning the best-matching output and collecting any dynamic parameters.
+    ///
+    ///     var params = Parameters()
+    ///     router.route(path: ["users", "Vapor"], parameters: &params)
+    ///
+    /// - parameters:
+    ///     - path: Array of `RoutableComponent` to route against.
+    ///     - params: A mutable `Parameters` to collect dynamic parameters.
+    /// - returns: Best-matching output for the supplied path.
+    public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
+        return self.route(path: path, parameters: &parameters).0
     }
 }

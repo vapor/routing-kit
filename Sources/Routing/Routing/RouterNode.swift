@@ -18,6 +18,8 @@ final class RouterNode<Output> {
 
     /// This node's output
     var output: Output?
+    
+    var path: String?
 
     /// Creates a new `RouterNode`.
     init(value: Data, output: Output? = nil) {
