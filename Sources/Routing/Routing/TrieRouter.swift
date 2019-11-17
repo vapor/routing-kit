@@ -67,7 +67,7 @@ public final class TrieRouter<Output> {
     ///     - path: Array of `RoutableComponent` to route against.
     ///     - params: A mutable `Parameters` to collect dynamic parameters.
     /// - returns: Best-matching output for the supplied path & human readable path if available.
-    public func route<C>(path: [C], parameters: inout Parameters) -> (Output?, String?) where C: RoutableComponent {
+    public func getOutputAndPath<C>(for path: [C], parameters: inout Parameters) -> (Output?, String?) where C: RoutableComponent {
         // always start at the root node
         var currentNode: RouterNode = root
 
@@ -124,6 +124,6 @@ public final class TrieRouter<Output> {
     ///     - params: A mutable `Parameters` to collect dynamic parameters.
     /// - returns: Best-matching output for the supplied path.
     public func route<C>(path: [C], parameters: inout Parameters) -> Output? where C: RoutableComponent {
-        return self.route(path: path, parameters: &parameters).0
+        return self.getOutputAndPath(for: path, parameters: &parameters).0
     }
 }
