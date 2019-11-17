@@ -136,7 +136,7 @@ class RouterTests: XCTestCase {
         router.register(route: Route(path: [.constant("users"), .parameter("user_id")], output: "show_user"))
 
         var params = Parameters()
-        let _: String? = router.route(path: ["users", "42"], parameters: &params)
+        _ = router.route(path: ["users", "42"], parameters: &params)
         print(params)
     }
 
