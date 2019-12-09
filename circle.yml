@@ -1,0 +1,18 @@
+version: 2
+
+jobs:
+  version: 2
+
+jobs:
+  linux-performance:
+    docker:
+      - image: swift:5.0-bionic
+    steps:
+      - checkout
+      - run:
+          name: swift test
+          command: swift test -c release --filter "RoutingKitTests.RouterPerformanceTests"
+
+notify:
+  webhooks:
+    - url: https://bot-gh.vapor.codes/circle/result
