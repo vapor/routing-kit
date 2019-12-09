@@ -8,7 +8,7 @@ public protocol Router {
     /// Registers a new `Route` to the `Router`.
     ///
     /// Extraneous information such as `userInfo` may be discarded.
-    mutating func register(route: Route<Output>)
+    mutating func register(_ output: Output, at path: [PathComponent])
     
     /// Fetches output for a specific route.
     ///

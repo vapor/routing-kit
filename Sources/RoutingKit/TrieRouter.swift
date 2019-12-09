@@ -35,24 +35,24 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///
     /// - parameters:
     ///     - route: `Route` to register to this router.
-    public func register(route: Route<Output>) {
+    public func register(_ output: Output, at path: [PathComponent]) {
         // start at the root of the trie branch
         var current = self.root
 
         // for each dynamic path in the route get the appropriate
         // child generating a new one if necessary
-        for component in route.path {
+        for component in path {
             current = current.buildOrFetchChild(for: component, options: self.options)
         }
 
         // if this node already has output, we are overriding a route
         if current.output != nil {
-            print("[Routing] Warning: Overriding route output at: \(route.path.string)")
+            print("[Routing] Warning: Overriding route output at: \(path.string)")
         }
         
         // after iterating over all path components, we can set the output
         // on the current node
-        current.output = route.output
+        current.output = output
     }
 
     /// Routes a `path`, returning the best-matching output and collecting any dynamic parameters.
