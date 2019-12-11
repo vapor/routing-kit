@@ -6,10 +6,10 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.039) else { return }
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
-            router.register(route: Route(path: [
+            router.register(letter, at:[
                 .constant(letter),
                 .parameter("\(letter)_id")
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -24,10 +24,10 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.050) else { return }
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -42,10 +42,10 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.062) else { return }
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -60,10 +60,10 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.063) else { return }
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter),
                 .parameter("\(letter)_id")
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -78,9 +78,9 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.022) else { return }
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter)
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -95,9 +95,9 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.017) else { return }
         let router = TrieRouter.init(String.self)
         for letter in ["a"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter)
-            ], output: letter))
+            ])
         }
         
         measure {
@@ -113,9 +113,9 @@ final class RouterPerformanceTests: XCTestCase {
         guard performance(expected: 0.016) else { return }
         let router = TrieRouter.init(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
-            router.register(route: Route(path: [
+            router.register(letter, at: [
                 .constant(letter)
-            ], output: letter))
+            ])
         }
         
         measure {
