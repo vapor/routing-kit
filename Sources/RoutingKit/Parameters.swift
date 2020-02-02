@@ -18,21 +18,21 @@ public struct Parameters {
         values = [:]
     }
 
-    /// Grabs the named parameter from the parameter bag.
+    /// Grabs the parameter, supplied as a `PathComponent.parameter`, from the parameter bag.
     ///
     /// For example GET /posts/:post_id/comments/:comment_id
     /// would be fetched using:
     ///
-    ///     let postID = parameters.get("post_id")
-    ///     let commentID = parameters.get("comment_id")
+    ///     let postID = parameters.get(.postId)
+    ///     let commentID = parameters.get(.commentId)
     ///
     public func get(_ parameter: PathComponent) -> String? {
-        guard case .parameter(let name) = parameter else { return nil }
+        if case .parameter(let name) = parameter { return nil }
         return get(name)
     }
 
-    /// Grabs the named parameter from the parameter bag, casting it to
-    /// a `LosslessStringConvertible` type.
+    /// Grabs the parameter, supplied as a `PathComponent.parameter`, from the parameter bag,
+    /// casting it to a `LosslessStringConvertible` type.
     ///
     /// For example GET /posts/:post_id/comments/:comment_id
     /// would be fetched using:
@@ -51,8 +51,8 @@ public struct Parameters {
     /// For example GET /posts/:post_id/comments/:comment_id
     /// would be fetched using:
     ///
-    ///     let postID = parameters.get(.postId)
-    ///     let commentID = parameters.get(.commentId)
+    ///     let postID = parameters.get("post_id")
+    ///     let commentID = parameters.get("comment_id")
     ///
     public func get(_ name: String) -> String? {
         values[name]
