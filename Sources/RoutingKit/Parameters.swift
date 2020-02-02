@@ -28,7 +28,7 @@ public struct Parameters {
     ///
     public func get(_ parameter: PathComponent) -> String? {
         guard case .parameter(let name) = parameter else { return nil }
-        return get(name)
+        return values[name]
     }
     /// Grabs the named parameter from the parameter bag, casting it to
     /// a `LosslessStringConvertible` type.
