@@ -26,10 +26,10 @@ public struct Parameters {
     ///     let postID = parameters.get("post_id")
     ///     let commentID = parameters.get("comment_id")
     ///
-    public func get(_ name: String) -> String? {
-        return self.values[name]
+    public func get(_ parameter: PathComponent) -> String? {
+        guard case .parameter(let name) = parameter else { return nil }
+        return get(name)
     }
-    
     /// Grabs the named parameter from the parameter bag, casting it to
     /// a `LosslessStringConvertible` type.
     ///
@@ -39,12 +39,12 @@ public struct Parameters {
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
     ///
-    public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
+    public func get<T>(_ parameter: PathComponent, as type: T.Type = T.self) -> T?
         where T: LosslessStringConvertible
     {
-        return self.get(name).flatMap(T.init)
+        get(parameter).flatMap(T.init)
     }
-    
+
     /// Adds a new parameter value to the bag.
     ///
     /// - note: The value will be percent-decoded.
