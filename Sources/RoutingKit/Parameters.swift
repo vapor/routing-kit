@@ -27,7 +27,7 @@ public struct Parameters {
     ///     let commentID = parameters.get(.commentId)
     ///
     public func get(_ parameter: PathComponent) -> String? {
-        if case .parameter(let name) = parameter { return nil }
+        guard case .parameter(let name) = parameter else { return nil }
         return get(name)
     }
 
