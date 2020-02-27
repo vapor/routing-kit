@@ -54,6 +54,13 @@ public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     }
 }
 
+extension String {
+    /// Converts a string into `[PathComponent]`.
+    public var pathComponents: [PathComponent] {
+        return self.split(separator: "/").map { .init(stringLiteral: .init($0)) }
+    }
+}
+
 extension Array where Element == PathComponent {
     /// Converts an array of `PathComponent` into a readable path string.
     ///
