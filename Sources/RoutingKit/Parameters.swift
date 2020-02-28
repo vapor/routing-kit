@@ -7,6 +7,7 @@ import Foundation
 ///
 ///     let postID = parameters.get("post_id")
 ///
+@dynamicMemberLookup
 public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
@@ -16,6 +17,12 @@ public struct Parameters {
     /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
     public init() {
         values = [:]
+    }
+
+    public subscript<Value>(dynamicMember paramater: KeyPath<PathComponent.Type, Parameter<Value>>) -> Value? {
+        guard let raw = self.values[PathComponent.self[keyPath: paramater].name] else { return nil }
+        guard let value = Value(raw) else { return nil }
+        return value
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -54,5 +61,16 @@ public struct Parameters {
     ///     - value: Value (percent-encoded if necessary)
     public mutating func set(_ name: String, to value: String?) {
         self.values[name] = value?.removingPercentEncoding
+    }
+}
+
+@propertyWrapper public struct Parameter<Value> where Value: LosslessStringConvertible {
+    public let name: String
+
+    @available(*, unavailable, message: "This property never contains a value and will always crash if you try to access it.")
+    public var wrappedValue: Value { fatalError("You shouldn't ever call this ") }
+
+    public init(name: String) {
+        self.name = name
     }
 }

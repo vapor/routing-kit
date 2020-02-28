@@ -1,5 +1,7 @@
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic.
+
+@dynamicMemberLookup
 public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     /// A normal, constant path component.
     case constant(String)
@@ -25,6 +27,10 @@ public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     ///
     /// Represented as `**`
     case catchall
+
+    public static subscript<Value>(dynamicMember parameter: KeyPath<PathComponent.Type, Parameter<Value>>) -> PathComponent {
+        return .parameter(PathComponent.self[keyPath: parameter].name)
+    }
 
     /// `ExpressibleByStringLiteral` conformance.
     public init(stringLiteral value: String) {
