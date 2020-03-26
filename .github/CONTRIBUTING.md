@@ -10,10 +10,10 @@ To get started, you will need to open a Terminal and:
 
 1. Fork this repo and clone it onto your machine.
 ```
-$ git clone https://github.com/<YourGitHubName>/routing
+$ git clone https://github.com/<YourGitHubName>/routing-kit
 ```
 2. Make some changes. A good place to start if you're looking for ideas are the open 
-[issues](https://github.com/vapor/routing/issues). If nothing looks good to you, but you still want
+[issues](https://github.com/vapor/routing-kit/issues). If nothing looks good to you, but you still want
 to help, ask around in the [Discord](https://vapor.team)
 
 2.5. Some macOS folks find it easier to do development with Xcode. Xcode projects aren't checked into
@@ -31,7 +31,7 @@ within Xcode.
 
 To open a pull request, go to your fork on Github and select the "New pull request" button. You'll be
 directed to a new page where you can compare your changes with the current state of the project. Make
-sure you have `vapor/routing` and `base: master` selected on the left and `<YourGithubUsername>/routing`
+sure you have `vapor/routing-kit` and `base: master` selected on the left and `<YourGithubUsername>/routing`
 and `compare: master` selected on the right. Below that you'll see the changes you've made. Make sure
 you're seeing the changes you expect.
 
@@ -43,7 +43,7 @@ maintainer should be by soon to review it.
 
 ## Reporting Issues
 	
-Go ahead and [open a new issue](https://github.com/vapor/routing/issues/new). The team will be notified
+Go ahead and [open a new issue](https://github.com/vapor/routing-kit/issues/new). The team will be notified
 and we should get back to you shortly.
 	
 We give you a few sections to fill out to help us hunt down the issue more effectively. Be sure to fill
@@ -64,10 +64,6 @@ Code that is only additive and will not break any existing code can be included 
 
 ## Testing
 
-Once in Xcode, select the `routing-Package` scheme and use `CMD+U` to run the tests.
-
-When adding new tests (please do 😁), don't forget to add the method name to the `allTests` array. 
-If you add a new `XCTestCase` subclass, make sure to add it to the `Tests/LinuxMain.swift` file.
-
+Once in Xcode, select the `routing-kit-Package` scheme and use `CMD+U` to run the tests.
 
 &mdash; Thanks! 🙌
