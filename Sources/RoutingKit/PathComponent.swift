@@ -67,6 +67,6 @@ extension Array where Element == PathComponent {
     ///     /galaxies/:galaxyID/planets
     ///
     public var string: String {
-        return self.map { $0.description }.joined(separator: "/")
+        return self.map(\.description).joined(separator: "/")
     }
 }

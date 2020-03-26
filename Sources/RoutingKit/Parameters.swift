@@ -15,7 +15,7 @@ public struct Parameters {
     ///
     /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
     public init() {
-        values = [:]
+        self.values = [:]
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -27,7 +27,7 @@ public struct Parameters {
     ///     let commentID = parameters.get("comment_id")
     ///
     public func get(_ name: String) -> String? {
-        return self.values[name]
+        self.values[name]
     }
     
     /// Grabs the named parameter from the parameter bag, casting it to
@@ -42,7 +42,7 @@ public struct Parameters {
     public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
         where T: LosslessStringConvertible
     {
-        return self.get(name).flatMap(T.init)
+        self.get(name).flatMap(T.init)
     }
     
     /// Adds a new parameter value to the bag.
