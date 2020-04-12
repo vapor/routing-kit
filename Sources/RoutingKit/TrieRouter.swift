@@ -204,21 +204,21 @@ extension TrieRouter {
         
         var description: String {
             var desc: [String] = []
+            for (name, constant) in self.constants {
+                desc.append("→ \(name)")
+                desc += constant.description.indentSliced
+            }
             if let (name, parameter) = self.parameter {
                 desc.append("→ :\(name)")
                 desc += parameter.description.indentSliced
-            }
-            if let catchall = self.catchall {
-                desc.append("→ **")
-                desc += catchall.description.indentSliced
             }
             if let anything = self.anything {
                 desc.append("→ *")
                 desc += anything.description.indentSliced
             }
-            for (name, constant) in self.constants {
-                desc.append("→ \(name)")
-                desc += constant.description.indentSliced
+            if let catchall = self.catchall {
+                desc.append("→ **")
+                desc += catchall.description.indentSliced
             }
             return desc.joined(separator: "\n")
         }
