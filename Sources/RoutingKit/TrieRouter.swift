@@ -205,15 +205,15 @@ extension TrieRouter {
         var description: String {
             var desc: [String] = []
             if let (name, parameter) = self.parameter {
-                desc.append("→ \(name)")
+                desc.append("→ :\(name)")
                 desc.append(parameter.description.indented())
             }
             if let catchall = self.catchall {
-                desc.append("→ *")
+                desc.append("→ **")
                 desc.append(catchall.description.indented())
             }
             if let anything = self.anything {
-                desc.append("→ :")
+                desc.append("→ *")
                 desc.append(anything.description.indented())
             }
             for (name, constant) in self.constants {

@@ -14,7 +14,7 @@ final class RouterTests: XCTestCase {
         let router = TrieRouter<Int>()
         router.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
         var params = Parameters()
-        XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), nil)
+        XCTAssertNil(router.route(path: ["PATH", "tO", "FOo"], parameters: &params))
         XCTAssertEqual(router.route(path: ["path", "TO", "fOo"], parameters: &params), 42)
     }
     
