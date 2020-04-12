@@ -206,19 +206,19 @@ extension TrieRouter {
             var desc: [String] = []
             if let (name, parameter) = self.parameter {
                 desc.append("→ :\(name)")
-                desc.append(parameter.description.indented())
+                desc += parameter.description.indentSliced
             }
             if let catchall = self.catchall {
                 desc.append("→ **")
-                desc.append(catchall.description.indented())
+                desc += catchall.description.indentSliced
             }
             if let anything = self.anything {
                 desc.append("→ *")
-                desc.append(anything.description.indented())
+                desc += anything.description.indentSliced
             }
             for (name, constant) in self.constants {
                 desc.append("→ \(name)")
-                desc.append(constant.description.indented())
+                desc += constant.description.indentSliced
             }
             return desc.joined(separator: "\n")
         }
@@ -226,9 +226,7 @@ extension TrieRouter {
 }
 
 private extension String {
-    func indented() -> String {
-        return self.split(separator: "\n").map { line in
-            return "  " + line
-        }.joined(separator: "\n")
+    var indentSliced: [String] {
+        self.split(separator: "\n").map { "  " + $0 }
     }
 }
