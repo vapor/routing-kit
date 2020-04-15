@@ -127,4 +127,32 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["v1", "test", "foo"], parameters: &params), "b")
         XCTAssertEqual(router.route(path: ["v1", "foo"], parameters: &params), "c")
     }
+    
+    func testRouterDescription() throws {
+        // Use simple routing to eliminate the impact of registration order
+        let constA: PathComponent = "a"
+        let constOne: PathComponent = "1"
+        let paramOne: PathComponent = .parameter("1")
+        let anything: PathComponent = .anything
+        let catchall: PathComponent = .catchall
+        let router = TrieRouter<Int>()
+        router.register(0, at: [constA, anything])
+        router.register(1, at: [constA, constOne, catchall])
+        router.register(2, at: [constA, constOne, anything])
+        router.register(3, at: [anything, constA, paramOne])
+        router.register(4, at: [catchall])
+        // Manually build description
+        let desc = """
+            → \(constA)
+              → \(constOne)
+                → \(anything)
+                → \(catchall)
+              → \(anything)
+            → \(anything)
+              → \(constA)
+                → \(paramOne)
+            → \(catchall)
+            """
+        XCTAssertEqual(router.description, desc)
+    }
 }
