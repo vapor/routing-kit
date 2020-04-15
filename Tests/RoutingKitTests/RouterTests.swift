@@ -155,4 +155,18 @@ final class RouterTests: XCTestCase {
             """
         XCTAssertEqual(router.description, desc)
     }
+    
+    func testPathComponentDescription() throws {
+        let paths = [
+            "aaaaa/bbbb/ccc/dd",
+            "123/:45/6/789",
+            "123/**",
+            "*/*/*/**",
+            ":12/12/*"
+        ]
+        for path in paths {
+            XCTAssertEqual(path.pathComponents.string, path)
+            XCTAssertEqual(("/" + path).pathComponents.string, path)
+        }
+    }
 }
