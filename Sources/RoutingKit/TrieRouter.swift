@@ -70,17 +70,17 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
-        var currentCatchall: Node?
+        var currentCatchall: (Node, [String])?
 
         // traverse the string path supplied
-        search: for path in path {
+        search: for (index, slice) in path.enumerated() {
             // store catchall in case search hits dead end
             if let catchall = currentNode.catchall {
-                currentCatchall = catchall
+                currentCatchall = (catchall, [String](path.dropFirst(index)))
             }
 
             // check the constants first
-            if let constant = currentNode.constants[isCaseInsensitive ? path.lowercased() : path] {
+            if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
                 currentNode = constant
                 continue search
             }
@@ -89,7 +89,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             if let (name, parameter) = currentNode.parameter {
                 // if no constant routes were found that match the path, but
                 // a dynamic parameter child was found, we can use it
-                parameters.set(name, to: path)
+                parameters.set(name, to: slice)
                 currentNode = parameter
                 continue search
             }
@@ -101,8 +101,9 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             }
 
             // no matches, stop searching
-            if let catchall = currentCatchall {
+            if let (catchall, matched) = currentCatchall {
                 // fallback to catchall output if we have one
+                parameters.catchall = matched
                 return catchall.output
             } else {
                 return nil
@@ -112,8 +113,9 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         if let output = currentNode.output {
             // return the currently resolved responder if there hasn't been an early exit.
             return output
-        } else if let catchall = currentCatchall {
+        } else if let (catchall, matched) = currentCatchall {
             // fallback to catchall output if we have one
+            parameters.catchall = matched
             return catchall.output
         } else {
             // current node has no output and there was not catchall

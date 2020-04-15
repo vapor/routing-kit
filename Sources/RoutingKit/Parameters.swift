@@ -10,12 +10,14 @@ import Foundation
 public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
+    private var catchallValues: [String]
 
     /// Creates a new `Parameters`.
     ///
     /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
     public init() {
         self.values = [:]
+        self.catchallValues = []
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -54,5 +56,17 @@ public struct Parameters {
     ///     - value: Value (percent-encoded if necessary)
     public mutating func set(_ name: String, to value: String?) {
         self.values[name] = value?.removingPercentEncoding
+    }
+    
+    /// Store and fetch `catchall` matches in the bag.
+    ///
+    /// - note: The value will be percent-decoded.
+    public var catchall: [String] {
+        get {
+            self.catchallValues
+        }
+        set {
+            self.catchallValues = newValue.map { $0.removingPercentEncoding ?? $0 }
+        }
     }
 }

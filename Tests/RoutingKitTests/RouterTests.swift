@@ -127,4 +127,16 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["v1", "test", "foo"], parameters: &params), "b")
         XCTAssertEqual(router.route(path: ["v1", "foo"], parameters: &params), "c")
     }
+    
+    func testCatchallValue() throws {
+        let router = TrieRouter<Int>()
+        router.register(42, at: ["users", ":user", "**"])
+        router.register(24, at: ["users", "**"])
+
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["users", "stevapple"], parameters: &params), 24)
+        XCTAssertEqual(params.catchall, ["stevapple"])
+        XCTAssertEqual(router.route(path: ["users", "stevapple", "posts", "2"], parameters: &params), 42)
+        XCTAssertEqual(params.catchall, ["posts", "2"])
+    }
 }

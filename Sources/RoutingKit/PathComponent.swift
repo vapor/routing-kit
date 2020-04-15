@@ -23,6 +23,8 @@ public enum PathComponent: ExpressibleByStringLiteral, CustomStringConvertible {
     /// Catch alls have the lowest precedence, and will only be matched
     /// if no more specific path components are found.
     ///
+    /// The matched subpath will be stored into `Parameters.catchall`.
+    ///
     /// Represented as `**`
     case catchall
 
