@@ -40,9 +40,15 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         var current = self.root
 
         // for each dynamic path in the route get the appropriate
-        // child generating a new one if necessary
-        for component in path {
-            current = current.buildOrFetchChild(for: component, options: self.options)
+        // child, generate a new one if necessary
+        for (index, component) in path.enumerated() {
+            switch component {
+            case .catchall:
+                precondition(index == path.count - 1, "Catchall ('\(component)') must be the last component in a path.")
+                fallthrough
+            default:
+                current = current.buildOrFetchChild(for: component, options: self.options)
+            }
         }
 
         // if this node already has output, we are overriding a route
@@ -208,9 +214,8 @@ extension TrieRouter {
                 desc.append("→ \(name)")
                 desc.append(parameter.description.indented())
             }
-            if let catchall = self.catchall {
+            if let _ = self.catchall {
                 desc.append("→ *")
-                desc.append(catchall.description.indented())
             }
             if let anything = self.anything {
                 desc.append("→ :")
