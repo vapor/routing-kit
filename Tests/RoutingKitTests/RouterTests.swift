@@ -143,16 +143,16 @@ final class RouterTests: XCTestCase {
         router.register(4, at: [catchall])
         // Manually build description
         let desc = """
-            → \(constA)
-              → \(constOne)
-                → \(anything)
-                → \(catchall)
-              → \(anything)
+        → \(constA)
+          → \(constOne)
             → \(anything)
-              → \(constA)
-                → \(paramOne)
             → \(catchall)
-            """
+          → \(anything)
+        → \(anything)
+          → \(constA)
+            → \(paramOne)
+        → \(catchall)
+        """
         XCTAssertEqual(router.description, desc)
     }
     
