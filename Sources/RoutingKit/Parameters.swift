@@ -10,14 +10,14 @@ import Foundation
 public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
-    private var catchallValues: [String]
+    private var catchall: Catchall
 
     /// Creates a new `Parameters`.
     ///
     /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
     public init() {
         self.values = [:]
-        self.catchallValues = []
+        self.catchall = Catchall()
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -58,15 +58,41 @@ public struct Parameters {
         self.values[name] = value?.removingPercentEncoding
     }
     
-    /// Store and fetch `catchall` matches in the bag.
+    /// Fetches the components matched by `catchall` (`**`).
+    ///
+    /// If the route doen't hit `catchall`, it'll return `[]`.
+    ///
+    /// You can judge whether `catchall` is hit using:
+    ///
+    ///     let matched = parameters.getCatchall()
+    ///     guard matched.count != 0 else {
+    ///         // not hit
+    ///     }
     ///
     /// - note: The value will be percent-decoded.
-    public var catchall: [String] {
-        get {
-            self.catchallValues
+    ///
+    /// - returns: The path components matched
+    public mutating func getCatchall() -> [String] {
+        if self.catchall.isPercentEncoded {
+            self.catchall.values = self.catchall.values.map { $0.removingPercentEncoding ?? $0 }
+            self.catchall.isPercentEncoded = false
         }
-        set {
-            self.catchallValues = newValue.map { $0.removingPercentEncoding ?? $0 }
-        }
+        return self.catchall.values
+    }
+    
+    /// Stores the components matched by `catchall` (`**`).
+    ///
+    /// - parameters:
+    ///     - matched: The subpaths matched (percent-encoded if necessary)
+    public mutating func setCatchall(matched: [String]) {
+        self.catchall = Catchall(values: matched)
+    }
+    
+    /// Holds path components that were matched by `catchall` (`**`).
+    ///
+    /// Used internally.
+    private struct Catchall {
+        var values: [String] = []
+        var isPercentEncoded: Bool = true
     }
 }

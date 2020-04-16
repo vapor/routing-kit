@@ -101,9 +101,9 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             }
 
             // no matches, stop searching
-            if let (catchall, matched) = currentCatchall {
+            if let (catchall, subpaths) = currentCatchall {
                 // fallback to catchall output if we have one
-                parameters.catchall = matched
+                parameters.setCatchall(matched: subpaths)
                 return catchall.output
             } else {
                 return nil
@@ -113,9 +113,9 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         if let output = currentNode.output {
             // return the currently resolved responder if there hasn't been an early exit.
             return output
-        } else if let (catchall, matched) = currentCatchall {
+        } else if let (catchall, subpaths) = currentCatchall {
             // fallback to catchall output if we have one
-            parameters.catchall = matched
+            parameters.setCatchall(matched: subpaths)
             return catchall.output
         } else {
             // current node has no output and there was not catchall

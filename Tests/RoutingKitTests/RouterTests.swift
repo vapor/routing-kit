@@ -102,7 +102,7 @@ final class RouterTests: XCTestCase {
     }
 
     // https://github.com/vapor/routing-kit/issues/74
-    func testCatchAllNested() throws {
+    func testCatchallNested() throws {
         let router = TrieRouter(String.self)
         router.register("/**", at: [.catchall])
         router.register("/a/**", at: ["a", .catchall])
@@ -117,7 +117,7 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["b", "c", "d", "e"], parameters: &params), "/**")
     }
 
-    func testCatchAllPrecedence() throws {
+    func testCatchallPrecedence() throws {
         let router = TrieRouter(String.self)
         router.register("a", at: ["v1", "test"])
         router.register("b", at: ["v1", .catchall])
@@ -134,9 +134,11 @@ final class RouterTests: XCTestCase {
         router.register(24, at: ["users", "**"])
 
         var params = Parameters()
+        XCTAssertNil(router.route(path: ["users"], parameters: &params))
+        XCTAssertEqual(params.getCatchall().count, 0)
         XCTAssertEqual(router.route(path: ["users", "stevapple"], parameters: &params), 24)
-        XCTAssertEqual(params.catchall, ["stevapple"])
+        XCTAssertEqual(params.getCatchall(), ["stevapple"])
         XCTAssertEqual(router.route(path: ["users", "stevapple", "posts", "2"], parameters: &params), 42)
-        XCTAssertEqual(params.catchall, ["posts", "2"])
+        XCTAssertEqual(params.getCatchall(), ["posts", "2"])
     }
 }
