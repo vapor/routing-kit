@@ -10,12 +10,14 @@ import Foundation
 public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
+    private var catchall: Catchall
 
     /// Creates a new `Parameters`.
     ///
     /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
     public init() {
         self.values = [:]
+        self.catchall = Catchall()
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -54,5 +56,43 @@ public struct Parameters {
     ///     - value: Value (percent-encoded if necessary)
     public mutating func set(_ name: String, to value: String?) {
         self.values[name] = value?.removingPercentEncoding
+    }
+    
+    /// Fetches the components matched by `catchall` (`**`).
+    ///
+    /// If the route doen't hit `catchall`, it'll return `[]`.
+    ///
+    /// You can judge whether `catchall` is hit using:
+    ///
+    ///     let matched = parameters.getCatchall()
+    ///     guard matched.count != 0 else {
+    ///         // not hit
+    ///     }
+    ///
+    /// - note: The value will be percent-decoded.
+    ///
+    /// - returns: The path components matched
+    public mutating func getCatchall() -> [String] {
+        if self.catchall.isPercentEncoded {
+            self.catchall.values = self.catchall.values.map { $0.removingPercentEncoding ?? $0 }
+            self.catchall.isPercentEncoded = false
+        }
+        return self.catchall.values
+    }
+    
+    /// Stores the components matched by `catchall` (`**`).
+    ///
+    /// - parameters:
+    ///     - matched: The subpaths matched (percent-encoded if necessary)
+    public mutating func setCatchall(matched: [String]) {
+        self.catchall = Catchall(values: matched)
+    }
+    
+    /// Holds path components that were matched by `catchall` (`**`).
+    ///
+    /// Used internally.
+    private struct Catchall {
+        var values: [String] = []
+        var isPercentEncoded: Bool = true
     }
 }
