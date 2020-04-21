@@ -40,9 +40,15 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         var current = self.root
 
         // for each dynamic path in the route get the appropriate
-        // child generating a new one if necessary
-        for component in path {
-            current = current.buildOrFetchChild(for: component, options: self.options)
+        // child, generate a new one if necessary
+        for (index, component) in path.enumerated() {
+            switch component {
+            case .catchall:
+                precondition(index == path.count - 1, "Catchall ('\(component)') must be the last component in a path.")
+                fallthrough
+            default:
+                current = current.buildOrFetchChild(for: component, options: self.options)
+            }
         }
 
         // if this node already has output, we are overriding a route
@@ -205,32 +211,33 @@ extension TrieRouter {
         }
         
         var description: String {
+            self.subpathDescriptions.joined(separator: "\n")
+        }
+        
+        var subpathDescriptions: [String] {
             var desc: [String] = []
-            if let (name, parameter) = self.parameter {
-                desc.append("→ \(name)")
-                desc.append(parameter.description.indented())
-            }
-            if let catchall = self.catchall {
-                desc.append("→ *")
-                desc.append(catchall.description.indented())
-            }
-            if let anything = self.anything {
-                desc.append("→ :")
-                desc.append(anything.description.indented())
-            }
             for (name, constant) in self.constants {
                 desc.append("→ \(name)")
-                desc.append(constant.description.indented())
+                desc += constant.subpathDescriptions.indented()
             }
-            return desc.joined(separator: "\n")
+            if let (name, parameter) = self.parameter {
+                desc.append("→ :\(name)")
+                desc += parameter.subpathDescriptions.indented()
+            }
+            if let anything = self.anything {
+                desc.append("→ *")
+                desc += anything.subpathDescriptions.indented()
+            }
+            if let _ = self.catchall {
+                desc.append("→ **")
+            }
+            return desc
         }
     }
 }
 
-private extension String {
-    func indented() -> String {
-        return self.split(separator: "\n").map { line in
-            return "  " + line
-        }.joined(separator: "\n")
+private extension Array where Element == String {
+    func indented() -> [String] {
+        return self.map { "  " + $0 }
     }
 }
