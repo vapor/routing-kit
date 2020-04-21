@@ -14,7 +14,7 @@ final class RouterTests: XCTestCase {
         let router = TrieRouter<Int>()
         router.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
         var params = Parameters()
-        XCTAssertEqual(router.route(path: ["PATH", "tO", "FOo"], parameters: &params), nil)
+        XCTAssertNil(router.route(path: ["PATH", "tO", "FOo"], parameters: &params))
         XCTAssertEqual(router.route(path: ["path", "TO", "fOo"], parameters: &params), 42)
     }
     
@@ -126,5 +126,47 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["v1", "test"], parameters: &params), "a")
         XCTAssertEqual(router.route(path: ["v1", "test", "foo"], parameters: &params), "b")
         XCTAssertEqual(router.route(path: ["v1", "foo"], parameters: &params), "c")
+    }
+    
+    func testRouterDescription() throws {
+        // Use simple routing to eliminate the impact of registration order
+        let constA: PathComponent = "a"
+        let constOne: PathComponent = "1"
+        let paramOne: PathComponent = .parameter("1")
+        let anything: PathComponent = .anything
+        let catchall: PathComponent = .catchall
+        let router = TrieRouter<Int>()
+        router.register(0, at: [constA, anything])
+        router.register(1, at: [constA, constOne, catchall])
+        router.register(2, at: [constA, constOne, anything])
+        router.register(3, at: [anything, constA, paramOne])
+        router.register(4, at: [catchall])
+        // Manually build description
+        let desc = """
+        → \(constA)
+          → \(constOne)
+            → \(anything)
+            → \(catchall)
+          → \(anything)
+        → \(anything)
+          → \(constA)
+            → \(paramOne)
+        → \(catchall)
+        """
+        XCTAssertEqual(router.description, desc)
+    }
+    
+    func testPathComponentDescription() throws {
+        let paths = [
+            "aaaaa/bbbb/ccc/dd",
+            "123/:45/6/789",
+            "123/**",
+            "*/*/*/**",
+            ":12/12/*"
+        ]
+        for path in paths {
+            XCTAssertEqual(path.pathComponents.string, path)
+            XCTAssertEqual(("/" + path).pathComponents.string, path)
+        }
     }
 }

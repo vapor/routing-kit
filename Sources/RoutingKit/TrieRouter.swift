@@ -209,31 +209,33 @@ extension TrieRouter {
         }
         
         var description: String {
+            self.subpathDescriptions.joined(separator: "\n")
+        }
+        
+        var subpathDescriptions: [String] {
             var desc: [String] = []
-            if let (name, parameter) = self.parameter {
-                desc.append("→ \(name)")
-                desc.append(parameter.description.indented())
-            }
-            if let _ = self.catchall {
-                desc.append("→ *")
-            }
-            if let anything = self.anything {
-                desc.append("→ :")
-                desc.append(anything.description.indented())
-            }
             for (name, constant) in self.constants {
                 desc.append("→ \(name)")
-                desc.append(constant.description.indented())
+                desc += constant.subpathDescriptions.indented()
             }
-            return desc.joined(separator: "\n")
+            if let (name, parameter) = self.parameter {
+                desc.append("→ :\(name)")
+                desc += parameter.subpathDescriptions.indented()
+            }
+            if let anything = self.anything {
+                desc.append("→ *")
+                desc += anything.subpathDescriptions.indented()
+            }
+            if let _ = self.catchall {
+                desc.append("→ **")
+            }
+            return desc
         }
     }
 }
 
-private extension String {
-    func indented() -> String {
-        return self.split(separator: "\n").map { line in
-            return "  " + line
-        }.joined(separator: "\n")
+private extension Array where Element == String {
+    func indented() -> [String] {
+        return self.map { "  " + $0 }
     }
 }
