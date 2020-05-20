@@ -183,4 +183,11 @@ final class RouterTests: XCTestCase {
             XCTAssertEqual(("/" + path).pathComponents.string, path)
         }
     }
+
+    func testRootPathComponent() {
+        let router = TrieRouter(String.self)
+        router.register("root", at: .root)
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: [""], parameters: &params), "root")
+    }
 }

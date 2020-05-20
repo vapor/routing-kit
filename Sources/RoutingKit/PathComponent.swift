@@ -71,4 +71,7 @@ extension Array where Element == PathComponent {
     public var string: String {
         return self.map(\.description).joined(separator: "/")
     }
+
+    /// The root path.
+    public static let root: [Element] = [.constant("")]
 }
