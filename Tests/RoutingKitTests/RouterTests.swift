@@ -183,4 +183,83 @@ final class RouterTests: XCTestCase {
             XCTAssertEqual(("/" + path).pathComponents.string, path)
         }
     }
+    
+    func testPathComponentInterpolation() throws {
+        do {
+            let pathComponentLiteral: PathComponent = "path"
+            switch pathComponentLiteral {
+            case .constant(let value):
+                XCTAssertEqual(value, "path")
+            default:
+                XCTFail("pathComponentLiteral \(pathComponentLiteral) is not .constant(\"path\")")
+            }
+        }
+        do {
+            let pathComponentLiteral: PathComponent = ":path"
+            switch pathComponentLiteral {
+            case .parameter(let value):
+                XCTAssertEqual(value, "path")
+            default:
+                XCTFail("pathComponentLiteral \(pathComponentLiteral) is not .parameter(\"path\")")
+            }
+        }
+        do {
+            let pathComponentLiteral: PathComponent = "*"
+            switch pathComponentLiteral {
+            case .anything:
+                break
+            default:
+                XCTFail("pathComponentLiteral \(pathComponentLiteral) is not .anything")
+            }
+        }
+        do {
+            let pathComponentLiteral: PathComponent = "**"
+            switch pathComponentLiteral {
+            case .catchall:
+                break
+            default:
+                XCTFail("pathComponentLiteral \(pathComponentLiteral) is not .catchall")
+            }
+        }
+        do {
+            let constant = "foo"
+            let pathComponentInterpolation: PathComponent = "\(constant)"
+            switch pathComponentInterpolation {
+            case .constant(let value):
+                XCTAssertEqual(value, "foo")
+            default:
+                XCTFail("pathComponentInterpolation \(pathComponentInterpolation) is not .constant(\"foo\")")
+            }
+        }
+        do {
+            let parameter = "foo"
+            let pathComponentInterpolation: PathComponent = ":\(parameter)"
+            switch pathComponentInterpolation {
+            case .parameter(let value):
+                XCTAssertEqual(value, "foo")
+            default:
+                XCTFail("pathComponentInterpolation \(pathComponentInterpolation) is not .parameter(\"foo\")")
+            }
+        }
+        do {
+            let anything = "*"
+            let pathComponentInterpolation: PathComponent = "\(anything)"
+            switch pathComponentInterpolation {
+            case .anything:
+                break
+            default:
+                XCTFail("pathComponentInterpolation \(pathComponentInterpolation) is not .anything")
+            }
+        }
+        do {
+            let catchall = "**"
+            let pathComponentInterpolation: PathComponent = "\(catchall)"
+            switch pathComponentInterpolation {
+            case .catchall:
+                break
+            default:
+                XCTFail("pathComponentInterpolation \(pathComponentInterpolation) is not .catchall")
+            }
+        }
+    }
 }
