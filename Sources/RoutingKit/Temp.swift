@@ -11,12 +11,8 @@ public struct RoutingContext {
         var value: T
     }
     
-    internal mutating func popPathComponent() {
-        _ = self.path.popLast()
-    }
-    
-    public mutating func nextPathComponent() -> String? {
-        self.path.last
+    internal mutating func popPathComponent() -> String? {
+        return self.path.popLast()
     }
     
     public mutating func set<Key>(_ key: Key.Type, value: Key.Value?) where Key: RoutingContextKey {
@@ -50,7 +46,7 @@ extension RoutingContextKey {
 }
 
 public protocol RoutableComponent {
-    func check(_ context: inout RoutingContext) -> Bool
+    func check(_ context: RoutingContext) -> Bool
     
     var identifier: String { get }
 }
@@ -84,8 +80,9 @@ public struct ConstantComponent: RoutableComponent {
         self.value = value
     }
     
-    public func check(_ context: inout RoutingContext) -> Bool {
-        return self.value == context.nextPathComponent()
+    public func check(_ context: RoutingContext) -> Bool {
+        return false
+//        return self.value == context.nextPathComponent()
     }
 }
 
@@ -100,16 +97,21 @@ public struct ParameterComponent: RoutableComponent {
         self.parameterName = parameterName
     }
     
-    public func check(_ context: inout RoutingContext) -> Bool {
-        guard let _ = context.nextPathComponent() else { return false }
-        return true
+    public func check(_ context: RoutingContext) -> Bool {
+        return false
+//        guard let _ = context.nextPathComponent() else { return false }
+//        return true
+    }
+    
+    public func check(_ pathComponent: String?) -> Bool {
+        return pathComponent != nil
     }
 }
 
 public struct CatchallComponent: RoutableComponent {
     public let identifier: String = "catchall"
     
-    public func check(_ context: inout RoutingContext) -> Bool {
+    public func check(_ context: RoutingContext) -> Bool {
         return true
     }
 }
@@ -118,8 +120,15 @@ public struct CatchallComponent: RoutableComponent {
 public struct AnythingComponent: RoutableComponent {
     public let identifier: String = "anything"
     
-    public func check(_ context: inout RoutingContext) -> Bool {
-        guard let _ = context.nextPathComponent() else { return false }
-        return true
+    public init() {}
+    
+    public func check(_ context: RoutingContext) -> Bool {
+        return false
+//        guard let _ = context.nextPathComponent() else { return false }
+//        return true
+    }
+    
+    public func check(_ pathComponent: String?) -> Bool {
+        return pathComponent != nil
     }
 }

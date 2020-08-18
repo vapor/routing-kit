@@ -1,4 +1,4 @@
-@testable import RoutingKit
+import RoutingKit
 import XCTest
 
 
@@ -11,16 +11,14 @@ class ExtendableRouterTests: XCTestCase {
         router.register("test three", at: [ConstantComponent(value: "two"), AnythingComponent(), ParameterComponent(parameterName: "three")])
         router.register("test four", at: [ConstantComponent(value: "one"), CustomRoutingComponent()])
         
-        print("abc")
-        
-        
         var context = RoutingContext(["one", "two"])
         XCTAssertEqual(router.route(context: &context), "test")
         
         context = RoutingContext(["one", "jfapoisdjfpaoisdjf"])
-        XCTAssertEqual(router.route(context: &context), "test two")
+        let out = router.route(context: &context)
+        XCTAssertEqual(out, "test two")
         
-        context = RoutingContext(["two", "jfapoisdjfpaoisdjf", "afpodsopf"])
+//        context = RoutingContext(["two", "jfapoisdjfpaoisdjf", "afpodsopf"])
         XCTAssertEqual(router.route(context: &context), "test three")
         
         context = RoutingContext(["one"])
@@ -47,7 +45,7 @@ class ExtendableRouterTests: XCTestCase {
 }
 
 struct CustomRoutingComponent: RoutableComponent {
-    func check(_ context: inout RoutingContext) -> Bool {
+    func check(_ context: RoutingContext) -> Bool {
         return context.get(CustomRoutingKey.self) ?? false
     }
     

@@ -32,7 +32,7 @@ public final class ExtendableRouter<Output>: Router {
     
     public func route(context: inout RoutingContext) -> Output? {
         var currentCatchall: (Node, [String])?
-        
+                
         return self.route(&context, node: root, currentCatchall: &currentCatchall)
     }
     
@@ -42,27 +42,33 @@ public final class ExtendableRouter<Output>: Router {
         }
         
         for (subnode, component) in node.children.values {
-            if component.check(&context) {
-                context.popPathComponent()
-                return self.route(&context, node: subnode, currentCatchall: &currentCatchall)
-            }
-        }
-        
-        if let (paramName, paramNode, component) = node.parameter {
-            if component.check(&context) {
-                context.popPathComponent()
-                return self.route(&context, node: paramNode, currentCatchall: &currentCatchall)
-            }
-        }
-        
-        if let anything = node.anything {
-            context.popPathComponent()
-            return self.route(&context, node: anything, currentCatchall: &currentCatchall)
+//            print("x")
+//            if component.check(context) {
+//                return self.route(&context, node: subnode, currentCatchall: &currentCatchall)
+//            }
         }
         
         if context.path.isEmpty {
             return node.output
         }
+        
+        // BELOW THIS IS WHERE THE SLOW PART IS
+        
+        if let pathComponent = context.popPathComponent() {
+            if let (subnode, _) = node.constants[pathComponent] {
+                return self.route(&context, node: subnode, currentCatchall: &currentCatchall)
+            }
+//
+//            if let (paramName, paramNode, component) = node.parameter {
+//                return self.route(&context, node: paramNode, currentCatchall: &currentCatchall)
+//            }
+//
+//            if let (anything, anythingComponent) = node.anything {
+//                return self.route(&context, node: anything, currentCatchall: &currentCatchall)
+//            }
+        }
+        
+        return nil
         
         if let (catchall, catchallPath) = currentCatchall {
             return catchall.output
@@ -76,21 +82,24 @@ extension ExtendableRouter {
     final class Node {
         var children: [String: (Node, RoutableComponent)]
         
-        var parameter: (String, Node, RoutableComponent)?
+        var constants: [String: (Node, ConstantComponent)]
+        
+        var parameter: (String, Node, ParameterComponent)?
         
         var catchall: Node?
         
-        var anything: Node?
+        var anything: (Node, AnythingComponent)?
         
         var output: Output?
         
         init(output: Output? = nil) {
             self.output = output
             self.children = [:]
+            self.constants = [:]
         }
         
         func buildOrFetchChild(for component: RoutableComponent) -> Node {
-            if component is ParameterComponent {
+            if let component = component as? ParameterComponent {
                 let node: Node
                 if let (identifier, existingNode, _) = self.parameter {
                     assert(identifier == component.identifier, "Parameter name mismatch")
@@ -100,13 +109,13 @@ extension ExtendableRouter {
                     self.parameter = (component.identifier, node, component)
                 }
                 return node
-            } else if component is AnythingComponent {
+            } else if let component = component as? AnythingComponent {
                 let node: Node
-                if let existingAnything = self.anything {
+                if let (existingAnything, _) = self.anything {
                     node = existingAnything
                 } else {
                     node = Node()
-                    self.anything = node
+                    self.anything = (node, component)
                 }
                 return node
             } else if component is CatchallComponent {
@@ -117,6 +126,15 @@ extension ExtendableRouter {
                     node = Node()
                     self.catchall = node
                 }
+                return node
+                
+            } else if let component = component as? ConstantComponent {
+                if let (node, _) = self.constants[component.identifier] {
+                    return node
+                }
+                
+                let node = Node()
+                self.constants[component.identifier] = (node, component)
                 return node
             } else {
                 if let (node, _) = self.children[component.identifier] {
@@ -139,13 +157,17 @@ extension ExtendableRouter {
                 desc.append("→ \(name)")
                 desc += constant.0.subpathDescriptions.indented()
             }
+            for (name, constant) in self.constants {
+                desc.append("→ \(name)")
+                desc += constant.0.subpathDescriptions.indented()
+            }
             if let (name, parameter, _) = self.parameter {
                 desc.append("→ :\(name)")
                 desc += parameter.subpathDescriptions.indented()
             }
             if let anything = self.anything {
                 desc.append("→ *")
-                desc += anything.subpathDescriptions.indented()
+                desc += anything.0.subpathDescriptions.indented()
             }
             if let _ = self.catchall {
                 desc.append("→ **")
