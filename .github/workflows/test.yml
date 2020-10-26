@@ -32,17 +32,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        path: ./
+        path: ~/
     - id: file_changes
       uses: trilom/file-changes-action@v1.2.3
       with:
         output: ' '
     - run: git clone -b main https://github.com/twof/Downstream.git
-      working-directory: ./
+      working-directory: ~/
     - run: swift build -c release
-      working-directory: ./Downstream
+      working-directory: ~/Downstream
     - run: mv ./Downstream/.build/release/downstream ./routing-kit/
-      working-directory: ./
+      working-directory: ~/
     - id: get_changes
       run: |
         content="$(./downstream -o human ${{ steps.file_changes.outputs.files }})"
@@ -50,6 +50,7 @@ jobs:
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
         echo "::set-output name=content::$content"
+      working-directory: ~/routing-kit
     - uses: daohoangson/comment-on-github@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
