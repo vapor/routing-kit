@@ -1,0 +1,6 @@
+associations:
+  Router.swift:
+    - https://docs.vapor.codes/4.0/routing/
+  Parameters.swift:
+    - https://docs.vapor.codes/4.0/routing/
+    - https://docs.vapor.codes/4.0/content/

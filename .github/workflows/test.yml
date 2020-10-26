@@ -3,21 +3,21 @@ on:
 - pull_request
 jobs:
   routing-kit_xenial:
-    container: 
+    container:
       image: vapor/swift:5.2-xenial
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery --sanitize=thread
   routing-kit_bionic:
-    container: 
+    container:
       image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery --sanitize=thread
   vapor:
-    container: 
+    container:
       image: vapor/swift:5.2
     runs-on: ubuntu-latest
     steps:
@@ -27,3 +27,23 @@ jobs:
       working-directory: ./vapor
     - run: swift test --enable-test-discovery --sanitize=thread
       working-directory: ./vapor
+  downstream-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: file_changes
+      uses: trilom/file-changes-action@v1.2.3
+      with:
+        output: ' '
+    - id: get_changes
+      run: |
+        content="$(swift run downstream -o human ${{ steps.file_changes.outputs.files }})"
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/'%0A'}"
+        content="${content//$'\r'/'%0D'}"
+        echo "::set-output name=content::$content"
+    - uses: daohoangson/comment-on-github@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        body: ${{ steps.get_changes.outputs.content }}
