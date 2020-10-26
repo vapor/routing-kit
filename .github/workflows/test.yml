@@ -45,7 +45,7 @@ jobs:
       with:
         output: ' '
     - run: swift build -c release
-      working-directory: ~/Downstream
+      working-directory: ./Downstream
     - run: pwd
     - run: ls
     - run: ls ~/work/routing-kit
