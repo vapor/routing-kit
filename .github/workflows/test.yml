@@ -31,7 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      path: ./
+      with:
+        path: ./
     - id: file_changes
       uses: trilom/file-changes-action@v1.2.3
       with:
