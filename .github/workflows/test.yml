@@ -37,7 +37,7 @@ jobs:
       uses: trilom/file-changes-action@v1.2.3
       with:
         output: ' '
-    - run: git clone -b master https://github.com/twof/Downstream.git
+    - run: git clone -b main https://github.com/twof/Downstream.git
       working-directory: ./
     - run: swift build -c release
       working-directory: ./Downstream
