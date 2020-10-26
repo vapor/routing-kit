@@ -41,7 +41,7 @@ jobs:
       working-directory: ./
     - run: swift build -c release
       working-directory: ./Downstream
-    - run: mv ./Downstream/.build/release/downstream ./routing-kit/downstream
+    - run: mv ./Downstream/.build/release/downstream ./routing-kit/
       working-directory: ./
     - id: get_changes
       run: |
