@@ -31,13 +31,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      path: ./
     - id: file_changes
       uses: trilom/file-changes-action@v1.2.3
       with:
         output: ' '
+    - run: git clone -b master https://github.com/twof/Downstream.git
+      working-directory: ./
+    - run: swift build -c release
+      working-directory: ./Downstream
+    - run: mv ./Downstream/.build/release/downstream ./routing-kit/downstream
+      working-directory: ./
     - id: get_changes
       run: |
-        content="$(swift run downstream -o human ${{ steps.file_changes.outputs.files }})"
+        content="$(./downstream -o human ${{ steps.file_changes.outputs.files }})"
         content="${content//'%'/'%25'}"
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
