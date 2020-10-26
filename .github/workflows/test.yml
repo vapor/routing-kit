@@ -59,6 +59,7 @@ jobs:
         echo "::set-output name=content::$content"
       working-directory: ./routing-kit
     - uses: daohoangson/comment-on-github@v2
+      if: ${{ steps.get_changes.outputs.content }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
