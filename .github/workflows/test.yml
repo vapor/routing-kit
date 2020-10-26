@@ -30,20 +30,25 @@ jobs:
   downstream-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
-        path: ~/
+        path: main
+
+    - name: Checkout tools repo
+      uses: actions/checkout@v2
+      with:
+        repository: twof/Downstream
+        path: Downstream
     - id: file_changes
       uses: trilom/file-changes-action@v1.2.3
       with:
         output: ' '
-    - run: git clone -b main https://github.com/twof/Downstream.git
-      working-directory: ~/
     - run: swift build -c release
       working-directory: ~/Downstream
     - run: pwd
     - run: ls
-    - run: ls ~
+    - run: ls ~/work/routing-kit
     - run: ls -a ~/Downstream
     - run: ls -a ~/Downstream/.build
     - run: ls -a ~/Downstream/.build/release
