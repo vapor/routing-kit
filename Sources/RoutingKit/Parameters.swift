@@ -71,7 +71,7 @@ public struct Parameters {
     ///
     /// - note: The value will be percent-decoded.
     ///
-    /// - returns: The path components matched
+    /// - returns: The path components matched.
     public mutating func getCatchall() -> [String] {
         if self.catchall.isPercentEncoded {
             self.catchall.values = self.catchall.values.map { $0.removingPercentEncoding ?? $0 }
