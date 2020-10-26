@@ -33,7 +33,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        path: main
+        path: routing-kit
 
     - name: Checkout tools repo
       uses: actions/checkout@v2
@@ -48,13 +48,8 @@ jobs:
       working-directory: ./Downstream
     - run: pwd
     - run: ls
-    - run: ls ~/work/routing-kit
-    - run: ls -a ~/Downstream
-    - run: ls -a ~/Downstream/.build
-    - run: ls -a ~/Downstream/.build/release
-    - run: ls -a ~/routing-kit
-    - run: mv ~/Downstream/.build/release/downstream ~/routing-kit/
-      working-directory: ~/
+    - run: mv ./Downstream/.build/release/downstream ./routing-kit/
+      working-directory: ./
     - id: get_changes
       run: |
         content="$(./downstream -o human ${{ steps.file_changes.outputs.files }})"
@@ -62,7 +57,7 @@ jobs:
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
         echo "::set-output name=content::$content"
-      working-directory: ~/routing-kit
+      working-directory: ./routing-kit
     - uses: daohoangson/comment-on-github@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
