@@ -142,6 +142,39 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(params.getCatchall(), ["posts", "2"])
     }
     
+    func testMatchesLongestRoute() throws {
+        let router = TrieRouter(String.self)
+        
+        router.register("longest", at: ["a", "b", ":param", "d"])
+        router.register("shortest", at: ["a", "b", "c"])
+        
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["a", "b", "c", "d"], parameters: &params), "longest")
+        XCTAssertEqual(params.get("param"), "c")
+    }
+    
+    func testMatchesLongestRoute2() throws {
+        let router = TrieRouter(String.self)
+        
+        router.register("longest", at: ["a", "b", ":param", .catchall])
+        router.register("shortest", at: ["a", "b", "c"])
+        
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["a", "b", "c", "d"], parameters: &params), "longest")
+        XCTAssertEqual(params.get("param"), "c")
+        XCTAssertEqual(params.getCatchall(), ["d"])
+    }
+    
+    func testMatchesMostSpecificRoute() throws {
+        let router = TrieRouter(String.self)
+        
+        router.register("more specific", at: ["a", "b", "c", "d"])
+        router.register("less specific", at: ["a", "b", ":param", "d"])
+        
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["a", "b", "c", "d"], parameters: &params), "more specific")
+    }
+    
     func testRouterDescription() throws {
         // Use simple routing to eliminate the impact of registration order
         let constA: PathComponent = "a"

@@ -72,65 +72,127 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// - returns: Best-matching output for the supplied path.
     public func route(path: [String], parameters: inout Parameters) -> Output? {
         // always start at the root node
-        var currentNode: Node = self.root
+        var currentNodes: [NodeCandidate] = [.init(node: self.root, parameters: Parameters(), isCatchAll: false, weight: 0)]
         
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
-        var currentCatchall: (Node, [String])?
-
         // traverse the string path supplied
         search: for (index, slice) in path.enumerated() {
-            // store catchall in case search hits dead end
-            if let catchall = currentNode.catchall {
-                currentCatchall = (catchall, [String](path.dropFirst(index)))
+            if currentNodes.isEmpty {
+                break
             }
+            
+            let currentNodesCandidates = currentNodes.flatMap { nodeCandidate -> [NodeCandidate] in
+                if nodeCandidate.isCatchAll {
+                    return [nodeCandidate]
+                }
+                
+                let currentNode = nodeCandidate.node
+                var parameters = nodeCandidate.parameters
 
-            // check the constants first
-            if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
-                currentNode = constant
-                continue search
-            }
+                var match: [NodeCandidate] = []
+                // check the constants first
+                if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
+                    match.append(.init(node: constant, parameters: parameters, isCatchAll: false, weight: nodeCandidate.weight + 3))
+                }
 
-            // no constants matched, check for dynamic members
-            if let (name, parameter) = currentNode.parameter {
-                // if no constant routes were found that match the path, but
-                // a dynamic parameter child was found, we can use it
-                parameters.set(name, to: slice)
-                currentNode = parameter
-                continue search
-            }
+                // no constants matched, check for dynamic members
+                if let (name, parameter) = currentNode.parameter {
+                    // if no constant routes were found that match the path, but
+                    // a dynamic parameter child was found, we can use it
+                    parameters.set(name, to: slice)
+                    match.append(.init(node: parameter, parameters: parameters, isCatchAll: false, weight: nodeCandidate.weight + 2))
+                }
 
-            // check for anythings
-            if let anything = currentNode.anything {
-                currentNode = anything
-                continue search
+                // check for anythings
+                if let anything = currentNode.anything {
+                    match.append(.init(node: anything, parameters: parameters, isCatchAll: false, weight: nodeCandidate.weight + 1))
+                }
+                
+                // store catchall in case search hits dead end
+                if let catchall = currentNode.catchall {
+                    parameters.setCatchall(matched: [String](path.dropFirst(index)))
+                    match.append(.init(node: catchall, parameters: parameters, isCatchAll: true, weight: nodeCandidate.weight + 0))
+                }
+                
+                return match
             }
-
-            // no matches, stop searching
-            if let (catchall, subpaths) = currentCatchall {
-                // fallback to catchall output if we have one
-                parameters.setCatchall(matched: subpaths)
-                return catchall.output
-            } else {
-                return nil
-            }
+            
+            currentNodes = currentNodesCandidates
+        }
+        
+        if let match = currentNodes
+            .filter({ $0.node.output != nil }) // Delete all nodes that aren't leaves (doesn't contain a route)
+            .max(by: { $0.weight < $1.weight }) {
+            parameters = match.parameters
+            return match.node.output
+        }
+        
+        return nil
+    }
+    
+    private func getMatchingChildNodes(for nodeCandidate: NodeCandidate, slice: String, index: Int, isCaseInsensitive: Bool, path: [String]) -> [NodeCandidate] {
+        // `Catch All` nodes cannot have children, exit early
+        if nodeCandidate.isCatchAll {
+            return [nodeCandidate]
+        }
+        
+        // Will store all matches
+        var match: [NodeCandidate] = []
+        
+        // check the constants
+        if let constant = nodeCandidate.node.constants[isCaseInsensitive ? slice.lowercased() : slice] {
+            match.append(.init(node: constant, parameters: nodeCandidate.parameters, isCatchAll: false, weight: nodeCandidate.weight + 3))
         }
 
-        if let output = currentNode.output {
-            // return the currently resolved responder if there hasn't been an early exit.
-            return output
-        } else if let (catchall, subpaths) = currentCatchall {
-            // fallback to catchall output if we have one
-            parameters.setCatchall(matched: subpaths)
-            return catchall.output
-        } else {
-            // current node has no output and there was not catchall
-            return nil
+        // check for dynamic members
+        if let (name, parameter) = nodeCandidate.node.parameter {
+            // if no constant routes were found that match the path, but
+            // a dynamic parameter child was found, we can use it
+            var parameters = nodeCandidate.parameters
+            parameters.set(name, to: slice)
+            match.append(.init(node: parameter, parameters: parameters, isCatchAll: false, weight: nodeCandidate.weight + 2))
         }
+
+        // check for anythings
+        if let anything = nodeCandidate.node.anything {
+            match.append(.init(node: anything, parameters: nodeCandidate.parameters, isCatchAll: false, weight: nodeCandidate.weight + 1))
+        }
+        
+        // check catchall
+        if let catchall = nodeCandidate.node.catchall {
+            var parameters = nodeCandidate.parameters
+            parameters.setCatchall(matched: [String](path.dropFirst(index)))
+            match.append(.init(node: catchall, parameters: nodeCandidate.parameters, isCatchAll: true, weight: nodeCandidate.weight + 0))
+        }
+        
+        return match
     }
     
     public var description: String {
         return self.root.description
+    }
+    
+    /// Helper structure to store matching node candidates and additional metadata during route search
+    private struct NodeCandidate {
+        let node: Node
+        let parameters: Parameters
+        let isCatchAll: Bool
+        
+        /// In case there are multiple candidates found, the strongest match will be chosen.
+        /// There is no concise definition of the best fit, but the intuition goes as this:
+        ///     `/a/b/c` is a better fit than `/a/b/:param`
+        ///     `/a/b/:param` is a better fit than `/a/b/*`
+        ///     `/a/b/*` and `/a/b/**` can both be good fit
+        /// Each mached node in a way between Root node and this node adds some weight
+        /// Weights are set as follows:
+        ///     `Constant   = 3`,
+        ///     `Parameter  = 2`,
+        ///     `Anything   = 1`,
+        ///     `Catch all  = 0`
+        ///
+        /// TODO: To improve performance, set weights during Trie construction as Node metadata
+        let weight: Int
     }
 }
 
