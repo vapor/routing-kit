@@ -92,17 +92,13 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             }
 
             // no constants matched, check for dynamic members
-            if let (name, parameter) = currentNode.parameter {
-                // if no constant routes were found that match the path, but
-                // a dynamic parameter child was found, we can use it
-                parameters.set(name, to: slice)
-                currentNode = parameter
-                continue search
-            }
+            // including parameters or anythings
+            if let wildcard = currentNode.wildcard {
+                if let name = wildcard.parameter {
+                    parameters.set(name, to: slice)
+                }
 
-            // check for anythings
-            if let anything = currentNode.anything {
-                currentNode = anything
+                currentNode = wildcard.node
                 continue search
             }
 
@@ -137,18 +133,50 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 extension TrieRouter {
     /// A single node of the `Router`s trie tree of routes.
     final class Node: CustomStringConvertible {
+
+        /// Describes a node that has matched a parameter or anything
+        final class Wildcard {
+            private(set) var parameter: String?
+            private(set) var explicitlyIncludesAnything = false
+
+            let node: Node
+
+            private init(node: Node) {
+                self.node = node
+            }
+
+            static func anything(_ node: Node) -> Wildcard {
+                let wildcard = Wildcard(node: node)
+                wildcard.explicitlyIncludesAnything = true
+                return wildcard
+            }
+
+            static func parameter(_ node: Node, named name: String) -> Wildcard {
+                let wildcard = Wildcard(node: node)
+                wildcard.setParameterName(name)
+                return wildcard
+            }
+
+            /// Update the wildcard to match a new parameter name
+            func setParameterName(_ name: String) {
+                parameter = name
+            }
+
+            /// Explicitly mark an anything token
+            func explicitlyIncludeAnything() {
+                explicitlyIncludesAnything = true
+            }
+        }
+
         /// All constant child nodes.
         var constants: [String: Node]
-        
-        /// Parameter child node, if one exists.
-        var parameter: (String, Node)?
+
+        /// Wildcard child node that may be a named parameter or an anything
+        var wildcard: Wildcard?
         
         /// Catchall node, if one exists.
         /// This node should not have any child nodes.
         var catchall: Node?
-        
-        /// Anything child node, if one exists.
-        var anything: Node?
         
         /// This node's output
         var output: Output?
@@ -181,12 +209,17 @@ extension TrieRouter {
                 return node
             case .parameter(let name):
                 let node: Node
-                if let (existingName, existingNode) = self.parameter {
-                    node = existingNode
-                    assert(existingName == name, "Route parameter name mis-match \(existingName) != \(name)")
+
+                if let wildcard = self.wildcard {
+                    if let existingName = self.wildcard?.parameter {
+                        assert(existingName == name, "Route parameter name mis-match \(existingName) != \(name)")
+                    } else {
+                        wildcard.setParameterName(name)
+                    }
+                    node = wildcard.node
                 } else {
                     node = Node()
-                    self.parameter = (name, node)
+                    self.wildcard = .parameter(node, named: name)
                 }
                 return node
             case .catchall:
@@ -200,11 +233,12 @@ extension TrieRouter {
                 return node
             case .anything:
                 let node: Node
-                if let anything = self.anything {
-                    node = anything
+                if let wildcard = self.wildcard {
+                    wildcard.explicitlyIncludeAnything()
+                    node = wildcard.node
                 } else {
                     node = Node()
-                    self.anything = node
+                    self.wildcard = .anything(node)
                 }
                 return node
             }
@@ -220,14 +254,19 @@ extension TrieRouter {
                 desc.append("→ \(name)")
                 desc += constant.subpathDescriptions.indented()
             }
-            if let (name, parameter) = self.parameter {
-                desc.append("→ :\(name)")
-                desc += parameter.subpathDescriptions.indented()
+
+            if let wildcard = self.wildcard {
+                if let name = wildcard.parameter {
+                    desc.append("→ :\(name)")
+                    desc += wildcard.node.subpathDescriptions.indented()
+                }
+
+                if wildcard.explicitlyIncludesAnything {
+                    desc.append("→ *")
+                    desc += wildcard.node.subpathDescriptions.indented()
+                }
             }
-            if let anything = self.anything {
-                desc.append("→ *")
-                desc += anything.subpathDescriptions.indented()
-            }
+
             if let _ = self.catchall {
                 desc.append("→ **")
             }
