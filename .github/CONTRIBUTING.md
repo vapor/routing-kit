@@ -1,7 +1,7 @@
 # Contributing to Vapor
 
 👋 Welcome to the Vapor team! We're happy to have you. Check out our 
-[Code of Conduct](https://github.com/vapor/vapor/blob/master/Docs/code_of_conduct.md) if you haven't already, and 
+[Code of Conduct](https://github.com/vapor/vapor/blob/main/Docs/code_of_conduct.md) if you haven't already, and 
 join us on [discord](https://vapor.team) if you run into trouble.
 
 ## Getting Started
@@ -53,7 +53,7 @@ everything out to help us get everything fixed up as fast as possible.
 
 - [@twof](https://github.com/twof)
 
-See the [Vapor maintainers doc](https://github.com/vapor/vapor/blob/master/Docs/maintainers.md) for more information.
+See the [Vapor maintainers doc](https://github.com/vapor/vapor/blob/main/Docs/maintainers.md) for more information.
 
 ## SemVer
 
