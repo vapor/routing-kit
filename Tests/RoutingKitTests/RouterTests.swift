@@ -54,6 +54,23 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["g", "e", "1"], parameters: &params), 5)
     }
 
+    func testWildcardRoutingHasNoPrecedence() throws {
+        let router1 = TrieRouter<Int>()
+        router1.register(0, at: [.constant("a"), .parameter("1"), .constant("a")])
+        router1.register(1, at: [.constant("a"), .anything, .constant("b")])
+
+        let router2 = TrieRouter<Int>()
+        router2.register(0, at: [.constant("a"), .anything, .constant("a")])
+        router2.register(1, at: [.constant("a"), .anything, .constant("b")])
+
+        var params1 = Parameters()
+        var params2 = Parameters()
+        let path = ["a", "1", "b"]
+
+        XCTAssertEqual(router1.route(path: path, parameters: &params1), 1)
+        XCTAssertEqual(router2.route(path: path, parameters: &params2), 1)
+    }
+
     func testRouterSuffixes() throws {
         let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(1, at: [.constant("a")])
