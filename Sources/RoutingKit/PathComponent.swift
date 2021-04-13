@@ -63,10 +63,10 @@ extension String {
     }
 }
 
-extension Array where Element == PathComponent {
+extension Sequence where Element == PathComponent {
     /// Converts an array of `PathComponent` into a readable path string.
     ///
-    ///     /galaxies/:galaxyID/planets
+    ///     galaxies/:galaxyID/planets
     ///
     public var string: String {
         return self.map(\.description).joined(separator: "/")
