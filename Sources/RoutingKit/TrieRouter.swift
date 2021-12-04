@@ -212,7 +212,7 @@ extension TrieRouter {
 
                 if let wildcard = self.wildcard {
                     if let existingName = self.wildcard?.parameter {
-                        assert(existingName == name, "Route parameter name mis-match \(existingName) != \(name)")
+                        precondition(existingName == name, "It is not possible to have two routes with the same prefix but different parameter names, even if the trailing path components differ (tried to add route with \(name) that collides with \(existingName)).")
                     } else {
                         wildcard.setParameterName(name)
                     }
