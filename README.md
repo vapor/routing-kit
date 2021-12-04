@@ -15,10 +15,16 @@
     <a href="LICENSE">
         <img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
     </a>
+    <a href="https://swift.org">
+        <img src="http://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
+    </a>
+    <a href="https://swift.org">
+        <img src="http://img.shields.io/badge/swift-5.5-brightgreen.svg" alt="Swift 5.5">
+    </a>
     <a href="https://github.com/vapor/routing-kit/actions">
         <img src="https://github.com/vapor/routing-kit/workflows/test/badge.svg" alt="Continuous Integration">
     </a>
-    <a href="https://swift.org">
-        <img src="http://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
+    <a href="https://codecov.io/gh/vapor/routing-kit">
+        <img src="https://codecov.io/gh/vapor/routing-kit/branch/main/graph/badge.svg?token=V6gIGTBlmg">
     </a>
 </p>
