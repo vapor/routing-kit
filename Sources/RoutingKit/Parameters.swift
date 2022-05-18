@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 /// Holds dynamic path components that were discovered while routing.
 ///
@@ -11,6 +12,7 @@ public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
     private var catchall: Catchall
+    private var logger: Logger
 
     /// Creates a new `Parameters`.
     ///
@@ -18,6 +20,17 @@ public struct Parameters {
     public init() {
         self.values = [:]
         self.catchall = Catchall()
+        self.logger = Logger(label: "routing-kit-parameters-logger")
+    }
+    
+    /// Creates a new `Parameters`.
+    /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
+    /// - Parameters:
+    ///     - logger: The logger to be used. If none is provided, a default one will be created.
+    public init(_ logger: Logger?) {
+        self.values = [:]
+        self.catchall = Catchall()
+        self.logger = logger ?? Logger(label: "routing-kit-parameters-logger")
     }
 
     /// Grabs the named parameter from the parameter bag.
