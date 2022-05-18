@@ -12,7 +12,7 @@ public struct Parameters {
     /// Internal storage.
     private var values: [String: String]
     private var catchall: Catchall
-    private var logger: Logger
+    public let logger: Logger
 
     /// Creates a new `Parameters`.
     ///
