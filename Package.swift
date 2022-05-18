@@ -9,9 +9,13 @@ let package = Package(
     products: [
         .library(name: "RoutingKit", targets: ["RoutingKit"]),
     ],
-    dependencies: [ ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2")
+    ],
     targets: [
-        .target(name: "RoutingKit"),
+        .target(name: "RoutingKit", dependencies: [
+            .product(name: "Logging", package: "swift-log"),
+        ]),
         .testTarget(name: "RoutingKitTests", dependencies: ["RoutingKit"]),
     ]
 )
