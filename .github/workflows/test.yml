@@ -33,14 +33,3 @@ jobs:
         run: swift package --package-path vapor edit routing-kit --path routing-kit
       - name: Run tests
         run: swift test --package-path vapor
-
-  test-exports:
-      name: Test exports
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check out package
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
-        - name: Build
-          run: swift build -Xswiftc -DBUILDING_DOCC
