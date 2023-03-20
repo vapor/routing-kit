@@ -1,9 +1,12 @@
 name: test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 on:
-  pull_request:
-  push: 
-    branches: 
-      - main
+  pull_request: { branches: ['*'] }
+  push: { branches: ['main'] }
+
+
 env:
   LOG_LEVEL: info
   SWIFT_DETERMINISTIC_HASHING: 1
@@ -14,11 +17,10 @@ jobs:
     uses: vapor/ci/.github/workflows/run-unit-tests.yml@reusable-workflows
     with:
       with_coverage: true
-      with_tsan: true
   
   upstream-check:
     runs-on: ubuntu-latest
-    container: swift:5.7
+    container: swift:5.7-jammy
     steps:
       - name: Check out self
         uses: actions/checkout@v3

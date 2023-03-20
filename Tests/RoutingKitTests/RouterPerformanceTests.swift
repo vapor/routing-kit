@@ -3,7 +3,7 @@ import XCTest
 
 final class RouterPerformanceTests: XCTestCase {
     func testCaseSensitivePerformance() throws {
-        guard performance(expected: 0.039) else { return }
+        try performance(expected: 0.039)
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(letter, at:[
@@ -21,7 +21,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
     
     func testCaseInsensitivePerformance() throws {
-        guard performance(expected: 0.050) else { return }
+        try performance(expected: 0.050)
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a", "b", "c", "d", "e" , "f", "g"] {
             router.register(letter, at: [
@@ -39,7 +39,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
     
     func testCaseInsensitiveRoutingMatchFirstPerformance() throws {
-        guard performance(expected: 0.062) else { return }
+        try performance(expected: 0.062)
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(letter, at: [
@@ -57,7 +57,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
     
     func testCaseInsensitiveRoutingMatchLastPerformance() throws {
-        guard performance(expected: 0.063) else { return }
+        try performance(expected: 0.063)
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae" , "aaaaaaaf", "aaaaaaag"] {
             router.register(letter, at: [
@@ -75,7 +75,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
     
     func testMinimalRouterCaseSensitivePerformance() throws {
-        guard performance(expected: 0.022) else { return }
+        try performance(expected: 0.022)
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
             router.register(letter, at: [
@@ -92,7 +92,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
     
     func testMinimalRouterCaseInsensitivePerformance() throws {
-        guard performance(expected: 0.017) else { return }
+        try performance(expected: 0.017)
         let router = TrieRouter.init(String.self)
         for letter in ["a"] {
             router.register(letter, at: [
@@ -110,7 +110,7 @@ final class RouterPerformanceTests: XCTestCase {
     
     
     func testMinimalEarlyFailPerformance() throws {
-        guard performance(expected: 0.016) else { return }
+        try performance(expected: 0.016)
         let router = TrieRouter.init(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
             router.register(letter, at: [
@@ -127,11 +127,7 @@ final class RouterPerformanceTests: XCTestCase {
     }
 }
 
-func performance(expected seconds: Double, name: String = #function) -> Bool {
-    guard !_isDebugAssertConfiguration() else {
-        print("[PERFORMANCE] Skipping \(name) in debug build mode")
-        return false
-    }
+func performance(expected seconds: Double, name: String = #function, file: StaticString = #filePath, line: UInt = #line) throws {
+    try XCTSkipUnless(!_isDebugAssertConfiguration(), "[PERFORMANCE] Skipping \(name) in debug build mode", file: file, line: line)
     print("[PERFORMANCE] \(name) expected: \(seconds) seconds")
-    return true
 }
