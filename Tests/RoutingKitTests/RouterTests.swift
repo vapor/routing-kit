@@ -279,4 +279,24 @@ final class RouterTests: XCTestCase {
             }
         }
     }
+
+    func testParameterNamesFetch() throws {
+        let router = TrieRouter<Int>()
+        router.register(42, at: ["foo", ":bar", ":baz", ":bam"])
+        router.register(24, at: ["bar", ":bar", "**"])
+
+        var params1 = Parameters()
+        XCTAssertNil(router.route(path: ["foo"], parameters: &params1))
+        XCTAssertTrue(params1.getCatchall().isEmpty)
+
+        var params2 = Parameters()
+        XCTAssertEqual(router.route(path: ["foo", "a", "b", "c"], parameters: &params2), 42)
+        XCTAssertEqual(Set(params2.allNames), ["bar", "baz", "bam"]) // Set will compare equal regardless of ordering
+        XCTAssertTrue(params2.getCatchall().isEmpty)
+
+        var params3 = Parameters()
+        XCTAssertEqual(router.route(path: ["bar", "baz", "bam"], parameters: &params3), 24)
+        XCTAssertEqual(Set(params3.allNames), ["bar"])
+        XCTAssertEqual(params3.getCatchall(), ["bam"])
+    }
 }
