@@ -14,13 +14,8 @@ public struct Parameters {
     private var catchall: Catchall
     public let logger: Logger
 
-#if swift(>=5.7) // SE-0346
     /// Return a list of all parameter names which were captured. Does not include values listed in the catchall.
-    public var allNames: some Collection<String> { self.values.keys }
-#else
-    /// Return a list of all parameter names which were captured. Does not include values listed in the catchall.
-    public var allNames: AnyCollection<String> { .init(self.values.keys) }
-#endif
+    public var allNames: Set<String> { .init(self.values.keys) }
 
     /// Creates a new `Parameters`.
     ///
