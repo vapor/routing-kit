@@ -8,7 +8,7 @@ import Logging
 ///
 ///     let postID = parameters.get("post_id")
 ///
-public struct Parameters {
+public struct Parameters: Sendable {
     /// Internal storage.
     private var values: [String: String]
     private var catchall: Catchall
