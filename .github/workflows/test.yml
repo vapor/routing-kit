@@ -20,7 +20,7 @@ jobs:
   
   upstream-check:
     runs-on: ubuntu-latest
-    container: swift:5.7-jammy
+    container: swift:5.8-jammy
     steps:
       - name: Check out self
         uses: actions/checkout@v3
