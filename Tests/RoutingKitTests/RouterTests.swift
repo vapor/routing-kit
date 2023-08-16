@@ -99,15 +99,6 @@ final class RouterTests: XCTestCase {
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
     }
-
-    func testDocs2() throws {
-        let router = TrieRouter(String.self)
-        router.register("show_user", at: [.constant("users"), .parameter("user_id")])
-
-        var params = Parameters()
-        _ = router.route(path: ["users", "42"], parameters: &params)
-        print(params)
-    }
     
     // https://github.com/vapor/routing/issues/64
     func testParameterPercentDecoding() throws {

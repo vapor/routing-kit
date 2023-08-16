@@ -23,7 +23,7 @@ public struct Parameters {
     public init() {
         self.values = [:]
         self.catchall = Catchall()
-        self.logger = Logger(label: "routing-kit-parameters-logger")
+        self.logger = Logger(label: "codes.vapor.routingkit")
     }
     
     /// Creates a new `Parameters`.
@@ -33,7 +33,7 @@ public struct Parameters {
     public init(_ logger: Logger?) {
         self.values = [:]
         self.catchall = Catchall()
-        self.logger = logger ?? Logger(label: "routing-kit-parameters-logger")
+        self.logger = logger ?? Logger(label: "codes.vapor.routingkit")
     }
 
     /// Grabs the named parameter from the parameter bag.

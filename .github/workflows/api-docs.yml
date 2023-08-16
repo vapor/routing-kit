@@ -11,4 +11,4 @@ jobs:
      with:
        package_name: routing-kit
        modules: RoutingKit
-       pathsToInvalidate: /routing-kit
+       pathsToInvalidate: /routingkit/*

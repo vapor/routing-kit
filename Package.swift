@@ -1,4 +1,4 @@
-// swift-tools-version:5.5.2
+// swift-tools-version:5.6
 import PackageDescription
 
 let package = Package(
@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "RoutingKit", targets: ["RoutingKit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2")
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3")
     ],
     targets: [
         .target(name: "RoutingKit", dependencies: [

@@ -1,3 +1,5 @@
+import Logging
+
 /// Generic `TrieRouter` built using the "trie" tree algorithm.
 ///
 /// Use `register(...)` to register routes into the router. Use `route(...)` to then fetch a matching
@@ -17,6 +19,9 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
     /// The root node.
     private var root: Node
+    
+    /// Configured logger.
+    public let logger: Logger
 
     /// Create a new `TrieRouter`.
     ///
@@ -25,6 +30,14 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = []) {
         self.root = Node()
         self.options = options
+        self.logger = .init(label: "codes.vapor.routingkit")
+    }
+
+    /// Create a new `TrieRouter`.
+    public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = [], logger: Logger) {
+        self.root = Node()
+        self.options = options
+        self.logger = logger
     }
 
     /// Registers a new `Route` to this router.
@@ -53,7 +66,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
         // if this node already has output, we are overriding a route
         if current.output != nil {
-            print("[Routing] Warning: Overriding route output at: \(path.string)")
+            self.logger.info("[Routing] Overriding route output at: \(path.string)")
         }
         
         // after iterating over all path components, we can set the output

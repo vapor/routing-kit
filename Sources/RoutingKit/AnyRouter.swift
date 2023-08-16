@@ -1,4 +1,5 @@
 /// A router that performs type erasure by wrapping another router.
+@available(*, deprecated, message: "This type is no longer useful in Swift 5.7")
 public struct AnyRouter<Output>: Router {
     private let box: _AnyRouterBase<Output>
     
@@ -17,6 +18,7 @@ public struct AnyRouter<Output>: Router {
 
 extension Router {
     /// Wraps this router with a type eraser.
+    @available(*, deprecated, message: "This method is no longer useful in Swift 5.7")
     public func eraseToAnyRouter() -> AnyRouter<Output> {
         return AnyRouter(self)
     }
