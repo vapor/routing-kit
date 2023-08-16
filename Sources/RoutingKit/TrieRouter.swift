@@ -66,7 +66,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
         // if this node already has output, we are overriding a route
         if current.output != nil {
-            self.logger.warning("[Routing] Overriding route output at: \(path.string)")
+            self.logger.info("[Routing] Overriding route output at: \(path.string)")
         }
         
         // after iterating over all path components, we can set the output
