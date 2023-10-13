@@ -16,14 +16,14 @@ jobs:
   
   upstream-check:
     runs-on: ubuntu-latest
-    container: swift:5.8-jammy
+    container: swift:5.9-jammy
     steps:
       - name: Check out self
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: routing-kit
       - name: Check out Vapor
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: vapor/vapor
           path: vapor

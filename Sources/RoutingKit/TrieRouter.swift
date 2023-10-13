@@ -49,6 +49,8 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// - parameters:
     ///     - route: `Route` to register to this router.
     public func register(_ output: Output, at path: [PathComponent]) {
+        assert(!path.isEmpty, "Cannot register a route with an empty path.")
+        
         // start at the root of the trie branch
         var current = self.root
 
@@ -66,7 +68,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
         // if this node already has output, we are overriding a route
         if current.output != nil {
-            self.logger.info("[Routing] Overriding route output at: \(path.string)")
+            self.logger.info("[Routing] Overriding duplicate route for \(path[0]) \(path.dropFirst().string)")
         }
         
         // after iterating over all path components, we can set the output
