@@ -8,7 +8,7 @@ import Logging
 /// See https://en.wikipedia.org/wiki/Trie for more information.
 public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// Available `TrieRouter` customization options.
-    public enum ConfigurationOption {
+    public enum ConfigurationOption: Sendable {
         /// If set, this will cause the router's route matching to be case-insensitive.
         /// - note: Case-insensitive routing may be less performant than case-sensitive routing.
         case caseInsensitive
@@ -18,7 +18,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     public var options: Set<ConfigurationOption>
 
     /// The root node.
-    private var root: Node
+    private let root: Node
     
     /// Configured logger.
     public let logger: Logger
