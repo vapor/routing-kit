@@ -290,4 +290,92 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(Set(params3.allNames), ["bar"])
         XCTAssertEqual(params3.getCatchall(), ["bam"])
     }
+    
+    func testConstantNeighboursFetch() throws {
+        let router = TrieRouter<Int>()
+        router.register(42, at: ["foo", "bar", "yoo"])
+        router.register(24, at: ["bar", "bar"])
+        router.register(12, at: ["bar", "man"])
+        router.register(6, at: ["bar", "man", ":yoo"])
+        router.register(12, at: ["bar", "man", "joe"])
+
+        let neighbours = router.neighours(path: ["bar"])
+        
+        XCTAssertNotNil(neighbours)
+        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+            return node.getOutput() == 24
+        }) != nil, true)
+        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+            return node.getOutput() == 12
+        }) != nil, true)
+        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+            return node.getOutput() == 6
+        }) != nil, false)
+        XCTAssertEqual(neighbours?.count, 2)
+        
+        let emptyRouter = TrieRouter<Int>()
+        let emptyNeighbours = emptyRouter.neighours(path: [])
+        
+        XCTAssertEqual(emptyNeighbours?.count, 0)
+        
+        let level1LeavesRouter = TrieRouter<Int>()
+        level1LeavesRouter.register(12, at: ["foo"])
+        level1LeavesRouter.register(6, at: ["bar"])
+        
+        let rootNeighbours = level1LeavesRouter.neighours(path: [])
+        
+        XCTAssertEqual(rootNeighbours != nil, true)
+        XCTAssertEqual(rootNeighbours?.count, 2)
+        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+            return node.getOutput() == 12
+        }) != nil, true)
+        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+            return node.getOutput() == 6
+        }) != nil, true)
+        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+            return node.getOutput() == 3
+        }) != nil, false)
+
+    }
+    
+    func testMap() throws {
+        let router = TrieRouter<Int>()
+        router.register(0, at: [">", "Police", "zoom"])
+        router.register(1, at: [">", "Police"])
+        router.register(2, at: [">", "Depot"])
+        router.register(3, at: [">", "Shutters"])
+        router.register(4, at: [">", "Cakes"])
+        router.register(5, at: [">", "SpacelandSign", "zoom"])
+        router.register(6, at: [">", "SpacelandSign"])
+
+        router.map { absolutePath, output in
+            return absolutePath
+        }.forEach { path in
+            print(path)
+        }
+    }
+    
+    func testForEachBFS() throws {
+        let router = TrieRouter<(String, Int)>()
+        router.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        router.register(("Police", 0), at: [">", "Police"])
+        router.register(("Depot", 1), at: [">", "Depot"])
+        router.register(("Shutters", 2), at: [">", "Shutters"])
+        router.register(("Cakes", 3), at: [">", "Cakes"])
+        router.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        router.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        router.register(("SpacelandSignZoomRaveZoom", 0), at: [">", "SpacelandSign", "zoom", "rave", "zoom"])
+
+
+        router.forEachBFS { neighbours in
+            return neighbours.sorted { lhs, rhs in
+                guard let lhsOut = lhs.getOutput(), let rhsOut = rhs.getOutput() else { return false }
+                return lhsOut.1 < rhsOut.1
+            }
+        } shouldVisitNeighbours: { nodeInfo in
+            return nodeInfo.getAbsolutePath().count <= 1
+        } _: { path, output in
+            print(path, output)
+        }
+    }
 }

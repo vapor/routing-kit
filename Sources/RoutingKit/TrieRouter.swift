@@ -18,7 +18,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     public var options: Set<ConfigurationOption>
 
     /// The root node.
-    private let root: Node
+    internal let root: Node
     
     /// Configured logger.
     public let logger: Logger
@@ -143,9 +143,59 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     public var description: String {
         return self.root.description
     }
+    
+    
+    /// Fetches all the neighbours for the specified path, if it exists.
+    /// - Parameter path: The path to match against. If empty, it returns the neighbours of the root node with an associated output.
+    ///
+    /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
+    public func neighours(path: [String]) -> [OutputWithPath]? {
+        guard let currentNode = nodeForPath(path) else { return nil }
+        
+        var neighbours: [OutputWithPath] = []
+        for neighbour in currentNode.constants.keys {
+            guard let neighbouringNode = currentNode.constants[neighbour] else {
+                self.logger.error("Unexpectedly found missing neighbour while exploring node neighbours")
+                fatalError()
+            }
+            
+            if let output = neighbouringNode.output {
+                var absolutePath = path
+                absolutePath.append(neighbour)
+                                
+                neighbours.append(
+                    OutputWithPath(
+                        output: output,
+                        absolutePath: absolutePath
+                    )
+                )
+            }
+        }
+        
+        return neighbours
+    }
+    
 }
 
 extension TrieRouter {
+    public final class OutputWithPath {
+        private let output: Output
+        private let absolutePath: [String]
+        
+        init(output: Output, absolutePath: [String]) {
+            self.output = output
+            self.absolutePath = absolutePath
+        }
+        
+        public func getOutput() -> Output {
+            return self.output
+        }
+        
+        func getAbsolutePath() -> [String] {
+            return self.absolutePath
+        }
+    }
+    
     /// A single node of the `Router`s trie tree of routes.
     final class Node: CustomStringConvertible {
 
