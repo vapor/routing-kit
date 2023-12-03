@@ -191,7 +191,7 @@ extension TrieRouter {
             return self.output
         }
         
-        func getAbsolutePath() -> [String] {
+        public func getAbsolutePath() -> [String] {
             return self.absolutePath
         }
     }
