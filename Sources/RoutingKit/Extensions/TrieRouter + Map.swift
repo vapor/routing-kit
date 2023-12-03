@@ -5,12 +5,12 @@ extension TrieRouter {
     public func mapBFS<T>(
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
-        _ transform: @escaping (_ absolutePath: [String], _ output: Output) -> T
-    ) -> [T] {
+        _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T
+    ) rethrows -> [T] {
         var mapped = [T]()
         
-        self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
-            mapped.append(transform(absolutePath, output))
+        try self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
+            try mapped.append(transform(absolutePath, output))
         }
         
         return mapped
@@ -19,33 +19,33 @@ extension TrieRouter {
     public func compactMapBFS<T>(
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
-        _ transform: @escaping (_ absolutePath: [String], _ output: Output) -> T?
-    ) -> [T] {
+        _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?
+    ) rethrows -> [T] {
         var mapped = [T]()
         
-        self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
-            guard let transform = transform(absolutePath, output) else { return }
+        try self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
+            guard let transform = try transform(absolutePath, output) else { return }
             mapped.append(transform)
         }
         
         return mapped
     }
     
-    public func map<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) -> T) -> [T] {
+    public func map<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T) rethrows -> [T] {
         var mapped = [T]()
         
-        self.forEach { absolutePath, output in
-            mapped.append(transform(absolutePath, output))
+        try self.forEach { absolutePath, output in
+            mapped.append(try transform(absolutePath, output))
         }
         
         return mapped
     }
     
-    private func compactMap<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) -> T?) -> [T] {
+    private func compactMap<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?) rethrows -> [T] {
         var mapped = [T]()
         
-        self.forEach { absolutePath, output in
-            let newElement = transform(absolutePath, output)
+        try self.forEach { absolutePath, output in
+            let newElement = try transform(absolutePath, output)
             
             if let newElement = newElement {
                 mapped.append(newElement)

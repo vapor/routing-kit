@@ -5,9 +5,9 @@ extension TrieRouter {
     public func forEachBFS(
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
-        _ body: @escaping (_ absolutePath: [String], _ output: Output) -> Void
-    ) {
-        return self.traverseBFS(
+        _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
+    ) rethrows {
+        return try self.traverseBFS(
             fromPath: [],
             visitOrder: visitOrder,
             shouldVisitNeighbours: shouldVisitNeighbours,
@@ -15,27 +15,27 @@ extension TrieRouter {
         )
     }
     
-    public func forEach(_ body: @escaping (_ absolutePath: [String], _ output: Output) -> Void) {
-        self.traverseInit(perform: body)
+    public func forEach(_ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void) rethrows {
+        try self.traverseInit(perform: body)
     }
     
     private func traverseInit(
         path: [String] = [],
-        perform: @escaping (_ absolutePath: [String], _ output: Output) -> Void
-    ) {
+        perform: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
+    ) rethrows {
         let currentNode = self.nodeForPath(path)
         guard let currentNode = currentNode else { return }
         
-        traverse(rootNode: currentNode, path: path, perform: perform)
+        try traverse(rootNode: currentNode, path: path, perform: perform)
     }
     
     private func traverse(
         rootNode: TrieRouter<Output>.Node,
         path: [String],
-        perform: @escaping (_ absolutePath: [String], _ output: Output) -> Void
-    ) {
+        perform: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
+    ) rethrows {
         if let output = rootNode.output {
-            perform(path, output)
+            try perform(path, output)
         }
 
         for neighbour in rootNode.constants.keys {
@@ -44,7 +44,7 @@ extension TrieRouter {
                 fatalError()
             }
             
-            traverse(rootNode: neighbourNode, path: path.appending(newElement: neighbour), perform: perform)
+            try traverse(rootNode: neighbourNode, path: path.appending(newElement: neighbour), perform: perform)
         }
     }
     

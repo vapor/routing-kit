@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "routing-kit",
+    name: "ztron-routing-kit",
     platforms: [
         .macOS(.v10_15),
         .iOS(.v13),
@@ -10,7 +10,7 @@ let package = Package(
         .watchOS(.v6),
     ],
     products: [
-        .library(name: "RoutingKit", targets: ["RoutingKit"]),
+        .library(name: "ZTroRoutingKit", targets: ["RoutingKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3")

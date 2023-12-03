@@ -5,13 +5,13 @@ extension TrieRouter {
         fromPath: [String],
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
-        _ body: @escaping (_ absolutePath: [String], _ output: Output) -> Void
-    ) {
+        _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
+    ) rethrows {
         guard let startNode = self.nodeForPath(fromPath) else { return }
         let container = Queue<NodeWithAbsolutePath>()
         
         if let output = startNode.output {
-            body(fromPath, output)
+            try body(fromPath, output)
         }
         
         var startingNeighbours = [NodeWithAbsolutePath]()
@@ -38,7 +38,7 @@ extension TrieRouter {
             let nodeWithPath = container.pop()
             
             if let output = nodeWithPath.getNode().output {
-                body(nodeWithPath.getAbsolutePath(), output)
+                try body(nodeWithPath.getAbsolutePath(), output)
             }
         
             if shouldVisitNeighbours(nodeWithPath) {
