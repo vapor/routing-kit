@@ -302,15 +302,15 @@ final class RouterTests: XCTestCase {
         let neighbours = router.neighours(path: ["bar"])
         
         XCTAssertNotNil(neighbours)
-        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+        XCTAssertNotNil(neighbours?.firstIndex(where: { node in
             return node.getOutput() == 24
-        }) != nil, true)
-        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+        }))
+        XCTAssertNotNil(neighbours?.firstIndex(where: { node in
             return node.getOutput() == 12
-        }) != nil, true)
-        XCTAssertEqual(neighbours?.firstIndex(where: { node in
+        }))
+        XCTAssertNil(neighbours?.firstIndex(where: { node in
             return node.getOutput() == 6
-        }) != nil, false)
+        }))
         XCTAssertEqual(neighbours?.count, 2)
         
         let emptyRouter = TrieRouter<Int>()
@@ -324,17 +324,17 @@ final class RouterTests: XCTestCase {
         
         let rootNeighbours = level1LeavesRouter.neighours(path: [])
         
-        XCTAssertEqual(rootNeighbours != nil, true)
+        XCTAssertNotNil(rootNeighbours)
         XCTAssertEqual(rootNeighbours?.count, 2)
-        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+        XCTAssertTrue(rootNeighbours?.firstIndex(where: { node in
             return node.getOutput() == 12
-        }) != nil, true)
-        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+        }) != nil)
+        XCTAssertTrue(rootNeighbours?.firstIndex(where: { node in
             return node.getOutput() == 6
-        }) != nil, true)
-        XCTAssertEqual(rootNeighbours?.firstIndex(where: { node in
+        }) != nil)
+        XCTAssertFalse(rootNeighbours?.firstIndex(where: { node in
             return node.getOutput() == 3
-        }) != nil, false)
+        }) != nil)
 
     }
     
@@ -460,5 +460,22 @@ final class RouterTests: XCTestCase {
         }
         
         XCTAssertNil(second)
+    }
+    
+    func testHasSlice() throws {
+        let lhs = TrieRouter<(String, Int)>()
+        
+        lhs.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        lhs.register(("Police", 0), at: [">", "Police"])
+        lhs.register(("Depot", 1), at: [">", "Depot"])
+        lhs.register(("Shutters", 2), at: [">", "Shutters"])
+        lhs.register(("Cakes", 3), at: [">", "Cakes"])
+        lhs.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        lhs.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        
+        XCTAssertTrue(lhs.hasSlice(named: ">"))
+        XCTAssertTrue(lhs.hasSlice(named: "Depot"))
+        XCTAssertTrue(lhs.hasSlice(named: "zoom"))
+        XCTAssertFalse(lhs.hasSlice(named: "zoom", rootPath: [">", "Cakes"]))
     }
 }

@@ -48,6 +48,23 @@ extension TrieRouter {
         }
     }
     
+    internal func traverse(
+        rootNode: TrieRouter<Output>.Node,
+        path: [String],
+        perform: @escaping (_ absolutePath: [String], _ output: Output?) throws -> Void
+    ) rethrows {
+        try perform(path, rootNode.output)
+
+        for neighbour in rootNode.constants.keys {
+            guard let neighbourNode = rootNode.constants[neighbour] else {
+                self.logger.error("Unexpectedly found missing neighbour while exploring node neighbours in \(#file)")
+                fatalError()
+            }
+            
+            try traverse(rootNode: neighbourNode, path: path.appending(newElement: neighbour), perform: perform)
+        }
+    }
+    
     internal func nodeForPath(_ path: [String]) -> TrieRouter<Output>.Node? {
         var currentNode: Node = self.root
                 
