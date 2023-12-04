@@ -378,4 +378,87 @@ final class RouterTests: XCTestCase {
             print(path, output)
         }
     }
+    
+    /// Tests successful, now `<`, `<=`, `sharesRoutes` became `internal` and therefore the ability to run this test is missing.
+    /*
+    func testArrayLessThanOperator() throws {
+        XCTAssertEqual([">", "police", "zoom"] < [">", "police"], false)
+        XCTAssertEqual([">", "police", "zoom"] < [">", "police", "zoom"], false)
+        XCTAssertEqual([">", "police", "zoom"] <= [">", "police", "zoom"], true)
+        XCTAssertEqual([">", "police"] < [">", "police", "zoom"], true)
+        XCTAssertEqual([] < [], false)
+        XCTAssertEqual([] <= [], true)
+    }
+    
+    func testSharesRoutes() throws {
+        let lhs = TrieRouter<(String, Int)>()
+        let rhs = TrieRouter<(String, Double)>()
+
+        XCTAssertEqual(lhs.sharesRoutes(with: rhs), true)
+        XCTAssertEqual(rhs.sharesRoutes(with: lhs), true)
+        
+        lhs.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        lhs.register(("Police", 0), at: [">", "Police"])
+        lhs.register(("Depot", 1), at: [">", "Depot"])
+        lhs.register(("Shutters", 2), at: [">", "Shutters"])
+        lhs.register(("Cakes", 3), at: [">", "Cakes"])
+        lhs.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        lhs.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        
+        rhs.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        rhs.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        rhs.register(("Police", 0), at: [">", "Police"])
+        rhs.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        rhs.register(("Shutters", 2), at: [">", "Shutters"])
+        rhs.register(("Depot", 1), at: [">", "Depot"])
+        rhs.register(("Cakes", 3), at: [">", "Cakes"])
+
+        XCTAssertEqual(lhs.sharesRoutes(with: rhs), true)
+        XCTAssertEqual(rhs.sharesRoutes(with: lhs), true)
+        
+        lhs.register(("SpacelandSignZoomRaveZoom", 0), at: [">", "SpacelandSign", "zoom", "rave", "zoom"])
+        
+        XCTAssertEqual(lhs.sharesRoutes(with: rhs), false)
+        XCTAssertEqual(rhs.sharesRoutes(with: lhs), false)
+    }
+     */
+    
+    func testZipRouters() throws {
+        let lhs = TrieRouter<(String, Int)>()
+        let rhs = TrieRouter<(String, Double)>()
+        
+        lhs.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        lhs.register(("Police", 0), at: [">", "Police"])
+        lhs.register(("Depot", 1), at: [">", "Depot"])
+        lhs.register(("Shutters", 2), at: [">", "Shutters"])
+        lhs.register(("Cakes", 3), at: [">", "Cakes"])
+        lhs.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        lhs.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        
+        rhs.register(("SpacelandSignZoom", 0), at: [">", "SpacelandSign", "zoom"])
+        rhs.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
+        rhs.register(("Police", 0), at: [">", "Police"])
+        rhs.register(("PoliceZoom", 0), at: [">", "Police", "zoom"])
+        rhs.register(("Shutters", 2), at: [">", "Shutters"])
+        rhs.register(("Depot", 1), at: [">", "Depot"])
+        rhs.register(("Cakes", 3), at: [">", "Cakes"])
+        
+        let zip = lhs.zip(to: rhs) { absolutePath, lhsOutput, rhsOutput in
+            return (lhsOutput, rhsOutput)
+        }
+        
+        XCTAssertNotNil(zip)
+        
+        zip?.forEach{ absolutePath, output in
+            XCTAssertEqual(output.0.0, output.1.0)
+        }
+        
+        lhs.register(("SpacelandSignZoomRaveZoom", 0), at: [">", "SpacelandSign", "zoom", "rave", "zoom"])
+
+        let second = lhs.zip(to: rhs) { absolutePath, lhsOutput, rhsOutput in
+            return (lhsOutput, rhsOutput)
+        }
+        
+        XCTAssertNil(second)
+    }
 }
