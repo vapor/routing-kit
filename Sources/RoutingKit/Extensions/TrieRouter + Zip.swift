@@ -9,7 +9,7 @@ extension TrieRouter {
     ///
     /// - Complexity: **Time:** Let V = max(V1, V2) and b = max(b1, b2), then the time complexity
     /// is O(V⋅b⋅log(b)) to sort the routes of both tries, O(V) to compare the routes. **Memory:**  O(V).
-    internal func sharesRoutes<RHSOutput>(with otherTrie: TrieRouter<RHSOutput>) -> Bool {
+    public func sharesRoutes<RHSOutput>(with otherTrie: TrieRouter<RHSOutput>) -> Bool {
         
         let myRoutes = self.mapBFS { nextNodes in
             return nextNodes.sorted { lhs, rhs in
