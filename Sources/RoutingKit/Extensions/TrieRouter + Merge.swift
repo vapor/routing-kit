@@ -12,7 +12,7 @@ extension TrieRouter {
     public func merge<RHSOutput, MergedOutput>(
         to other: TrieRouter<RHSOutput>,
         _ transform: @escaping (_ absolutePath: [String], _ lhsOutput: Output?, _ rhsOutput: RHSOutput?) throws -> MergedOutput
-    ) rethrows -> TrieRouter<MergedOutput>? {
+    ) rethrows -> TrieRouter<MergedOutput> {
         var allRoutesSet = Set<[String]>()
         
         self.forEach { absolutePath, _ in
