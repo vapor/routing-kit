@@ -478,4 +478,36 @@ final class RouterTests: XCTestCase {
         XCTAssertTrue(lhs.hasSlice(named: "zoom"))
         XCTAssertFalse(lhs.hasSlice(named: "zoom", rootPath: [">", "Cakes"]))
     }
+    
+    func testIsSuperSet() throws {
+        let lhs = TrieRouter<Int>()
+        lhs.register(0, at: [">", "Police", "zoom"])
+        lhs.register(0, at: [">", "Police"])
+        lhs.register(1, at: [">", "Depot"])
+        lhs.register(2, at: [">", "Shutters"])
+        lhs.register(3, at: [">", "Cakes"])
+        lhs.register(0, at: [">", "SpacelandSign", "zoom"])
+        lhs.register(4, at: [">", "SpacelandSign"])
+
+        XCTAssertTrue(lhs.isSuperSet(of: lhs))
+        
+        let rhs = TrieRouter<Double>()
+        
+        XCTAssertTrue(lhs.isSuperSet(of: rhs))
+        XCTAssertFalse(rhs.isSuperSet(of: lhs))
+        
+        rhs.register(1, at: [">", "Depot"])
+        rhs.register(2, at: [">", "Shutters"])
+        rhs.register(3, at: [">", "Cakes"])
+        rhs.register(0, at: [">", "SpacelandSign", "zoom"])
+        rhs.register(4, at: [">", "SpacelandSign"])
+        
+        XCTAssertTrue(lhs.isSuperSet(of: rhs))
+        XCTAssertFalse(rhs.isSuperSet(of: lhs))
+        
+        rhs.register(4, at: [">", "SpacelandSign", "Rave"])
+
+        XCTAssertFalse(lhs.isSuperSet(of: rhs))
+        XCTAssertFalse(rhs.isSuperSet(of: lhs))
+    }
 }
