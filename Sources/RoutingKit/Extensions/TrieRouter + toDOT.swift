@@ -2,11 +2,9 @@ import Foundation
 
 extension TrieRouter {
     public func toDOT(
-        rootPath: [String] = [],
         _ transform: @escaping (_ absolutePath: [String], _ output: Output?) throws -> String
     ) rethrows -> String {
-        let root = nodeForPath(rootPath)
-        var DOTTree = String("digraph trie { ")
+        var DOTTree = String("digraph trie {\n")
         
         try self.forEachSlice { absolutePath, output in
             var neighboursList = String("{ ")
@@ -14,20 +12,28 @@ extension TrieRouter {
             if let neighbours = self.neighouringSlices(path: absolutePath) {
             
                 for (offset, neighbour) in neighbours.enumerated() {
+                    let nodeName = neighbour.getAbsolutePath().last != nil ?
+                    try transform(
+                        neighbour.getAbsolutePath(),
+                        neighbour.getOutput()
+                    ) : "root"
+                    
                     neighboursList.append(
-                        try transform(
-                            neighbour.getAbsolutePath(),
-                            neighbour.getOutput()
-                        ).appending(
-                            offset >= neighbours.count - 1 ? "" : ","
+                        "\"\(nodeName)\"".appending(
+                            offset >= neighbours.count - 1 ? "" : ", "
                         )
                     )
                 }
-                neighboursList.append(" } ")
                 
+                neighboursList.append(" }")
                 
+                let subgraphRootName = absolutePath.last != nil ?
+                    try transform(absolutePath, output)
+                        :
+                "root"
+
                 DOTTree = DOTTree.appending("""
-                    \(try transform(absolutePath, output)) -> \(neighboursList);
+                    "\(subgraphRootName)" -> \(neighboursList);\n
                 """)
             }
         }

@@ -370,11 +370,7 @@ final class RouterTests: XCTestCase {
             if let output = output {
                 return output.0
             } else {
-                if let last = absolutePath.last {
-                    return last
-                } else {
-                    return "root"
-                }
+                return absolutePath.last!
             }
         })
         
