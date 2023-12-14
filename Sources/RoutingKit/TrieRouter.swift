@@ -175,6 +175,33 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         return neighbours
     }
     
+    /// Fetches all the neighbours for the specified path, if it exists.
+    /// - Parameter path: The path to match against. If empty, it returns the neighbours of the root node with an associated output.
+    ///
+    /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
+    public func neighouringSlices(path: [String]) -> [NullableOutputWithPath]? {
+        guard let currentNode = nodeForPath(path) else { return nil }
+        
+        var neighbours: [NullableOutputWithPath] = []
+        for neighbour in currentNode.constants.keys {
+            guard let neighbouringNode = currentNode.constants[neighbour] else {
+                self.logger.error("Unexpectedly found missing neighbour while exploring node neighbours")
+                fatalError()
+            }
+            
+            var absolutePath = path
+            absolutePath.append(neighbour)
+                            
+            neighbours.append(
+                NullableOutputWithPath(
+                    output: neighbouringNode.output,
+                    absolutePath: absolutePath
+                )
+            )
+        }
+        
+        return neighbours
+    }
 }
 
 extension TrieRouter {
@@ -188,6 +215,24 @@ extension TrieRouter {
         }
         
         public func getOutput() -> Output {
+            return self.output
+        }
+        
+        public func getAbsolutePath() -> [String] {
+            return self.absolutePath
+        }
+    }
+    
+    public final class NullableOutputWithPath {
+        private let output: Output?
+        private let absolutePath: [String]
+        
+        init(output: Output?, absolutePath: [String]) {
+            self.output = output
+            self.absolutePath = absolutePath
+        }
+        
+        public func getOutput() -> Output? {
             return self.output
         }
         

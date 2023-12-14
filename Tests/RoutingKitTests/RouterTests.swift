@@ -366,7 +366,18 @@ final class RouterTests: XCTestCase {
         router.register(("SpacelandSign", 4), at: [">", "SpacelandSign"])
         router.register(("SpacelandSignZoomRaveZoom", 0), at: [">", "SpacelandSign", "zoom", "rave", "zoom"])
 
-
+        print(router.toDOT{ absolutePath, output in
+            if let output = output {
+                return output.0
+            } else {
+                if let last = absolutePath.last {
+                    return last
+                } else {
+                    return "root"
+                }
+            }
+        })
+        
         router.forEachBFS { neighbours in
             return neighbours.sorted { lhs, rhs in
                 guard let lhsOut = lhs.getOutput(), let rhsOut = rhs.getOutput() else { return false }
