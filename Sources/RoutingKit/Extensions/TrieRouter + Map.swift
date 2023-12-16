@@ -3,13 +3,18 @@ import Foundation
 extension TrieRouter {
     
     public func mapBFS<T>(
+        rootPath: [String] = [],
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
         _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T
     ) rethrows -> [T] {
         var mapped = [T]()
         
-        try self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
+        try self.forEachBFS(
+            rootPath: rootPath,
+            visitOrder: visitOrder,
+            shouldVisitNeighbours: shouldVisitNeighbours
+        ) { absolutePath, output in
             try mapped.append(transform(absolutePath, output))
         }
         
@@ -17,13 +22,18 @@ extension TrieRouter {
     }
     
     public func compactMapBFS<T>(
+        rootPath: [String] = [],
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
         _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?
     ) rethrows -> [T] {
         var mapped = [T]()
         
-        try self.forEachBFS(visitOrder: visitOrder, shouldVisitNeighbours: shouldVisitNeighbours) { absolutePath, output in
+        try self.forEachBFS(
+            rootPath: rootPath,
+            visitOrder: visitOrder,
+            shouldVisitNeighbours: shouldVisitNeighbours
+        ) { absolutePath, output in
             guard let transform = try transform(absolutePath, output) else { return }
             mapped.append(transform)
         }
@@ -31,20 +41,26 @@ extension TrieRouter {
         return mapped
     }
     
-    public func map<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T) rethrows -> [T] {
+    public func map<T>(
+        rootPath: [String] = [],
+        _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T
+    ) rethrows -> [T] {
         var mapped = [T]()
         
-        try self.forEach { absolutePath, output in
+        try self.forEach(rootPath: rootPath) { absolutePath, output in
             mapped.append(try transform(absolutePath, output))
         }
         
         return mapped
     }
     
-    private func compactMap<T>(_ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?) rethrows -> [T] {
+    private func compactMap<T>(
+        rootPath: [String] = [],
+        _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?
+    ) rethrows -> [T] {
         var mapped = [T]()
         
-        try self.forEach { absolutePath, output in
+        try self.forEach(rootPath: rootPath) { absolutePath, output in
             let newElement = try transform(absolutePath, output)
             
             if let newElement = newElement {

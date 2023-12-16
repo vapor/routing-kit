@@ -7,7 +7,11 @@ extension TrieRouter {
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
         _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
     ) rethrows {
-        guard let startNode = self.nodeForPath(fromPath) else { return }
+        guard let startNode = self.nodeForPath(fromPath) else {
+            self.logger.debug("Attempted to traverse breadth-first a trie from a non-registered path \(fromPath)")
+            return
+        }
+        
         let container = Queue<NodeWithAbsolutePath>()
         
         if let output = startNode.output {

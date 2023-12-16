@@ -514,6 +514,10 @@ final class RouterTests: XCTestCase {
         
         rhs.register(4, at: [">", "SpacelandSign", "Rave"])
 
+        rhs.forEachBFS(rootPath: [">", "Maronna"]) { absoltePath, output in
+            print(absoltePath)
+        }
+        
         XCTAssertFalse(lhs.isSuperSet(of: rhs))
         XCTAssertFalse(rhs.isSuperSet(of: lhs))
     }

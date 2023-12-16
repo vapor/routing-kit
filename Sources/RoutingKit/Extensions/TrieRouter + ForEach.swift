@@ -3,24 +3,31 @@ import Foundation
 extension TrieRouter {
     
     public func forEachBFS(
+        rootPath: [String] = [],
         visitOrder: @escaping ([NodeWithAbsolutePath]) -> [NodeWithAbsolutePath] = { $0 },
         shouldVisitNeighbours: @escaping (NodeWithAbsolutePath) -> Bool = { _ in return true },
         _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
     ) rethrows {
         return try self.traverseBFS(
-            fromPath: [],
+            fromPath: rootPath,
             visitOrder: visitOrder,
             shouldVisitNeighbours: shouldVisitNeighbours,
             body
         )
     }
     
-    public func forEach(_ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void) rethrows {
-        try self.traverseInit(perform: body)
+    public func forEach(
+        rootPath: [String] = [],
+        _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
+    ) rethrows {
+        try self.traverseInit(path: rootPath, perform: body)
     }
     
-    public func forEachSlice(_ body: @escaping (_ absolutePath: [String], _ output: Output?) throws -> Void) rethrows {
-        try self.traverseAllNodesInit(perform: body)
+    public func forEachSlice(
+        rootPath: [String] = [], 
+        _ body: @escaping (_ absolutePath: [String], _ output: Output?) throws -> Void
+    ) rethrows {
+        try self.traverseAllNodesInit(path: rootPath, perform: body)
     }
     
     // MARK: - TRAVERSE ONLY CONSTANT ROUTES WITH AN ASSOCIATED OUTPUT
@@ -29,7 +36,10 @@ extension TrieRouter {
         perform: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
     ) rethrows {
         let currentNode = self.nodeForPath(path)
-        guard let currentNode = currentNode else { return }
+        guard let currentNode = currentNode else {
+            self.logger.debug("Attempted to topologically traverse a trie from a non-registered path \(path).")
+            return
+        }
         
         try traverse(rootNode: currentNode, path: path, perform: perform)
     }
@@ -59,7 +69,10 @@ extension TrieRouter {
         perform: @escaping (_ absolutePath: [String], _ output: Output?) throws -> Void
     ) rethrows {
         let currentNode = self.nodeForPath(path)
-        guard let currentNode = currentNode else { return }
+        guard let currentNode = currentNode else {
+            self.logger.debug("Attempted to topologically traverse (all slices of) a trie from a non-registered path \(path).")
+            return
+        }
         
         try traverseAllNodes(rootNode: currentNode, path: path, perform: perform)
     }
@@ -102,7 +115,7 @@ extension TrieRouter {
         var currentNode: Node = self.root
     
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
-
+        
         for slice in path {
             if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
                 currentNode = constant
