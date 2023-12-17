@@ -73,4 +73,4 @@ extension Sequence where Element == PathComponent {
     }
 }
 
-extension PathComponent: Equatable {}
+extension PathComponent: Hashable {}
