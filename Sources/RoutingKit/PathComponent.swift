@@ -72,3 +72,5 @@ extension Sequence where Element == PathComponent {
         return self.map(\.description).joined(separator: "/")
     }
 }
+
+extension PathComponent: Equatable {}
