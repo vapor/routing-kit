@@ -15,7 +15,9 @@ extension TrieRouter {
         
         let currentNode = self.nodeForPath(rootPath)
         guard let currentNode = currentNode else {
+            #if DEBUG
             self.logger.debug("Attempted to find slice inside subtree of \(rootPath), but this root is not a registered route.")
+            #endif
             return false
         }
         

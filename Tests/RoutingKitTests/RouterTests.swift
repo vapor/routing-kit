@@ -1,4 +1,4 @@
-import RoutingKit
+@testable import RoutingKit
 import XCTest
 
 final class RouterTests: XCTestCase {
@@ -299,7 +299,7 @@ final class RouterTests: XCTestCase {
         router.register(6, at: ["bar", "man", ":yoo"])
         router.register(12, at: ["bar", "man", "joe"])
 
-        let neighbours = router.neighours(path: ["bar"])
+        let neighbours = router.neighbours(path: ["bar"])
         
         XCTAssertNotNil(neighbours)
         XCTAssertNotNil(neighbours?.firstIndex(where: { node in
@@ -314,7 +314,7 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(neighbours?.count, 2)
         
         let emptyRouter = TrieRouter<Int>()
-        let emptyNeighbours = emptyRouter.neighours(path: [])
+        let emptyNeighbours = emptyRouter.neighbours(path: [])
         
         XCTAssertEqual(emptyNeighbours?.count, 0)
         
@@ -322,7 +322,7 @@ final class RouterTests: XCTestCase {
         level1LeavesRouter.register(12, at: ["foo"])
         level1LeavesRouter.register(6, at: ["bar"])
         
-        let rootNeighbours = level1LeavesRouter.neighours(path: [])
+        let rootNeighbours = level1LeavesRouter.neighbours(path: [])
         
         XCTAssertNotNil(rootNeighbours)
         XCTAssertEqual(rootNeighbours?.count, 2)
@@ -520,5 +520,25 @@ final class RouterTests: XCTestCase {
         
         XCTAssertFalse(lhs.isSuperSet(of: rhs))
         XCTAssertFalse(rhs.isSuperSet(of: lhs))
+    }
+    
+    func testNeighbours() throws {
+        let router = TrieRouter<Int>()
+        router.register(0, at: [">", "the final reich"])
+        router.register(1, at: [">", "the darkest shore"])
+        router.register(2, at: [">", "the shadowed throne"])
+        router.register(3, at: [">", "the tortured path"])
+        router.register(4, at: [">", "the frozen dawn"])
+        router.register(0, at: [">", "the tortured path", "into the storm"])
+        router.register(1, at: [">", "the tortured path", "across the depths"])
+        router.register(2, at: [">", "the tortured path", "beneath the ice"])
+        
+        XCTAssertEqual(router.reduceNeighbours(parentPath: [">", "the darkest shore"], 0) { partialResult, _, _ in
+            return partialResult + 1
+        }, 0)
+        
+        XCTAssertEqual(router.reduceNeighbours(parentPath: [">", "the tortured path"], 0) { partialResult, _, _ in
+            return partialResult + 1
+        }, 3)
     }
 }
