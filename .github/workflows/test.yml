@@ -10,13 +10,13 @@ env:
   SWIFT_DETERMINISTIC_HASHING: 1
 
 jobs:
-
   unit-tests:
     uses: vapor/ci/.github/workflows/run-unit-tests.yml@main
+    secrets: inherit
   
   upstream-check:
     runs-on: ubuntu-latest
-    container: swift:5.9-jammy
+    container: swift:5.10-jammy
     steps:
       - name: Check out self
         uses: actions/checkout@v4

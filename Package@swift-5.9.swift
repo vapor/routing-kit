@@ -22,12 +22,14 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log"),
             ],
             swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
                 .enableExperimentalFeature("StrictConcurrency=complete"),
             ]),
         .testTarget(
             name: "RoutingKitTests",
             dependencies: ["RoutingKit"],
             swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
                 .enableExperimentalFeature("StrictConcurrency=complete"),
             ]
         ),
