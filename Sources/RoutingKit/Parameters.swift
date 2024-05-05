@@ -11,7 +11,7 @@ import Logging
 public struct Parameters: Sendable {
     /// Internal storage.
     private var values: [String: String]
-    private var catchall: Catchall
+    private var catchall: [String]
     
     /// The configured logger.
     public let logger: Logger
@@ -23,9 +23,7 @@ public struct Parameters: Sendable {
     ///
     /// Pass this to ``Router/route(path:parameters:)`` to fill with values.
     public init() {
-        self.values = [:]
-        self.catchall = Catchall()
-        self.logger = Logger(label: "codes.vapor.routingkit")
+        self.init(nil)
     }
     
     /// Create a new `Parameters`.
@@ -35,8 +33,8 @@ public struct Parameters: Sendable {
     /// - Parameter logger: The logger to be used. If none is provided, a default one will be created.
     public init(_ logger: Logger?) {
         self.values = [:]
-        self.catchall = Catchall()
-        self.logger = logger ?? Logger(label: "codes.vapor.routingkit")
+        self.catchall = []
+        self.logger = logger ?? .init(label: "codes.vapor.routingkit")
     }
 
     /// Grabs the named parameter from the parameter bag.
@@ -60,9 +58,7 @@ public struct Parameters: Sendable {
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
     ///
-    public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
-        where T: LosslessStringConvertible
-    {
+    public func get<T: LosslessStringConvertible>(_ name: String, as type: T.Type = T.self) -> T? {
         self.get(name).flatMap(T.init)
     }
     
@@ -74,7 +70,7 @@ public struct Parameters: Sendable {
     ///     - name: Unique parameter name
     ///     - value: Value (percent-encoded if necessary)
     public mutating func set(_ name: String, to value: String?) {
-        self.values[name] = value?.removingPercentEncoding
+        self.values[name] = value.map { $0.removingPercentEncoding ?? $0 }
     }
     
     /// Fetches the components matched by `catchall` (`**`).
@@ -90,27 +86,15 @@ public struct Parameters: Sendable {
     ///
     /// > Note: The value will be percent-decoded.
     ///
-    /// - returns: The path components matched
-    public mutating func getCatchall() -> [String] {
-        if self.catchall.isPercentEncoded {
-            self.catchall.values = self.catchall.values.map { $0.removingPercentEncoding ?? $0 }
-            self.catchall.isPercentEncoded = false
-        }
-        return self.catchall.values
+    /// - Returns: The path components matched.
+    public func getCatchall() -> [String] {
+        self.catchall
     }
     
     /// Stores the components matched by `catchall` (`**`).
     ///
     /// - Parameter matched: The subpaths matched (percent-encoded if necessary)
     public mutating func setCatchall(matched: [String]) {
-        self.catchall = Catchall(values: matched)
-    }
-    
-    /// Holds path components that were matched by `catchall` (`**`).
-    ///
-    /// Used internally.
-    private struct Catchall {
-        var values: [String] = []
-        var isPercentEncoded: Bool = true
+        self.catchall = matched.map { $0.removingPercentEncoding ?? $0 }
     }
 }
