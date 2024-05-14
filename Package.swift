@@ -10,7 +10,7 @@ let package = Package(
         .watchOS(.v6),
     ],
     products: [
-        .library(name: "ZTroRoutingKit", targets: ["RoutingKit"]),
+        .library(name: "ZTronRoutingKit", targets: ["RoutingKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3")
