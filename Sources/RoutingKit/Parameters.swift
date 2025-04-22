@@ -38,26 +38,31 @@ public struct Parameters: Sendable {
     }
 
     /// Grabs the named parameter from the parameter bag.
-    ///
-    /// For example `GET /posts/:post_id/comments/:comment_id`
-    /// would be fetched using:
-    ///
+    /// 
+    /// For example `GET /posts/:post_id/comments/:comment_id` would be fetched using:
+    /// 
     ///     let postID = parameters.get("post_id")
     ///     let commentID = parameters.get("comment_id")
-    ///
+    /// 
+    /// - Parameter name: The name of the parameter to retreive.
+    /// - Returns: The value of the parameter, if it exists.
     public func get(_ name: String) -> String? {
         self.values[name]
     }
     
     /// Grabs the named parameter from the parameter bag, casting it to
     /// a `LosslessStringConvertible` type.
-    ///
+    /// 
     /// For example `GET /posts/:post_id/comments/:comment_id`
     /// would be fetched using:
-    ///
+    /// 
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
-    ///
+    /// 
+    /// - Parameters:
+    ///   - name: The name of the parameter to be retrieve.
+    ///   - type: The type to cast the parameter value to.
+    /// - Returns: The value of the parameter, if it exists.
     public func get<T: LosslessStringConvertible>(_ name: String, as type: T.Type = T.self) -> T? {
         self.get(name).flatMap(T.init)
     }

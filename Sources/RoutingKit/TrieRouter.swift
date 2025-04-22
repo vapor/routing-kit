@@ -1,16 +1,17 @@
 import Logging
 
-/// Generic `TrieRouter` built using the "trie" tree algorithm.
-///
-/// Use `register(...)` to register routes into the router. Use `route(...)` to then fetch a matching
-/// route's output.
-///
+/// Generic ``TrieRouter`` built using the "trie" tree algorithm.
+/// 
+/// Use ``register(_:at:)`` to register routes into the router. Use ``route(path:parameters:)`` to then fetch
+/// a matching route's output.
+/// 
 /// See https://en.wikipedia.org/wiki/Trie for more information.
 public final class TrieRouter<Output>: Router, CustomStringConvertible {
-    /// Available `TrieRouter` customization options.
+    /// Available ``TrieRouter`` customization options.
     public enum ConfigurationOption: Sendable {
         /// If set, this will cause the router's route matching to be case-insensitive.
-        /// - note: Case-insensitive routing may be less performant than case-sensitive routing.
+        ///
+        /// > Note: Case-insensitive routing may be less performant than case-sensitive routing.
         case caseInsensitive
     }
     
@@ -23,31 +24,38 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// Configured logger.
     public let logger: Logger
 
-    /// Create a new `TrieRouter`.
+    /// Create a new ``TrieRouter``.
     ///
-    /// - parameters:
-    ///     - options: Configured options such as case-sensitivity.
+    /// - Parameters:
+    ///   - type: The output type for the router.
+    ///   - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = []) {
         self.root = Node()
         self.options = options
         self.logger = .init(label: "codes.vapor.routingkit")
     }
 
-    /// Create a new `TrieRouter`.
+    /// Create a new ``TrieRouter``.
+    ///
+    /// - Parameters:
+    ///   - type: The output type for the router.
+    ///   - options: Configured options such as case-sensitivity.
+    ///   - logger: A logger for the router to use.
     public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = [], logger: Logger) {
         self.root = Node()
         self.options = options
         self.logger = logger
     }
 
-    /// Registers a new `Route` to this router.
+    /// Registers a new route to this router at a given path.
     ///
-    ///     let route = Route<Int>(path: [.constant("users"), User.parameter], output: ...)
-    ///     let router = TrieRouter<Int>()
-    ///     router.register(route: route)
+    ///     let route = Route(...)
+    ///     let router = TrieRouter<Route>()
+    ///     router.register(route, at: [.constant("users"), User.parameter])
     ///
-    /// - parameters:
-    ///     - route: `Route` to register to this router.
+    /// - Parameters:
+    ///   - output: Output to register.
+    ///   - path: Path to register output at.
     public func register(_ output: Output, at path: [PathComponent]) {
         assert(!path.isEmpty, "Cannot register a route with an empty path.")
         
@@ -76,15 +84,15 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         current.output = output
     }
 
-    /// Routes a `path`, returning the best-matching output and collecting any dynamic parameters.
+    /// Routes a path, returning the best-matching output and collecting any dynamic parameters.
     ///
     ///     var params = Parameters()
     ///     router.route(path: ["users", "Vapor"], parameters: &params)
     ///
-    /// - parameters:
-    ///     - path: Array of `RoutableComponent` to route against.
-    ///     - params: A mutable `Parameters` to collect dynamic parameters.
-    /// - returns: Best-matching output for the supplied path.
+    /// - Parameters:
+    ///   - path: Raw path segments.
+    ///   - parameters: Will collect dynamic parameter values.
+    /// - Returns: Output of matching route, if found.
     public func route(path: [String], parameters: inout Parameters) -> Output? {
         // always start at the root node
         var currentNode: Node = self.root
@@ -139,16 +147,16 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
             return nil
         }
     }
-    
+
+    // See `CustomStringConvertible.description`.
     public var description: String {
-        return self.root.description
+        self.root.description
     }
 }
 
 extension TrieRouter {
-    /// A single node of the `Router`s trie tree of routes.
+    /// A single node of the ``TrieRouter``s trie tree of routes.
     final class Node: CustomStringConvertible {
-
         /// Describes a node that has matched a parameter or anything
         final class Wildcard {
             private(set) var parameter: String?
@@ -174,12 +182,12 @@ extension TrieRouter {
 
             /// Update the wildcard to match a new parameter name
             func setParameterName(_ name: String) {
-                parameter = name
+                self.parameter = name
             }
 
             /// Explicitly mark an anything token
             func explicitlyIncludeAnything() {
-                explicitlyIncludesAnything = true
+                self.explicitlyIncludesAnything = true
             }
         }
 
@@ -292,6 +300,6 @@ extension TrieRouter {
 
 private extension Array where Element == String {
     func indented() -> [String] {
-        return self.map { "  " + $0 }
+        self.map { "  " + $0 }
     }
 }
