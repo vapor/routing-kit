@@ -13,10 +13,13 @@ jobs:
   unit-tests:
     uses: vapor/ci/.github/workflows/run-unit-tests.yml@main
     secrets: inherit
+    with:
+      with_musl: true
+      with_android: true
   
   upstream-check:
     runs-on: ubuntu-latest
-    container: swift:5.10-jammy
+    container: swift:6.1-noble
     steps:
       - name: Check out self
         uses: actions/checkout@v4
