@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 extension TrieRouter {
     
@@ -41,5 +42,18 @@ extension TrieRouter {
     
     private enum HasSliceError: Error {
         case interruptSearch(reason: String)
+    }
+    
+    
+    public func collectPathsToSlice(named: String, rootPath: [String] = []) -> Set<[String]> {
+        var allPathsToSlice: Set<[String]> = []
+        
+        self.forEach(rootPath: rootPath) { absolutePath, output in
+            if absolutePath.last == named {
+                allPathsToSlice.insert(absolutePath)
+            }
+        }
+        
+        return allPathsToSlice
     }
 }

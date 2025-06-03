@@ -1,6 +1,6 @@
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic.
-public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable {
+public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable, Hashable {
     /// A normal, constant path component.
     case constant(String)
 
@@ -28,7 +28,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     /// Represented as `**`
     case catchall
 
-    /// `ExpressibleByStringLiteral` conformance.
+    // See `ExpressibleByStringLiteral.init(stringLiteral:)`.
     public init(stringLiteral value: String) {
         if value.hasPrefix(":") {
             self = .parameter(.init(value.dropFirst()))
@@ -41,7 +41,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
         }
     }
     
-    /// `CustomStringConvertible` conformance.
+    // See `CustomStringConvertible.description`.
     public var description: String {
         switch self {
         case .anything:
@@ -57,18 +57,19 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 }
 
 extension String {
-    /// Converts a string into `[PathComponent]`.
+    /// Converts a string into an array of ``PathComponent``.
     public var pathComponents: [PathComponent] {
-        return self.split(separator: "/").map { .init(stringLiteral: .init($0)) }
+        self.split(separator: "/").map { .init(stringLiteral: .init($0)) }
     }
 }
 
 extension Sequence where Element == PathComponent {
-    /// Converts an array of `PathComponent` into a readable path string.
+    /// Converts an array of ``PathComponent`` into a readable path string.
     ///
     ///     galaxies/:galaxyID/planets
     ///
     public var string: String {
-        return self.map(\.description).joined(separator: "/")
+        self.map(\.description).joined(separator: "/")
     }
 }
+

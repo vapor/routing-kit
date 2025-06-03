@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 extension TrieRouter {
     internal func traverseBFS(

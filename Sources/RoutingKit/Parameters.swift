@@ -4,74 +4,78 @@ import Logging
 /// Holds dynamic path components that were discovered while routing.
 ///
 /// After this struct has been filled with parameter values, you can fetch
-/// them out by name using `get(_:)`.
+/// them out by name using ``get(_:)`` or ``get(_:as:)``.
 ///
 ///     let postID = parameters.get("post_id")
 ///
 public struct Parameters: Sendable {
     /// Internal storage.
     private var values: [String: String]
-    private var catchall: Catchall
+    private var catchall: [String]
+    
+    /// The configured logger.
     public let logger: Logger
 
     /// Return a list of all parameter names which were captured. Does not include values listed in the catchall.
     public var allNames: Set<String> { .init(self.values.keys) }
 
-    /// Creates a new `Parameters`.
+    /// Create a new `Parameters`.
     ///
-    /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
+    /// Pass this to ``Router/route(path:parameters:)`` to fill with values.
     public init() {
-        self.values = [:]
-        self.catchall = Catchall()
-        self.logger = Logger(label: "codes.vapor.routingkit")
+        self.init(nil)
     }
     
-    /// Creates a new `Parameters`.
-    /// Pass this into the `Router.route(path:parameters:)` method to fill with values.
-    /// - Parameters:
-    ///     - logger: The logger to be used. If none is provided, a default one will be created.
+    /// Create a new `Parameters`.
+    ///
+    /// Pass this to ``Router/route(path:parameters:)`` to fill with values.
+    ///
+    /// - Parameter logger: The logger to be used. If none is provided, a default one will be created.
     public init(_ logger: Logger?) {
         self.values = [:]
-        self.catchall = Catchall()
-        self.logger = logger ?? Logger(label: "codes.vapor.routingkit")
+        self.catchall = []
+        self.logger = logger ?? .init(label: "codes.vapor.routingkit")
     }
 
     /// Grabs the named parameter from the parameter bag.
-    ///
-    /// For example GET /posts/:post_id/comments/:comment_id
-    /// would be fetched using:
-    ///
+    /// 
+    /// For example `GET /posts/:post_id/comments/:comment_id` would be fetched using:
+    /// 
     ///     let postID = parameters.get("post_id")
     ///     let commentID = parameters.get("comment_id")
-    ///
+    /// 
+    /// - Parameter name: The name of the parameter to retreive.
+    /// - Returns: The value of the parameter, if it exists.
     public func get(_ name: String) -> String? {
         self.values[name]
     }
     
     /// Grabs the named parameter from the parameter bag, casting it to
     /// a `LosslessStringConvertible` type.
-    ///
-    /// For example GET /posts/:post_id/comments/:comment_id
+    /// 
+    /// For example `GET /posts/:post_id/comments/:comment_id`
     /// would be fetched using:
-    ///
+    /// 
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
-    ///
-    public func get<T>(_ name: String, as type: T.Type = T.self) -> T?
-        where T: LosslessStringConvertible
-    {
+    /// 
+    /// - Parameters:
+    ///   - name: The name of the parameter to be retrieve.
+    ///   - type: The type to cast the parameter value to.
+    /// - Returns: The value of the parameter, if it exists.
+    public func get<T: LosslessStringConvertible>(_ name: String, as type: T.Type = T.self) -> T? {
         self.get(name).flatMap(T.init)
     }
     
     /// Adds a new parameter value to the bag.
     ///
-    /// - note: The value will be percent-decoded.
+    /// > Note: The value will be percent-decoded.
     ///
-    /// - parameters:
+    /// - Parameters:
     ///     - name: Unique parameter name
     ///     - value: Value (percent-encoded if necessary)
     public mutating func set(_ name: String, to value: String?) {
-        self.values[name] = value?.removingPercentEncoding
+        self.values[name] = value.map { $0.removingPercentEncoding ?? $0 }
     }
     
     /// Fetches the components matched by `catchall` (`**`).
@@ -85,30 +89,17 @@ public struct Parameters: Sendable {
     ///         // not hit
     ///     }
     ///
-    /// - note: The value will be percent-decoded.
+    /// > Note: The value will be percent-decoded.
     ///
-    /// - returns: The path components matched
-    public mutating func getCatchall() -> [String] {
-        if self.catchall.isPercentEncoded {
-            self.catchall.values = self.catchall.values.map { $0.removingPercentEncoding ?? $0 }
-            self.catchall.isPercentEncoded = false
-        }
-        return self.catchall.values
+    /// - Returns: The path components matched.
+    public func getCatchall() -> [String] {
+        self.catchall
     }
     
     /// Stores the components matched by `catchall` (`**`).
     ///
-    /// - parameters:
-    ///     - matched: The subpaths matched (percent-encoded if necessary)
+    /// - Parameter matched: The subpaths matched (percent-encoded if necessary)
     public mutating func setCatchall(matched: [String]) {
-        self.catchall = Catchall(values: matched)
-    }
-    
-    /// Holds path components that were matched by `catchall` (`**`).
-    ///
-    /// Used internally.
-    private struct Catchall {
-        var values: [String] = []
-        var isPercentEncoded: Bool = true
+        self.catchall = matched.map { $0.removingPercentEncoding ?? $0 }
     }
 }

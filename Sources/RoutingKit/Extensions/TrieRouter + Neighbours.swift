@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 public extension TrieRouter {
     /// Fetches all the neighbours for the specified path, if it exists.
@@ -39,7 +40,7 @@ public extension TrieRouter {
     /// - Parameter parentPath: The path to match against. If empty, it returns the neighbours of the root node with an associated output.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func forEachNeighbour(
+    func forEachNeighbour(
         parentPath: [String],
         _ body: @escaping (_ absolutePath: [String], _ output: Output) throws -> Void
     ) rethrows -> Void {
@@ -58,7 +59,7 @@ public extension TrieRouter {
     /// - Note: If `parentPath` is a valid registered path of constants, the output is safe to unwrap.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func mapNeighbours<T>(
+    func mapNeighbours<T>(
         parentPath: [String],
         _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T
     ) rethrows -> [T]? {
@@ -81,7 +82,7 @@ public extension TrieRouter {
     /// - Note: If `parentPath` is a valid registered path of constants, the output is safe to unwrap.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func compactMapNeighbours<T>(
+    func compactMapNeighbours<T>(
         parentPath: [String],
         _ transform: @escaping (_ absolutePath: [String], _ output: Output) throws -> T?
     ) rethrows -> [T]? {
@@ -135,7 +136,7 @@ public extension TrieRouter {
     /// - Parameter parentPath: The path to match against. If empty, it returns the neighbours of the root node with an associated output.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func forEachNeighbouringSlice(
+    func forEachNeighbouringSlice(
         parentPath: [String],
         _ body: @escaping (_ absolutePath: [String], _ output: Output?) throws -> Void
     ) rethrows -> Void {
@@ -154,7 +155,7 @@ public extension TrieRouter {
     /// - Note: If `parentPath` is a valid path of constants, the output is safe to unwrap.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func mapNeighbouringSlices<T>(
+    func mapNeighbouringSlices<T>(
         parentPath: [String],
         _ transform: @escaping (_ absolutePath: [String], _ output: Output?) throws -> T
     ) rethrows -> [T]? {
@@ -177,7 +178,7 @@ public extension TrieRouter {
     /// - Note: If `parentPath` is a valid path of constants, the output is safe to unwrap.
     ///
     /// - Complexity: O(path.count + constants.count) to fetch the path and filter out the neighbours with no associated output in the router
-    public func compactMapNeighbouringSlices<T>(
+    func compactMapNeighbouringSlices<T>(
         parentPath: [String],
         _ transform: @escaping (_ absolutePath: [String], _ output: Output?) throws -> T?
     ) rethrows -> [T]? {

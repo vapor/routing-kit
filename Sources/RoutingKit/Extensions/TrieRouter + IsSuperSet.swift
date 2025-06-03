@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 extension TrieRouter {
     /// Tests whether or not this trie's (constant) registered routes are a superset of all the (constant) registered routes in `other`.

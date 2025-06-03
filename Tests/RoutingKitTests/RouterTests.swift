@@ -541,4 +541,24 @@ final class RouterTests: XCTestCase {
             return partialResult + 1
         }, 3)
     }
+    
+    func testParametersPrecedence() throws {
+        let router = TrieRouter<Int>()
+        
+        router.register(
+            0,
+            at: [.constant("home"), .parameter("game"), .parameter("map")]
+        )
+        
+        router.register(
+            1,
+            at: [.constant("home"), .constant("black ops 6"), .parameter("spaceland")]
+        )
+        
+        var params: Parameters = .init()
+        let result = router.route(path: ["home", "infinite warfare", "spaceland"] , parameters: &params)
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result, 0)
+    }
 }
