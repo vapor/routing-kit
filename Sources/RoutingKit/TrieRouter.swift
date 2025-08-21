@@ -1,4 +1,5 @@
 import Logging
+import Synchronization
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
 ///
@@ -6,7 +7,19 @@ import Logging
 /// a matching route's output.
 ///
 /// See https://en.wikipedia.org/wiki/Trie for more information.
-public final class TrieRouter<Output>: Router, CustomStringConvertible {
+public final class TrieRouter<Output>: Router, @unchecked Sendable, CustomStringConvertible {
+    private enum State: ~Copyable {
+        case write(root: Mutex<Node>)
+        case read(root: Node)
+
+        var root: Node {
+            switch self {
+            case .write(root: let mutex): mutex.withLock { $0 }
+            case .read(root: let node): node
+            }
+        }
+    }
+
     /// Available ``TrieRouter`` customization options.
     public enum ConfigurationOption: Sendable {
         /// If set, this will cause the router's route matching to be case-insensitive.
@@ -15,11 +28,29 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         case caseInsensitive
     }
 
-    /// Configured options such as case-sensitivity.
-    public var options: Set<ConfigurationOption>
+    private var state: State
 
     /// The root node.
-    private let root: Node
+    private var root: Node {
+        self.state.root
+    }
+
+    /// Switches the state to be immutable which increases route resolution performance.
+    public func makeImmutable() {
+        precondition(
+            {
+                switch state {
+                case .write: true
+                case .read: false
+                }
+            }(), "Router is already immutable"
+        )
+        let root = self.state.root
+        self.state = .read(root: root)
+    }
+
+    /// Configured options such as case-sensitivity.
+    public var options: Set<ConfigurationOption>
 
     /// Configured logger.
     public let logger: Logger
@@ -30,7 +61,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///   - type: The output type for the router.
     ///   - options: Configured options such as case-sensitivity.
     public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = []) {
-        self.root = Node()
+        self.state = .write(root: Mutex(Node()))
         self.options = options
         self.logger = .init(label: "codes.vapor.routingkit")
     }
@@ -42,7 +73,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///   - options: Configured options such as case-sensitivity.
     ///   - logger: A logger for the router to use.
     public init(_ type: Output.Type = Output.self, options: Set<ConfigurationOption> = [], logger: Logger) {
-        self.root = Node()
+        self.state = .write(root: Mutex(Node()))
         self.options = options
         self.logger = logger
     }
@@ -57,6 +88,15 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///   - output: Output to register.
     ///   - path: Path to register output at.
     public func register(_ output: Output, at path: [PathComponent]) {
+        precondition(
+            {
+                switch state {
+                case .write: true
+                case .read: false
+                }
+            }(), "Cannot register routes unless router is in write state"
+        )
+
         assert(!path.isEmpty, "Cannot register a route with an empty path.")
 
         // start at the root of the trie branch
@@ -150,7 +190,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
     // See `CustomStringConvertible.description`.
     public var description: String {
-        self.root.description
+        self.state.root.description
     }
 }
 

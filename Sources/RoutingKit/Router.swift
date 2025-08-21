@@ -1,7 +1,7 @@
 /// An object that can quickly look up previously registered routes.
 ///
 /// See ``TrieRouter`` for concrete implementation.
-public protocol Router {
+public protocol Router: Sendable {
     /// Type of value stored in routes. This will be returned by the router.
     associatedtype Output
 

@@ -1,19 +1,19 @@
-// swift-tools-version:5.10
+// swift-tools-version:6.1
 import PackageDescription
 
 let package = Package(
     name: "routing-kit",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .tvOS(.v13),
-        .watchOS(.v6),
+        .macOS(.v15),
+        .iOS(.v18),
+        .tvOS(.v18),
+        .watchOS(.v11),
     ],
     products: [
         .library(name: "RoutingKit", targets: ["RoutingKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3")
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.6.4")
     ],
     targets: [
         .target(
@@ -21,22 +21,12 @@ let package = Package(
             dependencies: [
                 .product(name: "Logging", package: "swift-log")
             ],
-            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "RoutingKitTests",
             dependencies: [
                 .target(name: "RoutingKit")
             ],
-            swiftSettings: swiftSettings
         ),
     ]
 )
-
-var swiftSettings: [SwiftSetting] {
-    [
-        .enableUpcomingFeature("ExistentialAny"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-        .enableExperimentalFeature("StrictConcurrency=complete"),
-    ]
-}
