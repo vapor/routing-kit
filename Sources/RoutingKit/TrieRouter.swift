@@ -1,10 +1,10 @@
 import Logging
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
-/// 
+///
 /// Use ``register(_:at:)`` to register routes into the router. Use ``route(path:parameters:)`` to then fetch
 /// a matching route's output.
-/// 
+///
 /// See https://en.wikipedia.org/wiki/Trie for more information.
 public final class TrieRouter<Output>: Router, CustomStringConvertible {
     /// Available ``TrieRouter`` customization options.
@@ -14,13 +14,13 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         /// > Note: Case-insensitive routing may be less performant than case-sensitive routing.
         case caseInsensitive
     }
-    
+
     /// Configured options such as case-sensitivity.
     public var options: Set<ConfigurationOption>
 
     /// The root node.
     private let root: Node
-    
+
     /// Configured logger.
     public let logger: Logger
 
@@ -58,7 +58,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     ///   - path: Path to register output at.
     public func register(_ output: Output, at path: [PathComponent]) {
         assert(!path.isEmpty, "Cannot register a route with an empty path.")
-        
+
         // start at the root of the trie branch
         var current = self.root
 
@@ -78,7 +78,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         if current.output != nil {
             self.logger.info("[Routing] Overriding duplicate route for \(path[0]) \(path.dropFirst().string)")
         }
-        
+
         // after iterating over all path components, we can set the output
         // on the current node
         current.output = output
@@ -96,7 +96,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
     public func route(path: [String], parameters: inout Parameters) -> Output? {
         // always start at the root node
         var currentNode: Node = self.root
-        
+
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
         var currentCatchall: (Node, [String])?
@@ -196,36 +196,36 @@ extension TrieRouter {
 
         /// Wildcard child node that may be a named parameter or an anything
         var wildcard: Wildcard?
-        
+
         /// Catchall node, if one exists.
         /// This node should not have any child nodes.
         var catchall: Node?
-        
+
         /// This node's output
         var output: Output?
-        
+
         /// Creates a new `RouterNode`.
         init(output: Output? = nil) {
             self.output = output
             self.constants = [String: Node]()
         }
-        
+
         /// Fetches the child `RouterNode` for the supplied path component, or builds
         /// a new segment onto the tree if necessary.
         func buildOrFetchChild(for component: PathComponent, options: Set<ConfigurationOption>) -> Node {
             let isCaseInsensitive = options.contains(.caseInsensitive)
-            
+
             switch component {
             case .constant(let string):
                 // We're going to be comparing this path against an incoming losercased path later
                 // so it's more efficient to lowercase it up front
                 let string = isCaseInsensitive ? string.lowercased() : string
-                
+
                 // search for existing constant
                 if let node = self.constants[string] {
                     return node
                 }
-                
+
                 // none found, add a new node
                 let node = Node()
                 self.constants[string] = node
@@ -235,7 +235,10 @@ extension TrieRouter {
 
                 if let wildcard = self.wildcard {
                     if let existingName = self.wildcard?.parameter {
-                        precondition(existingName == name, "It is not possible to have two routes with the same prefix but different parameter names, even if the trailing path components differ (tried to add route with \(name) that collides with \(existingName)).")
+                        precondition(
+                            existingName == name,
+                            "It is not possible to have two routes with the same prefix but different parameter names, even if the trailing path components differ (tried to add route with \(name) that collides with \(existingName))."
+                        )
                     } else {
                         wildcard.setParameterName(name)
                     }
@@ -266,11 +269,11 @@ extension TrieRouter {
                 return node
             }
         }
-        
+
         var description: String {
             self.subpathDescriptions.joined(separator: "\n")
         }
-        
+
         var subpathDescriptions: [String] {
             var desc: [String] = []
             for (name, constant) in self.constants {
@@ -290,7 +293,7 @@ extension TrieRouter {
                 }
             }
 
-            if let _ = self.catchall {
+            if self.catchall != nil {
                 desc.append("→ **")
             }
             return desc
@@ -298,8 +301,8 @@ extension TrieRouter {
     }
 }
 
-private extension Array where Element == String {
-    func indented() -> [String] {
+extension Array where Element == String {
+    fileprivate func indented() -> [String] {
         self.map { "  " + $0 }
     }
 }
