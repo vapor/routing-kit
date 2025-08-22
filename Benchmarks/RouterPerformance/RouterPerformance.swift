@@ -1,7 +1,7 @@
 import Benchmark
 import RoutingKit
 
-let benchmarks = {
+let benchmarks = { @Sendable () -> Void in
     Benchmark("Case-sensitive") { benchmark in
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e", "f", "g"] {
