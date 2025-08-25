@@ -3,7 +3,17 @@ import RoutingKit
 
 let benchmarks = { @Sendable () -> Void in
     Benchmark.defaultConfiguration = .init(
-        metrics: [.mallocCountTotal, .peakMemoryResident, .throughput]
+        metrics: [.mallocCountTotal, .peakMemoryResident, .throughput],
+        thresholds: [
+            .mallocCountTotal: .init(
+                relative: [.p90, 1],
+                absolute: [.p90, 2]
+            ),
+            .peakMemoryResident: .init(
+                relative: [.p90: 3],
+                absolute: [.p90: 1_000_000]
+            ),
+        ]
     )
 
     Benchmark("Case-sensitive") { benchmark in
