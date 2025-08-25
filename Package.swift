@@ -21,12 +21,21 @@ let package = Package(
             dependencies: [
                 .product(name: "Logging", package: "swift-log")
             ],
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "RoutingKitTests",
             dependencies: [
                 .target(name: "RoutingKit")
             ],
+            swiftSettings: swiftSettings
         ),
     ]
 )
+
+var swiftSettings: [SwiftSetting] {
+    [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+    ]
+}
