@@ -50,7 +50,7 @@ public final class TrieRouter<Output>: Router, @unchecked Sendable, CustomString
     }
 
     /// Configured options such as case-sensitivity.
-    public var options: Set<ConfigurationOption>
+    public let options: Set<ConfigurationOption>
 
     /// Configured logger.
     public let logger: Logger
