@@ -1,5 +1,5 @@
 {
     "mallocCountTotal": 23,
-    "peakMemoryResident": 23,
+    "peakMemoryResident": 23000000,
     "throughput": 263
 }
