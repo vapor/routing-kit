@@ -1,6 +1,6 @@
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic.
-public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable, Hashable {
+public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable {
     /// A normal, constant path component.
     case constant(String)
 
@@ -11,6 +11,9 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     ///
     /// Represented as `:` followed by the identifier.
     case parameter(String)
+
+    // case partialParameter(String, regex: any (RegexComponent & Sendable))
+    case partialParameter(String, regex: String)
 
     /// A dynamic parameter component with discarded value.
     ///
@@ -30,7 +33,36 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 
     // See `ExpressibleByStringLiteral.init(stringLiteral:)`.
     public init(stringLiteral value: String) {
-        if value.hasPrefix(":") {
+        // We create a regex out of the string that we can then compare to the route and
+        // fetch the named parameters from
+        if value.contains("{") {
+            precondition(value.contains("}"), "Malformed path component")
+            var regex = ""
+            var name = ""
+            var inBraces = false
+
+            for char in value.dropFirst() {
+                switch char {
+                case "{":
+                    inBraces = true
+                    name = ""
+                case "}":
+                    inBraces = false
+                    regex += "(?<\(name)>[^/]+)"
+                default:
+                    if inBraces {
+                        name.append(char)
+                    } else {
+                        if ".+*?^$()[]{}|\\".contains(char) {
+                            regex.append("\\\(char)")
+                        } else {
+                            regex.append(char)
+                        }
+                    }
+                }
+            }
+            self = .partialParameter(String(value.dropFirst()), regex: regex)
+        } else if value.hasPrefix(":") {
             self = .parameter(.init(value.dropFirst()))
         } else if value == "*" {
             self = .anything
@@ -44,14 +76,11 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     // See `CustomStringConvertible.description`.
     public var description: String {
         switch self {
-        case .anything:
-            return "*"
-        case .catchall:
-            return "**"
-        case .parameter(let name):
-            return ":" + name
-        case .constant(let constant):
-            return constant
+        case .anything: "*"
+        case .catchall: "**"
+        case .parameter(let name): ":" + name
+        case .constant(let constant): constant
+        case .partialParameter(let value, _): value
         }
     }
 }

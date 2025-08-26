@@ -149,6 +149,24 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(params.getCatchall(), ["posts", "2"])
     }
 
+    func testPartial() throws {
+        let router = TrieRouter<Int>()
+        // Stuff like this won't work yet because of the `-`
+        // router.register(42, at: ["test", ":{my-file}.json"])
+        router.register(42, at: ["test", ":{myfile}.json"])
+        router.register(41, at: ["test", ":{my}-test-{file}.{extension}"])
+
+        var params = Parameters()
+        XCTAssertEqual(router.route(path: ["test", "report.json"], parameters: &params), 42)
+        XCTAssertEqual(params.get("myfile"), "report")
+
+        params = Parameters()
+        XCTAssertEqual(router.route(path: ["test", "foo-test-bar.txt"], parameters: &params), 41)
+        XCTAssertEqual(params.get("my"), "foo")
+        XCTAssertEqual(params.get("file"), "bar")
+        XCTAssertEqual(params.get("extension"), "txt")
+    }
+
     func testRouterDescription() throws {
         // Use simple routing to eliminate the impact of registration order
         let constA: PathComponent = "a"

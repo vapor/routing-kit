@@ -156,11 +156,27 @@ public final class TrieRouter<Output>: Router, @unchecked Sendable, CustomString
 
             // no constants matched, check for dynamic members
             // including parameters or anythings
-            if let wildcard = currentNode.wildcard {
+            if let wildcard = currentNode.wildcards[slice] {
                 if let name = wildcard.parameter {
                     parameters.set(name, to: slice)
                 }
 
+                currentNode = wildcard.node
+                continue search
+            }
+
+            if let wildcard = currentNode.wildcards.values.filter({
+                guard let regexString = $0.regex,
+                    let regex = try? Regex(regexString),
+                    let match = slice.wholeMatch(of: regex)
+                else { return false }
+
+                for match in match.output.dropFirst() {
+                    guard let name = match.name, let value = match.value else { continue }
+                    parameters.set(name, to: "\(value)")
+                }
+                return true
+            }).first {
                 currentNode = wildcard.node
                 continue search
             }
@@ -199,8 +215,9 @@ extension TrieRouter {
     final class Node: CustomStringConvertible {
         /// Describes a node that has matched a parameter or anything
         final class Wildcard {
-            private(set) var parameter: String?
-            private(set) var explicitlyIncludesAnything = false
+            var parameter: String?
+            var explicitlyIncludesAnything = false
+            var regex: String?
 
             let node: Node
 
@@ -216,18 +233,14 @@ extension TrieRouter {
 
             static func parameter(_ node: Node, named name: String) -> Wildcard {
                 let wildcard = Wildcard(node: node)
-                wildcard.setParameterName(name)
+                wildcard.parameter = name
                 return wildcard
             }
 
-            /// Update the wildcard to match a new parameter name
-            func setParameterName(_ name: String) {
-                self.parameter = name
-            }
-
-            /// Explicitly mark an anything token
-            func explicitlyIncludeAnything() {
-                self.explicitlyIncludesAnything = true
+            static func partialParameter(_ node: Node, withRegex regex: String) -> Wildcard {
+                let wildcard = Wildcard(node: node)
+                wildcard.regex = regex
+                return wildcard
             }
         }
 
@@ -235,7 +248,7 @@ extension TrieRouter {
         var constants: [String: Node]
 
         /// Wildcard child node that may be a named parameter or an anything
-        var wildcard: Wildcard?
+        var wildcards: [String: Wildcard]
 
         /// Catchall node, if one exists.
         /// This node should not have any child nodes.
@@ -248,6 +261,7 @@ extension TrieRouter {
         init(output: Output? = nil) {
             self.output = output
             self.constants = [String: Node]()
+            self.wildcards = [:]
         }
 
         /// Fetches the child `RouterNode` for the supplied path component, or builds
@@ -273,19 +287,19 @@ extension TrieRouter {
             case .parameter(let name):
                 let node: Node
 
-                if let wildcard = self.wildcard {
-                    if let existingName = self.wildcard?.parameter {
+                if let wildcard = self.wildcards[name] {
+                    if let existingName = wildcard.parameter {
                         precondition(
                             existingName == name,
                             "It is not possible to have two routes with the same prefix but different parameter names, even if the trailing path components differ (tried to add route with \(name) that collides with \(existingName))."
                         )
                     } else {
-                        wildcard.setParameterName(name)
+                        wildcard.parameter = name
                     }
                     node = wildcard.node
                 } else {
                     node = Node()
-                    self.wildcard = .parameter(node, named: name)
+                    self.wildcards[name] = .parameter(node, named: name)
                 }
                 return node
             case .catchall:
@@ -299,14 +313,22 @@ extension TrieRouter {
                 return node
             case .anything:
                 let node: Node
-                if let wildcard = self.wildcard {
-                    wildcard.explicitlyIncludeAnything()
+                if let wildcard = self.wildcards["anything"] {
+                    wildcard.explicitlyIncludesAnything = true
                     node = wildcard.node
                 } else {
                     node = Node()
-                    self.wildcard = .anything(node)
+                    self.wildcards["anything"] = .anything(node)
                 }
                 return node
+            case .partialParameter(let name, let regex):
+                if let wildcard = self.wildcards[name], wildcard.regex == regex {
+                    return wildcard.node
+                } else {
+                    let node = Node()
+                    self.wildcards[name] = .partialParameter(node, withRegex: regex)
+                    return node
+                }
             }
         }
 
@@ -321,9 +343,14 @@ extension TrieRouter {
                 desc += constant.subpathDescriptions.indented()
             }
 
-            if let wildcard = self.wildcard {
+            for (key, wildcard) in self.wildcards {
                 if let name = wildcard.parameter {
                     desc.append("→ :\(name)")
+                    desc += wildcard.node.subpathDescriptions.indented()
+                }
+
+                if wildcard.regex != nil {
+                    desc.append("→ :\(key)")
                     desc += wildcard.node.subpathDescriptions.indented()
                 }
 
