@@ -190,7 +190,7 @@ public final class TrieRouter<Output>: Router, @unchecked Sendable, CustomString
 
     // See `CustomStringConvertible.description`.
     public var description: String {
-        self.state.root.description
+        self.root.description
     }
 }
 
