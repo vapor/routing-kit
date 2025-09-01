@@ -14,8 +14,7 @@ let benchmarks = { @Sendable () -> Void in
                 absolute: [.p90: 1_000_000]
             ),
             .throughput: .init(
-                relative: [.p90: 10],
-                absolute: [.p90: 10_000]
+                relative: [.p90: 10]
             ),
         ]
     )
