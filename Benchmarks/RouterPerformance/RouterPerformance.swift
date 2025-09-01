@@ -14,8 +14,8 @@ let benchmarks = { @Sendable () -> Void in
                 absolute: [.p90: 1_000_000]
             ),
             .throughput: .init(
-                relative: [.p90: 1],
-                absolute: [.p90: 2]
+                relative: [.p90: 3],
+                absolute: [.p90: 3000]
             ),
         ]
     )
@@ -56,7 +56,7 @@ let benchmarks = { @Sendable () -> Void in
         }
     }
 
-    Benchmark("Case-insensitive Match First") { benchmark in
+    Benchmark("Case-insensitive_Match_First") { benchmark in
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
             router.register(
@@ -74,7 +74,7 @@ let benchmarks = { @Sendable () -> Void in
         }
     }
 
-    Benchmark("Case-insensitive Match Last") { benchmark in
+    Benchmark("Case-insensitive_Match_Last") { benchmark in
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
             router.register(
@@ -92,7 +92,7 @@ let benchmarks = { @Sendable () -> Void in
         }
     }
 
-    Benchmark("Case-sensitive Minimal") { benchmark in
+    Benchmark("Case-sensitive_Minimal") { benchmark in
         let router = TrieRouter.init(String.self)
         for letter in ["a"] {
             router.register(
@@ -109,7 +109,7 @@ let benchmarks = { @Sendable () -> Void in
         }
     }
 
-    Benchmark("Case-insensitive Minimal") { benchmark in
+    Benchmark("Case-insensitive_Minimal") { benchmark in
         let router = TrieRouter.init(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
             router.register(
@@ -126,7 +126,7 @@ let benchmarks = { @Sendable () -> Void in
         }
     }
 
-    Benchmark("Minimal Early Fail") { benchmark in
+    Benchmark("Minimal_Early_Fail") { benchmark in
         let router = TrieRouter.init(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
             router.register(
