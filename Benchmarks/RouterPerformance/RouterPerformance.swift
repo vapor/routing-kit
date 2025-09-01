@@ -2,6 +2,10 @@ import Benchmark
 import RoutingKit
 
 let benchmarks = { @Sendable () -> Void in
+    Benchmark.defaultConfiguration = .init(
+        metrics: [.mallocCountTotal, .peakMemoryResident, .throughput]
+    )
+
     Benchmark("Case-sensitive") { benchmark in
         let router = TrieRouter(String.self)
         for letter in ["a", "b", "c", "d", "e", "f", "g"] {
