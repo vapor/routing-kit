@@ -1,10 +1,16 @@
 /// A single node of the ``TrieRouter``s trie tree of routes.
+@usableFromInline
 final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible {
     /// Describes a node that has matched a parameter or anything
+    @usableFromInline
     struct Wildcard: Sendable {
+        @usableFromInline
         let parameter: String?
+
+        @usableFromInline
         let explicitlyIncludesAnything: Bool
 
+        @usableFromInline
         let node: TrieRouterNode
 
         init(node: TrieRouterNode, parameter: String? = nil, explicitlyIncludesAnything: Bool = false) {
@@ -35,19 +41,23 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
     }
 
     /// All constant child nodes.
+    @usableFromInline
     let constants: [String: TrieRouterNode]
 
     /// Wildcard child node that may be a named parameter or an anything
+    @usableFromInline
     let wildcard: Wildcard?
 
     /// Catchall node, if one exists.
     /// This node should not have any child nodes.
+    @usableFromInline
     let catchall: TrieRouterNode?
 
     /// This node's output
+    @usableFromInline
     let output: Output?
 
-    /// Creates a new `RouterNode`.
+    /// Creates a new ``TrieRouterNode``.
     init(output: Output? = nil, constants: [String: TrieRouterNode] = [:], wildcard: Wildcard? = nil, catchall: TrieRouterNode? = nil) {
         self.output = output
         self.constants = constants
@@ -55,6 +65,7 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
         self.catchall = catchall
     }
 
+    @usableFromInline
     var description: String {
         self.subpathDescriptions.joined(separator: "\n")
     }

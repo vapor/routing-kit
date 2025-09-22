@@ -1,5 +1,22 @@
-import Logging
+public import Logging
 
+// A builder for constructing ``TrieRouter`` instances using the trie data structure.
+///
+/// ``TrieRouterBuilder`` provides an efficient way to build routing tables by accumulating
+/// route registrations and then constructing an immutable, thread-safe ``TrieRouter`` for fast lookups.
+///
+/// ## Configuration Options
+///
+/// - `.caseInsensitive`: Enables case-insensitive route matching
+///
+/// **Note**: Route registration is cumulative - each call to ``register(_:at:)`` adds to
+///   the existing routes. Registering the same path twice will override the previous output.
+///
+/// **Important**: The builder uses immutable data structures internally, so route registration
+///   requires `mutating` access but the final router is completely immutable.
+///
+/// See [Trie on Wikipedia](https://en.wikipedia.org/wiki/Trie) for more information
+/// about the underlying data structure.
 public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     typealias Node = TrieRouterNode<Output>
 
@@ -7,11 +24,11 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     public let options: Set<TrieRouter<Output>.ConfigurationOption>
 
     /// Configured logger.
-    public let logger: Logger
+    let logger: Logger
 
     var root: Node
 
-    /// Create a new ``TrieRouter``.
+    /// Create a new ``TrieRouterBuilder``.
     ///
     /// - Parameters:
     ///   - type: The output type for the router.
@@ -22,7 +39,7 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
         self.logger = .init(label: "codes.vapor.routingkit")
     }
 
-    /// Create a new ``TrieRouter``.
+    /// Create a new ``TrieRouterBuilder``.
     ///
     /// - Parameters:
     ///   - type: The output type for the router.
@@ -34,6 +51,8 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
         self.logger = logger
     }
 
+    /// Constructs a new ``TrieRouter`` based on the routes registered to this builder.
+    /// - Returns: a ``TrieRouter``.
     public func build() -> TrieRouter<Output> {
         .init(builder: self)
     }

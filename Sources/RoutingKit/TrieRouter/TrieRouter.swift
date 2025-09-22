@@ -1,5 +1,4 @@
 import Logging
-import Synchronization
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
 ///
@@ -8,7 +7,7 @@ import Synchronization
 ///
 /// See https://en.wikipedia.org/wiki/Trie for more information.
 public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringConvertible {
-    typealias Node = TrieRouterNode<Output>
+    @usableFromInline typealias Node = TrieRouterNode<Output>
 
     /// Available ``TrieRouter`` customization options.
     public enum ConfigurationOption: Sendable {
@@ -18,9 +17,11 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         case caseInsensitive
     }
 
-    /// The root node.
-    private let root: Node
-    private let options: Set<ConfigurationOption>
+    @usableFromInline
+    let root: Node
+
+    @usableFromInline
+    let options: Set<ConfigurationOption>
 
     init(builder: TrieRouterBuilder<Output>) {
         self.root = builder.root
@@ -36,7 +37,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     ///   - path: Raw path segments.
     ///   - parameters: Will collect dynamic parameter values.
     /// - Returns: Output of matching route, if found.
-    public func route(path: [String], parameters: inout Parameters) -> Output? {
+    @inlinable public func route(path: [String], parameters: inout Parameters) -> Output? {
         // always start at the root node
         var currentNode = self.root
 
