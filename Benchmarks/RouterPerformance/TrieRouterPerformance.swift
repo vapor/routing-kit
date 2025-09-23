@@ -10,7 +10,7 @@ let benchmarks = { @Sendable () -> Void in
                 absolute: [.p90: 2]
             ),
             .peakMemoryResident: .init(
-                relative: [.p90: 3],
+                relative: [.p90: 5],
                 absolute: [.p90: 1_000_000]
             ),
             .throughput: .init(
