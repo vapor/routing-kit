@@ -69,6 +69,22 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 continue search
             }
 
+            if let partials = currentNode.partials {
+                for partial in partials {
+                    guard let regex = try? Regex(partial.regex),
+                        let match = slice.wholeMatch(of: regex)
+                    else { continue }
+
+                    for match in match.output.dropFirst() {
+                        guard let name = match.name, let value = match.value else { continue }
+                        parameters.set(name, to: "\(value)")
+                    }
+
+                    currentNode = partial.node
+                    continue search
+                }
+            }
+
             // no matches, stop searching
             if let (catchall, subpaths) = currentCatchall {
                 // fallback to catchall output if we have one
