@@ -31,6 +31,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a", "42"], parameters: &params)
@@ -49,6 +50,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a", "42"], parameters: &params)
@@ -67,6 +69,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["aaaaaaaa", "42"], parameters: &params)
@@ -85,6 +88,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["aaaaaaag", "42"], parameters: &params)
@@ -102,6 +106,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a"], parameters: &params)
@@ -119,6 +124,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a"], parameters: &params)
@@ -136,6 +142,7 @@ let benchmarks = { @Sendable () -> Void in
         }
 
         let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["baaaaaaaaaaaaa"], parameters: &params)
