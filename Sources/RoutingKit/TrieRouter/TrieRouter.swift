@@ -69,15 +69,18 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 continue search
             }
 
-            if let partials = currentNode.partials {
+            // Only check partials if they exist (avoid unnecessary array access)
+            if let partials = currentNode.partials, !partials.isEmpty {
                 for partial in partials {
-                    guard let regex = try? Regex(partial.regex),
-                        let match = slice.wholeMatch(of: regex)
-                    else { continue }
+                    // Cache compiled regex in production - for now, compile each time
+                    guard let match = slice.wholeMatch(of: partial.regex) else { continue }
 
-                    for match in match.output.dropFirst() {
-                        guard let name = match.name, let value = match.value else { continue }
-                        parameters.set(name, to: "\(value)")
+                    // Extract parameters from named capture groups
+                    for capture in match.output.dropFirst() {
+                        guard let name = capture.name else { continue }
+                        if let value = capture.value {
+                            parameters.set(name, to: "\(value)")
+                        }
                     }
 
                     currentNode = partial.node

@@ -129,6 +129,8 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
             var partials = node.partials ?? []
             let child = partials.first(where: { $0.template == template })?.node ?? Node()
             let updatedChild = insertRoute(node: child, path: path.dropFirst(), output: output)
+            // This should never happen as we're building the regex internally
+            guard let regex = try? Regex(regex) else { preconditionFailure("Regex is not formatted correctly") }
             partials.append(TrieRouterNode.PartialMatch(template: template, regex: regex, node: updatedChild))
             return node.copyWith(partials: partials)
         }

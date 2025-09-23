@@ -46,7 +46,7 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
         let template: String
 
         @usableFromInline
-        let regex: String
+        nonisolated(unsafe) let regex: Regex<AnyRegexOutput>
 
         @usableFromInline
         let node: TrieRouterNode
