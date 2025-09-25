@@ -38,28 +38,28 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     ///   - parameters: Will collect dynamic parameter values.
     /// - Returns: Output of matching route, if found.
     @inlinable public func route(path: [String], parameters: inout Parameters) -> Output? {
-        // always start at the root node
         var currentNode = self.root
-
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
-
         var currentCatchall: (Node, [String])?
+        
+        // Track potential partial matches for backtracking
+        var partialCandidates: [(node: Node, pathIndex: Int, parameters: Parameters)] = []
 
-        // traverse the string path supplied
         search: for (index, slice) in path.enumerated() {
-            // store catchall in case search hits dead end
             if let catchall = currentNode.catchall {
                 currentCatchall = (catchall, [String](path.dropFirst(index)))
             }
 
-            // check the constants first
+            // Store partial candidates before attempting constant/wildcard matching
+            if let partials = currentNode.partials, !partials.isEmpty {
+                partialCandidates.append((node: currentNode, pathIndex: index, parameters: parameters))
+            }
+
             if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
                 currentNode = constant
                 continue search
             }
 
-            // no constants matched, check for dynamic members
-            // including parameters or anythings
             if let wildcard = currentNode.wildcard {
                 if let name = wildcard.parameter {
                     parameters.set(name, to: slice)
@@ -69,28 +69,20 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 continue search
             }
 
-            // Only check partials if they exist (avoid unnecessary array access)
-            if let partials = currentNode.partials, !partials.isEmpty {
-                for partial in partials {
-                    // Cache compiled regex in production - for now, compile each time
-                    guard let match = slice.wholeMatch(of: partial.regex) else { continue }
-
-                    // Extract parameters from named capture groups
-                    for capture in match.output.dropFirst() {
-                        guard let name = capture.name else { continue }
-                        if let value = capture.value {
-                            parameters.set(name, to: "\(value)")
-                        }
-                    }
-
-                    currentNode = partial.node
-                    continue search
+            // No constant or wildcard match - try partial matching from stored candidates
+            for candidate in partialCandidates.reversed() {
+                var candidateParams = candidate.parameters
+                if let result = tryPartialMatch(
+                    from: candidate.node,
+                    path: Array(path[candidate.pathIndex...]),
+                    parameters: &candidateParams
+                ) {
+                    parameters = candidateParams
+                    return result
                 }
             }
 
-            // no matches, stop searching
             if let (catchall, subpaths) = currentCatchall {
-                // fallback to catchall output if we have one
                 parameters.setCatchall(matched: subpaths)
                 return catchall.output
             } else {
@@ -99,16 +91,47 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         }
 
         if let output = currentNode.output {
-            // return the currently resolved responder if there hasn't been an early exit.
             return output
         } else if let (catchall, subpaths) = currentCatchall {
-            // fallback to catchall output if we have one
             parameters.setCatchall(matched: subpaths)
             return catchall.output
         } else {
-            // current node has no output and there was not catchall
             return nil
         }
+    }
+    
+    // Helper function to attempt partial matching from a specific node
+    @usableFromInline
+    func tryPartialMatch(from node: Node, path: [String], parameters: inout Parameters) -> Output? {
+        guard let partials = node.partials, !partials.isEmpty, !path.isEmpty else { return nil }
+        
+        for partial in partials {
+            guard let match = path[0].wholeMatch(of: partial.regex) else { continue }
+
+            var tempParams = parameters
+            for capture in match.output.dropFirst() {
+                guard let name = capture.name else { continue }
+                if let value = capture.value {
+                    tempParams.set(name, to: "\(value)")
+                }
+            }
+
+            // Continue routing from the partial's node with remaining path
+            let remainingPath = Array(path.dropFirst())
+            if remainingPath.isEmpty {
+                if let output = partial.node.output {
+                    parameters = tempParams
+                    return output
+                }
+            } else {
+                if let result = route(path: remainingPath, parameters: &tempParams) {
+                    parameters = tempParams
+                    return result
+                }
+            }
+        }
+        
+        return nil
     }
 
     // See `CustomStringConvertible.description`.
