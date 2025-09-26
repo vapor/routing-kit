@@ -1,3 +1,4 @@
+public import Algorithms
 import Foundation
 import Logging
 
@@ -44,7 +45,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
         var currentCatchall: (Node, [String])?
 
-        search: for (index, slice) in path.enumerated() {
+        search: for (index, slice) in path.indexed() {
             if let catchall = currentNode.catchall {
                 currentCatchall = (catchall, [String](path.dropFirst(index)))
             }
@@ -75,22 +76,6 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 }
             }
 
-            // if let partials = currentNode.partials, !partials.isEmpty {
-            //     for partial in partials {
-            //         guard let match = slice.wholeMatch(of: partial.regex) else { continue }
-
-            //         for capture in match.output.dropFirst() {
-            //             guard let name = capture.name else { continue }
-            //             if let value = capture.value {
-            //                 parameters.set(name, to: "\(value)")
-            //             }
-            //         }
-
-            //         currentNode = partial.node
-            //         continue search
-            //     }
-            // }
-
             if let (catchall, subpaths) = currentCatchall {
                 parameters.setCatchall(matched: subpaths)
                 return catchall.output
@@ -116,29 +101,29 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
 
     @usableFromInline
     func isMatchForPartial(partial: Node.PartialMatch, path: String, parameters: Parameters) -> [Substring: String]? {
-        // :{my}-test-{file}.{extension}
-        // [my,file,extension]
-        // ["", "-test-", "", ".", ""]
-        // foo-test-bar.txt
-
         var result: [Substring: String] = [:]
         var index = path.startIndex
         var parametersIndex = 0
 
-        for (currentIndex, element) in partial.components.enumerated() {
+        let pairs = Array(partial.components.adjacentPairs())
+        var componentIndex = 0
+
+        while componentIndex < partial.components.count {
             if index >= path.endIndex {
                 // If we're at the end but there are more components, fail
-                if currentIndex < partial.components.count - 1 { return nil }
+                if componentIndex != partial.components.count - 1 { return nil }
                 break
             }
 
-            if element == "" {
+            let element = partial.components[componentIndex]
+
+            if element.isEmpty {
                 let endIndex: String.Index
-                // if there's a next element it's always going to be a constant
-                if let nextElement = partial.components[safe: currentIndex + 1] {
+                if componentIndex < pairs.count {
+                    let (_, nextElement) = pairs[componentIndex]
                     // greedy matching
-                    guard let match = path.lastOccurence(of: nextElement, from: index) else { return nil }
-                    endIndex = path.index(index, offsetBy: match)
+                    guard let range = path.range(of: nextElement, options: .backwards, range: index..<path.endIndex) else { return nil }
+                    endIndex = range.lowerBound
                 } else {
                     endIndex = path.endIndex
                 }
@@ -154,27 +139,10 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 else { return nil }
                 index = endPos
             }
+
+            componentIndex += 1
         }
 
         return result
-    }
-}
-
-extension String {
-    func lastOccurence(of pattern: Substring, from startIndex: String.Index) -> Int? {
-        if let range = range(of: pattern, options: .backwards, range: startIndex..<self.endIndex) {
-            return distance(from: startIndex, to: range.lowerBound)
-        }
-        return nil
-    }
-}
-
-extension Array {
-    subscript(safe index: Array.Index) -> Element? {
-        if 0 <= index && index < count {
-            self[index]
-        } else {
-            nil
-        }
     }
 }
