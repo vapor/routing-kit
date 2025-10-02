@@ -16,17 +16,18 @@ jobs:
     with:
       with_musl: true
       with_android: true
+      with_linting: true
   
   upstream-check:
     runs-on: ubuntu-latest
     container: swift:6.1-noble
     steps:
       - name: Check out self
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: routing-kit
       - name: Check out Vapor
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: vapor/vapor
           path: vapor

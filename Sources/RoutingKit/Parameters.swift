@@ -12,7 +12,7 @@ public struct Parameters: Sendable {
     /// Internal storage.
     private var values: [String: String]
     private var catchall: [String]
-    
+
     /// The configured logger.
     public let logger: Logger
 
@@ -25,7 +25,7 @@ public struct Parameters: Sendable {
     public init() {
         self.init(nil)
     }
-    
+
     /// Create a new `Parameters`.
     ///
     /// Pass this to ``Router/route(path:parameters:)`` to fill with values.
@@ -38,27 +38,27 @@ public struct Parameters: Sendable {
     }
 
     /// Grabs the named parameter from the parameter bag.
-    /// 
+    ///
     /// For example `GET /posts/:post_id/comments/:comment_id` would be fetched using:
-    /// 
+    ///
     ///     let postID = parameters.get("post_id")
     ///     let commentID = parameters.get("comment_id")
-    /// 
+    ///
     /// - Parameter name: The name of the parameter to retreive.
     /// - Returns: The value of the parameter, if it exists.
     public func get(_ name: String) -> String? {
         self.values[name]
     }
-    
+
     /// Grabs the named parameter from the parameter bag, casting it to
     /// a `LosslessStringConvertible` type.
-    /// 
+    ///
     /// For example `GET /posts/:post_id/comments/:comment_id`
     /// would be fetched using:
-    /// 
+    ///
     ///     let postID = parameters.get("post_id", as: Int.self)
     ///     let commentID = parameters.get("comment_id", as: Int.self)
-    /// 
+    ///
     /// - Parameters:
     ///   - name: The name of the parameter to be retrieve.
     ///   - type: The type to cast the parameter value to.
@@ -66,7 +66,7 @@ public struct Parameters: Sendable {
     public func get<T: LosslessStringConvertible>(_ name: String, as type: T.Type = T.self) -> T? {
         self.get(name).flatMap(T.init)
     }
-    
+
     /// Adds a new parameter value to the bag.
     ///
     /// > Note: The value will be percent-decoded.
@@ -77,7 +77,7 @@ public struct Parameters: Sendable {
     public mutating func set(_ name: String, to value: String?) {
         self.values[name] = value.map { $0.removingPercentEncoding ?? $0 }
     }
-    
+
     /// Fetches the components matched by `catchall` (`**`).
     ///
     /// If the route doen't hit `catchall`, it'll return `[]`.
@@ -95,7 +95,7 @@ public struct Parameters: Sendable {
     public func getCatchall() -> [String] {
         self.catchall
     }
-    
+
     /// Stores the components matched by `catchall` (`**`).
     ///
     /// - Parameter matched: The subpaths matched (percent-encoded if necessary)

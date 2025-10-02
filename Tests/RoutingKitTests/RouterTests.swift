@@ -9,7 +9,7 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["foo", "bar", "baz", "Tanner"], parameters: &params), 42)
         XCTAssertEqual(params.get("user"), "Tanner")
     }
-    
+
     func testCaseSensitiveRouting() throws {
         let router = TrieRouter<Int>()
         router.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
@@ -17,7 +17,7 @@ final class RouterTests: XCTestCase {
         XCTAssertNil(router.route(path: ["PATH", "tO", "FOo"], parameters: &params))
         XCTAssertEqual(router.route(path: ["path", "TO", "fOo"], parameters: &params), 42)
     }
-    
+
     func testCaseInsensitiveRouting() throws {
         let router = TrieRouter<Int>(options: [.caseInsensitive])
         router.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
@@ -81,7 +81,6 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["aa"], parameters: &params), 2)
     }
 
-
     func testDocBlock() throws {
         let router = TrieRouter<Int>()
         router.register(42, at: ["users", ":user"])
@@ -99,7 +98,7 @@ final class RouterTests: XCTestCase {
         var params = Parameters()
         XCTAssertEqual(router.route(path: ["fun", "meaning_of_universe"], parameters: &params), 42)
     }
-    
+
     // https://github.com/vapor/routing/issues/64
     func testParameterPercentDecoding() throws {
         let router = TrieRouter(String.self)
@@ -135,7 +134,7 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["v1", "test", "foo"], parameters: &params), "b")
         XCTAssertEqual(router.route(path: ["v1", "foo"], parameters: &params), "c")
     }
-    
+
     func testCatchallValue() throws {
         let router = TrieRouter<Int>()
         router.register(42, at: ["users", ":user", "**"])
@@ -149,7 +148,7 @@ final class RouterTests: XCTestCase {
         XCTAssertEqual(router.route(path: ["users", "stevapple", "posts", "2"], parameters: &params), 42)
         XCTAssertEqual(params.getCatchall(), ["posts", "2"])
     }
-    
+
     func testRouterDescription() throws {
         // Use simple routing to eliminate the impact of registration order
         let constA: PathComponent = "a"
@@ -165,33 +164,33 @@ final class RouterTests: XCTestCase {
         router.register(4, at: [catchall])
         // Manually build description
         let desc = """
-        → \(constA)
-          → \(constOne)
+            → \(constA)
+              → \(constOne)
+                → \(anything)
+                → \(catchall)
+              → \(anything)
             → \(anything)
+              → \(constA)
+                → \(paramOne)
             → \(catchall)
-          → \(anything)
-        → \(anything)
-          → \(constA)
-            → \(paramOne)
-        → \(catchall)
-        """
+            """
         XCTAssertEqual(router.description, desc)
     }
-    
+
     func testPathComponentDescription() throws {
         let paths = [
             "aaaaa/bbbb/ccc/dd",
             "123/:45/6/789",
             "123/**",
             "*/*/*/**",
-            ":12/12/*"
+            ":12/12/*",
         ]
         for path in paths {
             XCTAssertEqual(path.pathComponents.string, path)
             XCTAssertEqual(("/" + path).pathComponents.string, path)
         }
     }
-    
+
     func testPathComponentInterpolation() throws {
         do {
             let pathComponentLiteral: PathComponent = "path"
@@ -282,7 +281,7 @@ final class RouterTests: XCTestCase {
 
         var params2 = Parameters()
         XCTAssertEqual(router.route(path: ["foo", "a", "b", "c"], parameters: &params2), 42)
-        XCTAssertEqual(Set(params2.allNames), ["bar", "baz", "bam"]) // Set will compare equal regardless of ordering
+        XCTAssertEqual(Set(params2.allNames), ["bar", "baz", "bam"])  // Set will compare equal regardless of ordering
         XCTAssertTrue(params2.getCatchall().isEmpty)
 
         var params3 = Parameters()
