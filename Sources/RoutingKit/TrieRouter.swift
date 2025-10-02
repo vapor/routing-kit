@@ -20,7 +20,6 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
 
     /// The root node.
     internal let root: Node
-    private let root: Node
 
   /// Configured logger.
     public let logger: Logger
@@ -101,7 +100,7 @@ public final class TrieRouter<Output>: Router, CustomStringConvertible {
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
 
         var currentCatchall: (Node, [String])?
-
+        
         // traverse the string path supplied
         search: for (index, slice) in path.enumerated() {
             // store catchall in case search hits dead end
