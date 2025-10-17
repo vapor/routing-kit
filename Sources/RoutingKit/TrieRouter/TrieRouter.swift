@@ -105,13 +105,13 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         var index = path.startIndex
         var parametersIndex = 0
 
-        let pairs = Array(partial.components.adjacentPairs())
+        let componentsCount = partial.components.count
         var componentIndex = 0
 
-        while componentIndex < partial.components.count {
+        while componentIndex < componentsCount {
             if index >= path.endIndex {
                 // If we're at the end but there are more components, fail
-                if componentIndex != partial.components.count - 1 { return nil }
+                if componentIndex != componentsCount - 1 { return nil }
                 break
             }
 
@@ -119,8 +119,8 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
 
             if element.isEmpty {
                 let endIndex: String.Index
-                if componentIndex < pairs.count {
-                    let (_, nextElement) = pairs[componentIndex]
+                if componentIndex + 1 < componentsCount {
+                    let nextElement = partial.components[componentIndex + 1]
                     // greedy matching
                     guard let range = path.range(of: nextElement, options: .backwards, range: index..<path.endIndex) else { return nil }
                     endIndex = range.lowerBound
