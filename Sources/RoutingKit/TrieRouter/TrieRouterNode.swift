@@ -114,11 +114,7 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
             }
         }
 
-        if let partials = self.partials {
-            for partial in partials {
-                desc.append("→ \(partial.template)")
-            }
-        }
+        desc.append(self.partials?.map { "→ \($0.template)" }.joined(separator: " ") ?? "")
 
         if self.catchall != nil {
             desc.append("→ **")
