@@ -50,14 +50,14 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
                     if index < value.index(before: value.endIndex) { components.append("") }
                 default:
                     if inBraces {
-                        parameters[parameters.count - 1].append(char)
+                        parameters[parameters.index(before: parameters.endIndex)].append(char)
                     } else {
-                        components[components.count - 1].append(char)
+                        components[components.index(before: components.endIndex)].append(char)
                     }
                 }
             }
             self = .partialParameter(template: .init(value.dropFirst()), components: components, parameters: parameters)
-        } else if value.hasPrefix(":") {
+        } else if value.starts(with: ":") {
             self = .parameter(.init(value.dropFirst()))
         } else if value == "*" {
             self = .anything
