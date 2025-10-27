@@ -312,7 +312,6 @@ struct RouterTests {
 
     @Test func testPartial() throws {
         var routerBuilder = TrieRouterBuilder<Int>()
-        // Stuff like this won't work yet because of the `-`
         routerBuilder.register(42, at: ["test", ":{my-file}.json"])
         routerBuilder.register(41, at: ["test", ":{my}-test-{file}.{extension}"])
 

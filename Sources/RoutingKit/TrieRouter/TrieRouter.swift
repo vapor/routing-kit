@@ -126,7 +126,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 } else {
                     endIndex = path.endIndex
                 }
-                result[partial.parameters[result.count - 1]] = path[index..<endIndex]
+                result[partial.parameters[result.count]] = path[index..<endIndex]
                 index = endIndex
             } else {
                 // Verify the literal matches at current position
