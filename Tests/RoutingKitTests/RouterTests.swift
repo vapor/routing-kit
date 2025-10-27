@@ -309,4 +309,25 @@ struct RouterTests {
         #expect(Set(params3.allNames) == ["bar"])
         #expect(params3.getCatchall() == ["bam"])
     }
+
+    @Test func testPartial() throws {
+        var routerBuilder = TrieRouterBuilder<Int>()
+        routerBuilder.register(42, at: ["test", ":{my-file}.json"])
+        routerBuilder.register(41, at: ["test", ":{my}-test-{file}.{extension}"])
+
+        let router = routerBuilder.build()
+
+        var params = Parameters()
+        #expect(router.route(path: ["test", "report.json"], parameters: &params) == 42)
+        #expect(params.get("my-file") == "report")
+
+        #expect(router.route(path: ["test", ".json.json"], parameters: &params) == 42)
+        #expect(params.get("my-file") == ".json")
+
+        params = Parameters()
+        #expect(router.route(path: ["test", "foo-test-bar.txt"], parameters: &params) == 41)
+        #expect(params.get("my") == "foo")
+        #expect(params.get("file") == "bar")
+        #expect(params.get("extension") == "txt")
+    }
 }

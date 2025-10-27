@@ -1,3 +1,5 @@
+import Algorithms
+
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic.
 public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable, Hashable {
@@ -12,6 +14,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     /// Represented as `:` followed by the identifier.
     case parameter(String)
 
+    case partialParameter(template: String, components: [Substring], parameters: [Substring])
     /// A dynamic parameter component with discarded value.
     ///
     /// Represented as `*`
@@ -30,7 +33,31 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 
     // See `ExpressibleByStringLiteral.init(stringLiteral:)`.
     public init(stringLiteral value: String) {
-        if value.hasPrefix(":") {
+        if value.firstIndex(of: "{") != nil {
+            var components: [Substring] = []
+            var parameters: [Substring] = []
+
+            var inBraces = false
+
+            for (index, char) in value.dropFirst().indexed() {
+                switch char {
+                case "{":
+                    inBraces = true
+                    parameters.append("")
+                    components.append("")
+                case "}":
+                    inBraces = false
+                    if index < value.index(before: value.endIndex) { components.append("") }
+                default:
+                    if inBraces {
+                        parameters[parameters.index(before: parameters.endIndex)].append(char)
+                    } else {
+                        components[components.index(before: components.endIndex)].append(char)
+                    }
+                }
+            }
+            self = .partialParameter(template: .init(value.dropFirst()), components: components, parameters: parameters)
+        } else if value.starts(with: ":") {
             self = .parameter(.init(value.dropFirst()))
         } else if value == "*" {
             self = .anything
@@ -44,14 +71,11 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     // See `CustomStringConvertible.description`.
     public var description: String {
         switch self {
-        case .anything:
-            return "*"
-        case .catchall:
-            return "**"
-        case .parameter(let name):
-            return ":" + name
-        case .constant(let constant):
-            return constant
+        case .anything: "*"
+        case .catchall: "**"
+        case .parameter(let name): ":" + name
+        case .constant(let constant): constant
+        case .partialParameter(let template, _, _): template
         }
     }
 }

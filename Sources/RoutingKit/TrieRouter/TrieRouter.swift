@@ -1,3 +1,5 @@
+public import Algorithms
+import Foundation
 import Logging
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
@@ -37,29 +39,22 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     ///   - path: Raw path segments.
     ///   - parameters: Will collect dynamic parameter values.
     /// - Returns: Output of matching route, if found.
-    @inlinable public func route(path: [String], parameters: inout Parameters) -> Output? {
-        // always start at the root node
+    @inlinable
+    public func route(path: [String], parameters: inout Parameters) -> Output? {
         var currentNode = self.root
-
         let isCaseInsensitive = self.options.contains(.caseInsensitive)
-
         var currentCatchall: (Node, [String])?
 
-        // traverse the string path supplied
-        search: for (index, slice) in path.enumerated() {
-            // store catchall in case search hits dead end
+        search: for (index, slice) in path.indexed() {
             if let catchall = currentNode.catchall {
                 currentCatchall = (catchall, [String](path.dropFirst(index)))
             }
 
-            // check the constants first
             if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
                 currentNode = constant
                 continue search
             }
 
-            // no constants matched, check for dynamic members
-            // including parameters or anythings
             if let wildcard = currentNode.wildcard {
                 if let name = wildcard.parameter {
                     parameters.set(name, to: slice)
@@ -69,9 +64,19 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 continue search
             }
 
-            // no matches, stop searching
+            if let partials = currentNode.partials, !partials.isEmpty {
+                for partial in partials {
+                    if let captures = isMatchForPartial(partial: partial, path: slice, parameters: parameters) {
+                        for (name, value) in captures {
+                            parameters.set(String(name), to: String(value))
+                        }
+                        currentNode = partial.node
+                        continue search
+                    }
+                }
+            }
+
             if let (catchall, subpaths) = currentCatchall {
-                // fallback to catchall output if we have one
                 parameters.setCatchall(matched: subpaths)
                 return catchall.output
             } else {
@@ -80,14 +85,11 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         }
 
         if let output = currentNode.output {
-            // return the currently resolved responder if there hasn't been an early exit.
             return output
         } else if let (catchall, subpaths) = currentCatchall {
-            // fallback to catchall output if we have one
             parameters.setCatchall(matched: subpaths)
             return catchall.output
         } else {
-            // current node has no output and there was not catchall
             return nil
         }
     }
@@ -95,5 +97,47 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     // See `CustomStringConvertible.description`.
     public var description: String {
         self.root.description
+    }
+
+    @usableFromInline
+    func isMatchForPartial(partial: Node.PartialMatch, path: String, parameters: Parameters) -> [Substring: Substring]? {
+        var result: [Substring: Substring] = [:]
+        var index = path.startIndex
+
+        var componentIndex = partial.components.startIndex
+        let lastComponentIndex = partial.components.index(before: partial.components.endIndex)
+
+        while componentIndex <= lastComponentIndex {
+            if index >= path.endIndex {
+                // If we're at the end but there are more components, fail
+                if componentIndex < lastComponentIndex { return nil }
+                break
+            }
+
+            let element = partial.components[componentIndex]
+
+            if element.isEmpty {
+                let endIndex: String.Index
+                if componentIndex < lastComponentIndex {
+                    let nextElement = partial.components[partial.components.index(after: componentIndex)]
+                    // greedy matching
+                    guard let range = path.range(of: nextElement, options: .backwards, range: index..<path.endIndex) else { return nil }
+                    endIndex = range.lowerBound
+                } else {
+                    endIndex = path.endIndex
+                }
+                result[partial.parameters[result.count]] = path[index..<endIndex]
+                index = endIndex
+            } else {
+                // Verify the literal matches at current position
+                let substring = path[index...].prefix(element.count)
+                guard substring == element else { return nil }
+                index = substring.endIndex
+            }
+
+            partial.components.formIndex(after: &componentIndex)
+        }
+
+        return result
     }
 }

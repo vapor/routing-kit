@@ -13,13 +13,15 @@ let package = Package(
         .library(name: "RoutingKit", targets: ["RoutingKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.6.4")
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.6.4"),
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
     ],
     targets: [
         .target(
             name: "RoutingKit",
             dependencies: [
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
             ],
             swiftSettings: swiftSettings
         ),

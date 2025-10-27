@@ -125,6 +125,12 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
                 explicitlyIncludesAnything: true
             )
             return node.copyWith(wildcard: newWildcard)
+        case .partialParameter(let template, let components, let parameters):
+            var partials = node.partials ?? []
+            let child = partials.first(where: { $0.template == template })?.node ?? Node()
+            let updatedChild = insertRoute(node: child, path: path.dropFirst(), output: output)
+            partials.append(.init(template: template, components: components, parameters: parameters, node: updatedChild))
+            return node.copyWith(partials: partials)
         }
     }
 }

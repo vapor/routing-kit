@@ -40,13 +40,32 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
         }
     }
 
+    @usableFromInline
+    struct PartialMatch: Sendable {
+        @usableFromInline
+        let template: String
+
+        @usableFromInline
+        let components: [Substring]
+
+        @usableFromInline
+        let parameters: [Substring]
+
+        @usableFromInline
+        let node: TrieRouterNode
+    }
+
     /// All constant child nodes.
     @usableFromInline
     let constants: [String: TrieRouterNode]
 
-    /// Wildcard child node that may be a named parameter or an anything
+    /// Wildcard child node that may be a named parameter or an anything.
     @usableFromInline
     let wildcard: Wildcard?
+
+    /// Partial match child nodes.
+    @usableFromInline
+    let partials: [PartialMatch]?
 
     /// Catchall node, if one exists.
     /// This node should not have any child nodes.
@@ -58,11 +77,18 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
     let output: Output?
 
     /// Creates a new ``TrieRouterNode``.
-    init(output: Output? = nil, constants: [String: TrieRouterNode] = [:], wildcard: Wildcard? = nil, catchall: TrieRouterNode? = nil) {
+    init(
+        output: Output? = nil,
+        constants: [String: TrieRouterNode] = [:],
+        wildcard: Wildcard? = nil,
+        catchall: TrieRouterNode? = nil,
+        partials: [PartialMatch]? = nil
+    ) {
         self.output = output
         self.constants = constants
         self.wildcard = wildcard
         self.catchall = catchall
+        self.partials = partials
     }
 
     @usableFromInline
@@ -89,6 +115,11 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
             }
         }
 
+        for partial in self.partials ?? [] {
+            desc.append("→ \(partial.template)")
+            desc += partial.node.subpathDescriptions.indented()
+        }
+
         if self.catchall != nil {
             desc.append("→ **")
         }
@@ -99,13 +130,15 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
         output: Output? = nil,
         constants: [String: TrieRouterNode]? = nil,
         wildcard: Wildcard? = nil,
-        catchall: TrieRouterNode? = nil
+        catchall: TrieRouterNode? = nil,
+        partials: [PartialMatch]? = nil
     ) -> TrieRouterNode {
         TrieRouterNode(
             output: output ?? self.output,
             constants: constants ?? self.constants,
             wildcard: wildcard ?? self.wildcard,
-            catchall: catchall ?? self.catchall
+            catchall: catchall ?? self.catchall,
+            partials: partials ?? self.partials
         )
     }
 }
