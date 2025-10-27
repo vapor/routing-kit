@@ -59,10 +59,11 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
     @usableFromInline
     let constants: [String: TrieRouterNode]
 
-    /// Wildcard child node that may be a named parameter or an anything
+    /// Wildcard child node that may be a named parameter or an anything.
     @usableFromInline
     let wildcard: Wildcard?
 
+    /// Partial match child nodes.
     @usableFromInline
     let partials: [PartialMatch]?
 
@@ -114,7 +115,10 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
             }
         }
 
-        desc.append(self.partials?.map { "→ \($0.template)" }.joined(separator: " ") ?? "")
+        for partial in self.partials ?? [] {
+            desc.append("→ \(partial.template)")
+            desc += partial.node.subpathDescriptions.indented()
+        }
 
         if self.catchall != nil {
             desc.append("→ **")
