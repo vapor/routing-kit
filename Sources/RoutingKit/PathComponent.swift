@@ -47,7 +47,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
                     components.append("")
                 case "}":
                     inBraces = false
-                    if index != value.index(before: value.endIndex) { components.append("") }
+                    if index < value.index(before: value.endIndex) { components.append("") }
                 default:
                     if inBraces {
                         parameters[parameters.count - 1].append(char)
