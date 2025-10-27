@@ -1,3 +1,5 @@
+import Algorithms
+
 /// A single path component of a `Route`. An array of these components describes
 /// a route's path, including which parts are constant and which parts are dynamic.
 public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvertible, Sendable, Hashable {
@@ -37,7 +39,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 
             var inBraces = false
 
-            for (index, char) in value.dropFirst().enumerated() {
+            for (index, char) in value.dropFirst().indexed() {
                 switch char {
                 case "{":
                     inBraces = true
@@ -45,7 +47,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
                     components.append("")
                 case "}":
                     inBraces = false
-                    if index != value.count - 2 { components.append("") }
+                    if index != value.index(before: value.endIndex) { components.append("") }
                 default:
                     if inBraces {
                         parameters[parameters.count - 1].append(char)
