@@ -130,6 +130,8 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
             let child = partials.first(where: { $0.template == template })?.node ?? Node()
             let updatedChild = insertRoute(node: child, path: path.dropFirst(), output: output)
             partials.append(.init(template: template, components: components, parameters: parameters, node: updatedChild))
+            // We should query the more specific partials first. So if we have
+            // {a}.{ext} and file.{ext}, file.txt should match the second one even though it matches both
             partials.sort { $0.ambiguity < $1.ambiguity }
             return node.copyWith(partials: partials)
         }
