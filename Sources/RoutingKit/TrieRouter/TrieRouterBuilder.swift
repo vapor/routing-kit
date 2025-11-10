@@ -21,7 +21,7 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     typealias Node = TrieRouterNode<Output>
 
     /// Configured options such as case-sensitivity.
-    public let options: Set<TrieRouter<Output>.ConfigurationOption>
+    public let config: TrieRouter<Output>.Configuration
 
     /// Configured logger.
     let logger: Logger
@@ -33,9 +33,9 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     /// - Parameters:
     ///   - type: The output type for the router.
     ///   - options: Configured options such as case-sensitivity.
-    public init(_ type: Output.Type = Output.self, options: Set<TrieRouter<Output>.ConfigurationOption> = []) {
+    public init(_ type: Output.Type = Output.self, config: TrieRouter<Output>.Configuration = .init()) {
         self.root = Node()
-        self.options = options
+        self.config = config
         self.logger = .init(label: "codes.vapor.routingkit")
     }
 
@@ -45,9 +45,9 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     ///   - type: The output type for the router.
     ///   - options: Configured options such as case-sensitivity.
     ///   - logger: A logger for the router to use.
-    public init(_ type: Output.Type = Output.self, options: Set<TrieRouter<Output>.ConfigurationOption> = [], logger: Logger) {
+    public init(_ type: Output.Type = Output.self, config: TrieRouter<Output>.Configuration = .init(), logger: Logger) {
         self.root = Node()
-        self.options = options
+        self.config = config
         self.logger = logger
     }
 
@@ -81,7 +81,7 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
             return node.copyWith(output: output)
         }
 
-        let isCaseInsensitive = options.contains(.caseInsensitive)
+        let isCaseInsensitive = config.isCaseInsensitive
         switch component {
         case .constant(let string):
             let key = isCaseInsensitive ? string.lowercased() : string
@@ -130,7 +130,15 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
             let child = partials.first(where: { $0.template == template })?.node ?? Node()
             let updatedChild = insertRoute(node: child, path: path.dropFirst(), output: output)
             partials.append(.init(template: template, components: components, parameters: parameters, node: updatedChild))
+            partials.sort { $0.ambiguity < $1.ambiguity }
             return node.copyWith(partials: partials)
         }
+    }
+}
+
+extension TrieRouterNode.PartialMatch {
+    var ambiguity: Int {
+        // A bit naïve but it works
+        self.parameters.count
     }
 }

@@ -12,22 +12,28 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     @usableFromInline typealias Node = TrieRouterNode<Output>
 
     /// Available ``TrieRouter`` customization options.
-    public enum ConfigurationOption: Sendable {
-        /// If set, this will cause the router's route matching to be case-insensitive.
-        ///
-        /// > Note: Case-insensitive routing may be less performant than case-sensitive routing.
-        case caseInsensitive
+    ///
+    /// This is an `OptionSet`-style type so additional options can be added via
+    /// extensions without changing the public API surface.
+    public struct Configuration: Sendable {
+        public let isCaseInsensitive: Bool
+
+        public init(isCaseInsensitive: Bool = false) {
+            self.isCaseInsensitive = isCaseInsensitive
+        }
+
+        public static var caseInsensitive: Self { .init(isCaseInsensitive: true) }
     }
 
     @usableFromInline
     let root: Node
 
     @usableFromInline
-    let options: Set<ConfigurationOption>
+    let config: Configuration
 
     init(builder: TrieRouterBuilder<Output>) {
         self.root = builder.root
-        self.options = builder.options
+        self.config = builder.config
     }
 
     /// Routes a path, returning the best-matching output and collecting any dynamic parameters.
@@ -42,7 +48,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     @inlinable
     public func route(path: [String], parameters: inout Parameters) -> Output? {
         var currentNode = self.root
-        let isCaseInsensitive = self.options.contains(.caseInsensitive)
+        let isCaseInsensitive = self.config.isCaseInsensitive
         var currentCatchall: (Node, [String])?
 
         search: for (index, slice) in path.indexed() {

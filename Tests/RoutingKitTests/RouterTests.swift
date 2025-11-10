@@ -22,7 +22,7 @@ struct RouterTests {
     }
 
     @Test func caseInsensitiveRouting() throws {
-        var builder = TrieRouterBuilder<Int>(options: [.caseInsensitive])
+        var builder = TrieRouterBuilder<Int>(config: .caseInsensitive)
         builder.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
         let router = builder.build()
         var params = Parameters()
@@ -79,7 +79,7 @@ struct RouterTests {
     }
 
     @Test func routerSuffixes() throws {
-        var builder = TrieRouterBuilder<Int>(options: [.caseInsensitive])
+        var builder = TrieRouterBuilder<Int>(config: .caseInsensitive)
         builder.register(1, at: [.constant("a")])
         builder.register(2, at: [.constant("aa")])
         let router = builder.build()
@@ -310,7 +310,7 @@ struct RouterTests {
         #expect(params3.getCatchall() == ["bam"])
     }
 
-    @Test func testPartial() throws {
+    @Test func testPartialHappyPath() throws {
         var routerBuilder = TrieRouterBuilder<Int>()
         routerBuilder.register(42, at: ["test", ":{my-file}.json"])
         routerBuilder.register(41, at: ["test", ":{my}-test-{file}.{extension}"])
@@ -329,5 +329,62 @@ struct RouterTests {
         #expect(params.get("my") == "foo")
         #expect(params.get("file") == "bar")
         #expect(params.get("extension") == "txt")
+    }
+
+    @Test func testPartialParamAtStartAndEnd() throws {
+        var builder = TrieRouterBuilder<Int>()
+        builder.register(10, at: ["p", ":{a}-suffix"])
+        builder.register(11, at: ["p", ":prefix-{b}"])
+
+        let router = builder.build()
+
+        var params = Parameters()
+        #expect(router.route(path: ["p", "foo-suffix"], parameters: &params) == 10)
+        #expect(params.get("a") == "foo")
+
+        params = Parameters()
+        #expect(router.route(path: ["p", "prefix-bar"], parameters: &params) == 11)
+        #expect(params.get("b") == "bar")
+    }
+
+    @Test func testPartialUnclosedParameterCapturesRemainder() throws {
+        var builder = TrieRouterBuilder<Int>()
+        // malformed: opening brace with no closing brace. Current behavior is to capture
+        // the rest of the segment into the parameter name's value.
+        builder.register(20, at: ["p", ":{open"])
+
+        let router = builder.build()
+
+        var params = Parameters()
+        #expect(router.route(path: ["p", "rest-of-segment"], parameters: &params) == 20)
+        // the parameter name parsed is "open" and should capture the entire segment
+        #expect(params.get("open") == "rest-of-segment")
+    }
+
+    @Test func testPartialGreedyAnchors() throws {
+        var builder = TrieRouterBuilder<Int>()
+        builder.register(1, at: ["x", ":{a}.json.json"])
+        builder.register(2, at: ["x", ":{a}.json"])
+        let router = builder.build()
+
+        var p = Parameters()
+        #expect(router.route(path: ["x", ".json.json"], parameters: &p) == 1)
+        #expect(p.get("a") == "")
+        p = Parameters()
+        #expect(router.route(path: ["x", "file.json"], parameters: &p) == 2)
+        #expect(p.get("a") == "file")
+    }
+
+    @Test func testPartialOrderingSpecificity() throws {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: ["y", ":{a}.{ext}"])
+        b.register(2, at: ["y", ":prefix-{b}.txt"])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: ["y", "prefix-foo.txt"], parameters: &p) == 2)
+        #expect(p.get("b") == "foo")
+        p = Parameters()
+        #expect(r.route(path: ["y", "file.md"], parameters: &p) == 1)
     }
 }

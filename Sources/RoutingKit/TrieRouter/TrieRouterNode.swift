@@ -27,6 +27,7 @@ final class TrieRouterNode<Output: Sendable>: Sendable, CustomStringConvertible 
             Wildcard(node: node, parameter: name)
         }
 
+        @usableFromInline
         func copyWith(
             node: TrieRouterNode? = nil,
             parameter: String? = nil,

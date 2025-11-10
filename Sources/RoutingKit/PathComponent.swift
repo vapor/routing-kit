@@ -19,11 +19,11 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     /// The template is the original string representation of the partial parameter.
     /// The components are the constant parts of the partial parameter.
     /// The parameters are the dynamic parts of the partial parameter.
-    /// 
+    ///
     /// For example, the path component `user-{id}-details` would be represented as
     /// `partialParameter(template: "user-{id}-details", components: ["user-", "-details"], parameters: ["id"])`.
     case partialParameter(template: String, components: [Substring], parameters: [Substring])
-    
+
     /// A dynamic parameter component with discarded value.
     ///
     /// Represented as `*`
@@ -42,7 +42,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 
     // See `ExpressibleByStringLiteral.init(stringLiteral:)`.
     public init(stringLiteral value: String) {
-        if value.firstIndex(of: "{") != nil {
+        if value.starts(with: ":") && value.firstIndex(of: "{") != nil {
             var components: [Substring] = []
             var parameters: [Substring] = []
 
@@ -59,8 +59,10 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
                     if index < value.index(before: value.endIndex) { components.append("") }
                 default:
                     if inBraces {
+                        if parameters.isEmpty { parameters.append(.init()) }
                         parameters[parameters.index(before: parameters.endIndex)].append(char)
                     } else {
+                        if components.isEmpty { components.append(.init()) }
                         components[components.index(before: components.endIndex)].append(char)
                     }
                 }
