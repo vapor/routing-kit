@@ -67,6 +67,7 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
                     }
                 }
             }
+            if inBraces { preconditionFailure("Unclosed '{' in path component literal: \(value)") }
             self = .partialParameter(template: .init(value.dropFirst()), components: components, parameters: parameters)
         } else if value.starts(with: ":") {
             self = .parameter(.init(value.dropFirst()))

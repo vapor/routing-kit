@@ -347,18 +347,11 @@ struct RouterTests {
         #expect(params.get("b") == "bar")
     }
 
-    @Test func testPartialUnclosedParameterCapturesRemainder() throws {
-        var builder = TrieRouterBuilder<Int>()
-        // malformed: opening brace with no closing brace. Current behavior is to capture
-        // the rest of the segment into the parameter name's value.
-        builder.register(20, at: ["p", ":{open"])
-
-        let router = builder.build()
-
-        var params = Parameters()
-        #expect(router.route(path: ["p", "rest-of-segment"], parameters: &params) == 20)
-        // the parameter name parsed is "open" and should capture the entire segment
-        #expect(params.get("open") == "rest-of-segment")
+    @Test func testPartialUnclosedParameterFails() async throws {
+        await #expect(processExitsWith: .failure) {
+            var builder = TrieRouterBuilder<Int>()
+            builder.register(20, at: ["p", ":{open"])
+        }
     }
 
     @Test func testPartialGreedyAnchors() throws {
