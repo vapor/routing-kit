@@ -347,12 +347,14 @@ struct RouterTests {
         #expect(params.get("b") == "bar")
     }
 
-    @Test func testPartialUnclosedParameterFails() async throws {
-        await #expect(processExitsWith: .failure) {
-            var builder = TrieRouterBuilder<Int>()
-            builder.register(20, at: ["p", ":{open"])
+    #if swift(>=6.2)
+        @Test func testPartialUnclosedParameterFails() async throws {
+            await #expect(processExitsWith: .failure) {
+                var builder = TrieRouterBuilder<Int>()
+                builder.register(20, at: ["p", ":{open"])
+            }
         }
-    }
+    #endif
 
     @Test func testPartialGreedyAnchors() throws {
         var builder = TrieRouterBuilder<Int>()
