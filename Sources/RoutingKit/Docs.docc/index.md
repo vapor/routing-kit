@@ -53,8 +53,7 @@ if let handler = router.route(["users", "123"], parameters: &params) {
 }
 ```
 
-> [!NOTE]
-> To preserve both speed and safety, once you create a router using the `build()` method, it becomes immutable. Any further modifications require creating a new builder instance.
+> Note: To preserve both speed and safety, once you create a router using the `build()` method, it becomes immutable. Any further modifications require creating a new builder instance.
 
 There's different types of path components you can use when registering routes:
 - Constant path components: e.g. `"users"`, `"posts"`
@@ -66,4 +65,4 @@ All of these can be used simply by passing the appropriate strings to the `regis
 
 #### Custom Router
 
-You can also create your own custom router by conforming to the `Router` protocol. This allows you to define your own routing logic rather than using the built-in trie-based router.
+You can also create your own custom router by conforming to the ``Router`` protocol. This allows you to define your own routing logic rather than using the built-in trie-based router.
