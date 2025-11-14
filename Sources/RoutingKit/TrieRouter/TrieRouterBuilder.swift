@@ -28,24 +28,17 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
 
     var root: Node
 
-    /// Create a new ``TrieRouterBuilder``.
-    ///
-    /// - Parameters:
-    ///   - type: The output type for the router.
-    ///   - options: Configured options such as case-sensitivity.
-    public init(_ type: Output.Type = Output.self, config: TrieRouter<Output>.Configuration = .init()) {
-        self.root = Node()
-        self.config = config
-        self.logger = .init(label: "codes.vapor.routingkit")
-    }
-
-    /// Create a new ``TrieRouterBuilder``.
+    /// Creates a new ``TrieRouterBuilder``.
     ///
     /// - Parameters:
     ///   - type: The output type for the router.
     ///   - options: Configured options such as case-sensitivity.
     ///   - logger: A logger for the router to use.
-    public init(_ type: Output.Type = Output.self, config: TrieRouter<Output>.Configuration = .init(), logger: Logger) {
+    public init(
+        _ type: Output.Type = Output.self,
+        config: TrieRouter<Output>.Configuration = .init(),
+        logger: Logger = .init(label: "codes.vapor.routingkit")
+    ) {
         self.root = Node()
         self.config = config
         self.logger = logger

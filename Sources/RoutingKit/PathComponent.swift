@@ -20,8 +20,8 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     /// The components are the constant parts of the partial parameter.
     /// The parameters are the dynamic parts of the partial parameter.
     ///
-    /// For example, the path component `user-{id}-details` would be represented as
-    /// `partialParameter(template: "user-{id}-details", components: ["user-", "-details"], parameters: ["id"])`.
+    /// For example, the path component `:user-{id}-details` would be represented as
+    /// `partialParameter(template: ":user-{id}-details", components: ["user-", "-details"], parameters: ["id"])`.
     case partialParameter(template: String, components: [Substring], parameters: [Substring])
 
     /// A dynamic parameter component with discarded value.
