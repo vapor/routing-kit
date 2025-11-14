@@ -1,16 +1,9 @@
 /// An object that can quickly look up previously registered routes.
 ///
 /// See ``TrieRouter`` for concrete implementation.
-public protocol Router {
+public protocol Router: Sendable {
     /// Type of value stored in routes. This will be returned by the router.
     associatedtype Output
-
-    /// Registers a new `Output` to the `Router` at a given path.
-    ///
-    /// - Parameters:
-    ///   - output: Output to register.
-    ///   - path: Path to register output at.
-    mutating func register(_ output: Output, at path: [PathComponent])
 
     /// Fetches output for a specific route.
     ///

@@ -3,13 +3,26 @@ import RoutingKit
 
 let benchmarks = { @Sendable () -> Void in
     Benchmark.defaultConfiguration = .init(
-        metrics: [.mallocCountTotal, .peakMemoryResident, .throughput]
+        metrics: [.mallocCountTotal, .peakMemoryResident, .throughput],
+        thresholds: [
+            .mallocCountTotal: .init(
+                relative: [.p90: 1],
+                absolute: [.p90: 2]
+            ),
+            .peakMemoryResident: .init(
+                relative: [.p90: 5],
+                absolute: [.p90: 1_000_000]
+            ),
+            .throughput: .init(
+                relative: [.p90: 10]
+            ),
+        ]
     )
 
     Benchmark("Case-sensitive") { benchmark in
-        let router = TrieRouter(String.self)
+        var builder = TrieRouterBuilder(String.self)
         for letter in ["a", "b", "c", "d", "e", "f", "g"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter),
@@ -17,6 +30,8 @@ let benchmarks = { @Sendable () -> Void in
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a", "42"], parameters: &params)
@@ -24,9 +39,9 @@ let benchmarks = { @Sendable () -> Void in
     }
 
     Benchmark("Case-insensitive") { benchmark in
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
         for letter in ["a", "b", "c", "d", "e", "f", "g"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter),
@@ -34,16 +49,18 @@ let benchmarks = { @Sendable () -> Void in
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a", "42"], parameters: &params)
         }
     }
 
-    Benchmark("Case-insensitive Match First") { benchmark in
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+    Benchmark("Case-insensitive_Match_First") { benchmark in
+        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter),
@@ -51,16 +68,18 @@ let benchmarks = { @Sendable () -> Void in
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["aaaaaaaa", "42"], parameters: &params)
         }
     }
 
-    Benchmark("Case-insensitive Match Last") { benchmark in
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+    Benchmark("Case-insensitive_Match_Last") { benchmark in
+        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter),
@@ -68,54 +87,62 @@ let benchmarks = { @Sendable () -> Void in
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["aaaaaaag", "42"], parameters: &params)
         }
     }
 
-    Benchmark("Case-sensitive Minimal") { benchmark in
-        let router = TrieRouter.init(String.self)
+    Benchmark("Case-sensitive_Minimal") { benchmark in
+        var builder = TrieRouterBuilder(String.self)
         for letter in ["a"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter)
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a"], parameters: &params)
         }
     }
 
-    Benchmark("Case-insensitive Minimal") { benchmark in
-        let router = TrieRouter.init(String.self, options: [.caseInsensitive])
+    Benchmark("Case-insensitive_Minimal") { benchmark in
+        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
         for letter in ["a"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter)
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["a"], parameters: &params)
         }
     }
 
-    Benchmark("Minimal Early Fail") { benchmark in
-        let router = TrieRouter.init(String.self)
+    Benchmark("Minimal_Early_Fail") { benchmark in
+        var builder = TrieRouterBuilder(String.self)
         for letter in ["aaaaaaaaaaaaaa"] {
-            router.register(
+            builder.register(
                 letter,
                 at: [
                     .constant(letter)
                 ])
         }
 
+        let router = builder.build()
+        benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
             var params = Parameters()
             _ = router.route(path: ["baaaaaaaaaaaaa"], parameters: &params)

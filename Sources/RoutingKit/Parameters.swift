@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+public import Logging
 
 /// Holds dynamic path components that were discovered while routing.
 ///
