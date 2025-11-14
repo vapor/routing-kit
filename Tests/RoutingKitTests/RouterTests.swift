@@ -347,7 +347,7 @@ struct RouterTests {
         #expect(params.get("b") == "bar")
     }
 
-    #if swift(>=6.2)
+    #if swift(>=6.2) && !os(Android)
         @Test func testPartialUnclosedParameterFails() async throws {
             await #expect(processExitsWith: .failure) {
                 var builder = TrieRouterBuilder<Int>()
