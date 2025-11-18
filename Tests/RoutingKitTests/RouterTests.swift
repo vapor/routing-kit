@@ -383,7 +383,7 @@ struct RouterTests {
         #expect(r.route(path: ["y", "file.md"], parameters: &p) == 1)
     }
 
-    @Test
+    @Test(.bug("https://github.com/vapor/routing-kit/issues/147"))
     func emptyCatchall() throws {
         var b = TrieRouterBuilder<Int>()
         b.register(1, at: [.catchall])
