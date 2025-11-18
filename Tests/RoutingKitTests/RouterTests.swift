@@ -382,4 +382,14 @@ struct RouterTests {
         p = Parameters()
         #expect(r.route(path: ["y", "file.md"], parameters: &p) == 1)
     }
+
+    @Test
+    func emptyCatchall() throws {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: [.catchall])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: [], parameters: &p) == 1)
+    }
 }
