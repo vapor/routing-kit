@@ -95,6 +95,9 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         } else if let (catchall, subpaths) = currentCatchall {
             parameters.setCatchall(matched: subpaths)
             return catchall.output
+        } else if path.isEmpty, let catchall = currentNode.catchall {
+            parameters.setCatchall(matched: [])
+            return catchall.output
         } else {
             return nil
         }
