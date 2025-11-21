@@ -23,11 +23,11 @@ jobs:
     container: swift:6.1-noble
     steps:
       - name: Check out self
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: routing-kit
       - name: Check out Vapor
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: vapor/vapor
           path: vapor
