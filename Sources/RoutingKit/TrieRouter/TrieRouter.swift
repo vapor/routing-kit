@@ -47,21 +47,76 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
     /// - Returns: Output of matching route, if found.
     @inlinable
     public func route(path: [String], parameters: inout Parameters) -> Output? {
-        var currentNode = self.root
-        let isCaseInsensitive = self.config.isCaseInsensitive
-        var currentCatchall: (Node, [String])?
+        route(path: path, from: path.startIndex, parameters: &parameters, root: self.root, isCaseInsensitive: self.config.isCaseInsensitive)
+    }
 
-        search: for (index, slice) in path.indexed() {
+    @usableFromInline
+    struct Alternative {
+        enum Kind {
+            case wildcard(String, Node.Wildcard)
+            case partial(Node.PartialMatch)
+        }
+
+        let node: Node
+        let index: Int
+        let kind: Kind
+        let parameterSnapshot: Parameters
+    }
+
+    @usableFromInline
+    func route(
+        path: [String], from startIndex: Int, parameters: inout Parameters, root: Node, isCaseInsensitive: Bool
+    ) -> Output? {
+        var currentNode = root
+        var currentCatchall: (Node, [String])?
+        var alternatives: [Alternative] = []
+
+        search: for (index, slice) in path[startIndex...].indexed() {
             if let catchall = currentNode.catchall {
                 currentCatchall = (catchall, [String](path.dropFirst(index)))
             }
 
             if let constant = currentNode.constants[isCaseInsensitive ? slice.lowercased() : slice] {
+                if let wildcard = currentNode.wildcard {
+                    alternatives.append(
+                        .init(
+                            node: wildcard.node,
+                            index: index,
+                            kind: .wildcard(slice, wildcard),
+                            parameterSnapshot: parameters
+                        )
+                    )
+                }
+
+                if let partials = currentNode.partials, !partials.isEmpty {
+                    for partial in partials {
+                        alternatives.append(
+                            .init(
+                                node: partial.node,
+                                index: index,
+                                kind: .partial(partial),
+                                parameterSnapshot: parameters
+                            ))
+                    }
+                }
+
                 currentNode = constant
                 continue search
             }
 
             if let wildcard = currentNode.wildcard {
+                if let partials = currentNode.partials, !partials.isEmpty {
+                    for partial in partials {
+                        alternatives.append(
+                            .init(
+                                node: partial.node,
+                                index: index,
+                                kind: .partial(partial),
+                                parameterSnapshot: parameters
+                            ))
+                    }
+                }
+
                 if let name = wildcard.parameter {
                     parameters.set(name, to: slice)
                 }
@@ -86,7 +141,12 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 parameters.setCatchall(matched: subpaths)
                 return catchall.output
             } else {
-                return nil
+                return tryAlternatives(
+                    path: path,
+                    alternatives: alternatives,
+                    currentCatchall: currentCatchall,
+                    isCaseInsensitive: isCaseInsensitive
+                )
             }
         }
 
@@ -98,9 +158,69 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         } else if path.isEmpty, let catchall = currentNode.catchall {
             parameters.setCatchall(matched: [])
             return catchall.output
+        } else if let result = tryAlternatives(
+            path: path,
+            alternatives: alternatives,
+            currentCatchall: currentCatchall,
+            isCaseInsensitive: isCaseInsensitive
+        ) {
+            return result
         } else {
             return nil
         }
+    }
+
+    @usableFromInline
+    func tryAlternatives(
+        path: [String],
+        alternatives: [Alternative],
+        currentCatchall: (Node, [String])?,
+        isCaseInsensitive: Bool
+    ) -> Output? {
+        for alternative in alternatives.reversed() {
+            var altParameters = alternative.parameterSnapshot
+            switch alternative.kind {
+            case .wildcard(let slice, let wildcard):
+                if let name = wildcard.parameter {
+                    altParameters.set(name, to: slice)
+                }
+
+                if let output = route(
+                    path: path,
+                    from: alternative.index + 1,
+                    parameters: &altParameters,
+                    root: alternative.node,
+                    isCaseInsensitive: isCaseInsensitive
+                ) {
+                    return output
+                }
+            case .partial(let partial):
+                let slice = path[alternative.index]
+                if let captures = isMatchForPartial(partial: partial, path: slice, parameters: altParameters) {
+                    for (name, value) in captures {
+                        altParameters.set(String(name), to: String(value))
+                    }
+
+                    if let output = route(
+                        path: path,
+                        from: alternative.index + 1,
+                        parameters: &altParameters,
+                        root: alternative.node,
+                        isCaseInsensitive: isCaseInsensitive
+                    ) {
+                        return output
+                    }
+                }
+            }
+        }
+
+        if let (catchall, subpaths) = currentCatchall {
+            var altParameters = Parameters()
+            altParameters.setCatchall(matched: subpaths)
+            return catchall.output
+        }
+
+        return nil
     }
 
     // See `CustomStringConvertible.description`.

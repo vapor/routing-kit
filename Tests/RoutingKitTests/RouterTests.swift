@@ -3,7 +3,8 @@ import Testing
 
 @Suite
 struct RouterTests {
-    @Test func routing() async throws {
+    @Test("Simple Routing")
+    func routing() async throws {
         var builder = TrieRouterBuilder(Int.self)
         builder.register(42, at: ["foo", "bar", "baz", ":user"])
         let router = builder.build()
@@ -12,7 +13,8 @@ struct RouterTests {
         #expect(params.get("user") == "Tanner")
     }
 
-    @Test func caseSensitiveRouting() throws {
+    @Test("Case-sensitive Routing")
+    func caseSensitiveRouting() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
         let router = builder.build()
@@ -21,7 +23,8 @@ struct RouterTests {
         #expect(router.route(path: ["path", "TO", "fOo"], parameters: &params) == 42)
     }
 
-    @Test func caseInsensitiveRouting() throws {
+    @Test("Case-insensitive Routing")
+    func caseInsensitiveRouting() throws {
         var builder = TrieRouterBuilder<Int>(config: .caseInsensitive)
         builder.register(42, at: [.constant("path"), .constant("TO"), .constant("fOo")])
         let router = builder.build()
@@ -29,7 +32,8 @@ struct RouterTests {
         #expect(router.route(path: ["PATH", "tO", "FOo"], parameters: &params) == 42)
     }
 
-    @Test func anyRouting() throws {
+    @Test("Any Routing")
+    func anyRouting() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(0, at: [.constant("a"), .anything])
         builder.register(1, at: [.constant("b"), .parameter("1"), .anything])
@@ -59,7 +63,8 @@ struct RouterTests {
         #expect(router.route(path: ["g", "e", "1"], parameters: &params) == 5)
     }
 
-    @Test func wildcardRoutingHasNoPrecedence() throws {
+    @Test("Wildcard Routing has no Precedence")
+    func wildcardRoutingHasNoPrecedence() throws {
         var builder1 = TrieRouterBuilder<Int>()
         builder1.register(0, at: [.constant("a"), .parameter("1"), .constant("a")])
         builder1.register(1, at: [.constant("a"), .anything, .constant("b")])
@@ -78,7 +83,8 @@ struct RouterTests {
         #expect(router2.route(path: path, parameters: &params2) == 1)
     }
 
-    @Test func routerSuffixes() throws {
+    @Test("Router Suffixes")
+    func routerSuffixes() throws {
         var builder = TrieRouterBuilder<Int>(config: .caseInsensitive)
         builder.register(1, at: [.constant("a")])
         builder.register(2, at: [.constant("aa")])
@@ -89,7 +95,8 @@ struct RouterTests {
         #expect(router.route(path: ["aa"], parameters: &params) == 2)
     }
 
-    @Test func docBlock() throws {
+    @Test("Doc Block")
+    func docBlock() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(42, at: ["users", ":user"])
         let router = builder.build()
@@ -99,7 +106,8 @@ struct RouterTests {
         #expect(params.get("user") == "Tanner")
     }
 
-    @Test func docs() throws {
+    @Test("Docs")
+    func docs() throws {
         var builder = TrieRouterBuilder(Double.self)
         builder.register(42, at: ["fun", "meaning_of_universe"])
         builder.register(1337, at: ["fun", "leet"])
@@ -110,8 +118,8 @@ struct RouterTests {
         #expect(router.route(path: ["fun", "meaning_of_universe"], parameters: &params) == 42)
     }
 
-    // https://github.com/vapor/routing/issues/64
-    @Test func parameterPercentDecoding() throws {
+    @Test("Parameter Percent-encoding", .bug("https://github.com/vapor/routing/issues/64"))
+    func parameterPercentDecoding() throws {
         var builder = TrieRouterBuilder(String.self)
         builder.register("c", at: [.constant("a"), .parameter("b")])
         let router = builder.build()
@@ -121,8 +129,8 @@ struct RouterTests {
         #expect(params.get("b") == "te st")
     }
 
-    // https://github.com/vapor/routing-kit/issues/74
-    @Test func catchallNested() throws {
+    @Test("Nested Catch-all", .bug("https://github.com/vapor/routing-kit/issues/74"))
+    func catchallNested() throws {
         var builder = TrieRouterBuilder(String.self)
         builder.register("/**", at: [.catchall])
         builder.register("/a/**", at: ["a", .catchall])
@@ -139,7 +147,8 @@ struct RouterTests {
         #expect(router.route(path: ["b", "c", "d", "e"], parameters: &params) == "/**")
     }
 
-    @Test func catchallPrecedence() throws {
+    @Test("Catch-all Precedence")
+    func catchallPrecedence() throws {
         var builder = TrieRouterBuilder(String.self)
         builder.register("a", at: ["v1", "test"])
         builder.register("b", at: ["v1", .catchall])
@@ -152,7 +161,8 @@ struct RouterTests {
         #expect(router.route(path: ["v1", "foo"], parameters: &params) == "c")
     }
 
-    @Test func catchallValue() throws {
+    @Test("Catch-all Value")
+    func catchallValue() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(42, at: ["users", ":user", "**"])
         builder.register(24, at: ["users", "**"])
@@ -160,14 +170,15 @@ struct RouterTests {
 
         var params = Parameters()
         #expect(router.route(path: ["users"], parameters: &params) == nil)
-        #expect(params.getCatchall().count == 0)
+        #expect(params.getCatchall().isEmpty)
         #expect(router.route(path: ["users", "stevapple"], parameters: &params) == 24)
         #expect(params.getCatchall() == ["stevapple"])
         #expect(router.route(path: ["users", "stevapple", "posts", "2"], parameters: &params) == 42)
         #expect(params.getCatchall() == ["posts", "2"])
     }
 
-    @Test func routerDescription() throws {
+    @Test("Router Description")
+    func routerDescription() throws {
         // Use simple routing to eliminate the impact of registration order
         let constA: PathComponent = "a"
         let constOne: PathComponent = "1"
@@ -196,7 +207,8 @@ struct RouterTests {
         #expect(router.description == desc)
     }
 
-    @Test func pathComponentDescription() throws {
+    @Test("Path Component Description")
+    func pathComponentDescription() throws {
         let paths = [
             "aaaaa/bbbb/ccc/dd",
             "123/:45/6/789",
@@ -210,7 +222,8 @@ struct RouterTests {
         }
     }
 
-    @Test func testPathComponentInterpolation() throws {
+    @Test("Path Component Interpolation")
+    func testPathComponentInterpolation() throws {
         do {
             let pathComponentLiteral: PathComponent = "path"
             switch pathComponentLiteral {
@@ -289,7 +302,8 @@ struct RouterTests {
         }
     }
 
-    @Test func parameterNamesFetch() throws {
+    @Test("Parameter Name Fetch")
+    func parameterNamesFetch() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(42, at: ["foo", ":bar", ":baz", ":bam"])
         builder.register(24, at: ["bar", ":bar", "**"])
@@ -310,7 +324,8 @@ struct RouterTests {
         #expect(params3.getCatchall() == ["bam"])
     }
 
-    @Test func testPartialHappyPath() throws {
+    @Test("Partial Happy Path")
+    func partialHappyPath() throws {
         var routerBuilder = TrieRouterBuilder<Int>()
         routerBuilder.register(42, at: ["test", ":{my-file}.json"])
         routerBuilder.register(41, at: ["test", ":{my}-test-{file}.{extension}"])
@@ -331,7 +346,8 @@ struct RouterTests {
         #expect(params.get("extension") == "txt")
     }
 
-    @Test func testPartialParamAtStartAndEnd() throws {
+    @Test("Partial Param at Start or End")
+    func partialParamAtStartAndEnd() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(10, at: ["p", ":{a}-suffix"])
         builder.register(11, at: ["p", ":prefix-{b}"])
@@ -348,7 +364,8 @@ struct RouterTests {
     }
 
     #if swift(>=6.2) && !os(Android)
-        @Test func testPartialUnclosedParameterFails() async throws {
+        @Test("Partial Unclosed Parameter Fails")
+        func testPartialUnclosedParameterFails() async throws {
             await #expect(processExitsWith: .failure) {
                 var builder = TrieRouterBuilder<Int>()
                 builder.register(20, at: ["p", ":{open"])
@@ -364,7 +381,8 @@ struct RouterTests {
         }
     #endif
 
-    @Test func testPartialGreedyAnchors() throws {
+    @Test("Partial Greedy Anchors")
+    func testPartialGreedyAnchors() throws {
         var builder = TrieRouterBuilder<Int>()
         builder.register(1, at: ["x", ":{a}.json.json"])
         builder.register(2, at: ["x", ":{a}.json"])
@@ -378,7 +396,8 @@ struct RouterTests {
         #expect(p.get("a") == "file")
     }
 
-    @Test func testPartialOrderingSpecificity() throws {
+    @Test("Partial Ordering Specificity")
+    func testPartialOrderingSpecificity() throws {
         var b = TrieRouterBuilder<Int>()
         b.register(1, at: ["y", ":{a}.{ext}"])
         b.register(2, at: ["y", ":prefix-{b}.txt"])
@@ -399,5 +418,41 @@ struct RouterTests {
 
         var p = Parameters()
         #expect(r.route(path: [], parameters: &p) == 1)
+    }
+
+    @Test("Backtracking", .bug("https://github.com/vapor/routing-kit/issues/145"))
+    func backtracking() throws {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: [":provider"])
+        b.register(2, at: ["google", "callback"])
+        b.register(3, at: [":provider", "test"])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: ["google"], parameters: &p) == 1)
+        #expect(r.route(path: ["google", "test"], parameters: &p) == 3)
+    }
+
+    @Test("Wildcard vs Constant Backtrack")
+    func wildcardVsConstantBacktrack() throws {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: [":x", "b"])
+        b.register(2, at: ["a", "c"])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: ["a", "b"], parameters: &p) == 1)
+    }
+
+    @Test("Multiple wildcard alternatives")
+    func multipleWildcards() throws {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: [":a", ":b", "tail"])
+        b.register(2, at: [":a"])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: ["one", "two", "tail"], parameters: &p) == 1)
+        #expect(r.route(path: ["one"], parameters: &p) == 2)
     }
 }
