@@ -354,6 +354,14 @@ struct RouterTests {
                 builder.register(20, at: ["p", ":{open"])
             }
         }
+
+        @Test("Same name partial parameter fails")
+        func sameNamePartialParameter() async throws {
+            await #expect(processExitsWith: .failure) {
+                var b = TrieRouterBuilder<Int>()
+                b.register(1, at: [":{param}.{param}"])
+            }
+        }
     #endif
 
     @Test func testPartialGreedyAnchors() throws {
