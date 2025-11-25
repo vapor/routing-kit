@@ -119,9 +119,7 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
             )
             return node.copyWith(wildcard: newWildcard)
         case .partialParameter(let template, let components, let parameters):
-            guard parameters.count == Set(parameters).count else {
-                preconditionFailure("Partial \":\(template)\" contains multiple same-named parameters")
-            }
+           precondition(parameters.count == Set(parameters).count, #"Partial ":\#(template)" contains multiple parameters with the same name"#)
             var partials = node.partials ?? []
             let child = partials.first(where: { $0.template == template })?.node ?? Node()
             let updatedChild = insertRoute(node: child, path: path.dropFirst(), output: output)
