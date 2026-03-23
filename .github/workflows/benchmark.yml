@@ -1,9 +1,5 @@
 name: benchmark
 
-permissions:
-  contents: read
-  id-token: write
-
 on:
   workflow_dispatch:
     inputs:
@@ -16,6 +12,9 @@ on:
 
 jobs:
   benchmark:
+    permissions:
+      contents: read
+      id-token: write
     uses: vapor/ci/.github/workflows/run-benchmark.yml@main
     with:
       sha: ${{ inputs.sha }}
