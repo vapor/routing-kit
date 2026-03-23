@@ -430,7 +430,9 @@ struct RouterTests {
 
         var p = Parameters()
         #expect(r.route(path: ["google"], parameters: &p) == 1)
+        #expect(p.get("provider") == "google")
         #expect(r.route(path: ["google", "test"], parameters: &p) == 3)
+        #expect(p.get("provider") == "google")
     }
 
     @Test("Wildcard vs Constant Backtrack")
@@ -442,6 +444,7 @@ struct RouterTests {
 
         var p = Parameters()
         #expect(r.route(path: ["a", "b"], parameters: &p) == 1)
+        #expect(p.get("x") == "a")
     }
 
     @Test("Multiple wildcard alternatives")
@@ -453,6 +456,9 @@ struct RouterTests {
 
         var p = Parameters()
         #expect(r.route(path: ["one", "two", "tail"], parameters: &p) == 1)
+        #expect(p.get("a") == "one")
+        #expect(p.get("b") == "two")
         #expect(r.route(path: ["one"], parameters: &p) == 2)
+        #expect(p.get("a") == "one")
     }
 }

@@ -1,4 +1,4 @@
-public import Algorithms
+import Algorithms
 import Foundation
 import Logging
 
@@ -88,34 +88,21 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                     )
                 }
 
-                if let partials = currentNode.partials, !partials.isEmpty {
-                    for partial in partials {
-                        alternatives.append(
-                            .init(
-                                node: partial.node,
-                                index: index,
-                                kind: .partial(partial),
-                                parameterSnapshot: parameters
-                            ))
-                    }
-                }
+                alternatives.append(
+                    contentsOf: currentNode.partials?.map {
+                        .init(node: $0.node, index: index, kind: .partial($0), parameterSnapshot: parameters)
+                    } ?? []
+                )
 
                 currentNode = constant
                 continue search
             }
 
             if let wildcard = currentNode.wildcard {
-                if let partials = currentNode.partials, !partials.isEmpty {
-                    for partial in partials {
-                        alternatives.append(
-                            .init(
-                                node: partial.node,
-                                index: index,
-                                kind: .partial(partial),
-                                parameterSnapshot: parameters
-                            ))
-                    }
-                }
+                alternatives.append(
+                    contentsOf: currentNode.partials?.map {
+                        .init(node: $0.node, index: index, kind: .partial($0), parameterSnapshot: parameters)
+                    } ?? [])
 
                 if let name = wildcard.parameter {
                     parameters.set(name, to: slice)
@@ -145,7 +132,8 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                     path: path,
                     alternatives: alternatives,
                     currentCatchall: currentCatchall,
-                    isCaseInsensitive: isCaseInsensitive
+                    isCaseInsensitive: isCaseInsensitive,
+                    parameters: &parameters
                 )
             }
         }
@@ -162,7 +150,8 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
             path: path,
             alternatives: alternatives,
             currentCatchall: currentCatchall,
-            isCaseInsensitive: isCaseInsensitive
+            isCaseInsensitive: isCaseInsensitive,
+            parameters: &parameters
         ) {
             return result
         } else {
@@ -175,7 +164,8 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         path: [String],
         alternatives: [Alternative],
         currentCatchall: (Node, [String])?,
-        isCaseInsensitive: Bool
+        isCaseInsensitive: Bool,
+        parameters: inout Parameters
     ) -> Output? {
         for alternative in alternatives.reversed() {
             var altParameters = alternative.parameterSnapshot
@@ -192,6 +182,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                     root: alternative.node,
                     isCaseInsensitive: isCaseInsensitive
                 ) {
+                    parameters = altParameters
                     return output
                 }
             case .partial(let partial):
@@ -208,6 +199,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                         root: alternative.node,
                         isCaseInsensitive: isCaseInsensitive
                     ) {
+                        parameters = altParameters
                         return output
                     }
                 }
@@ -215,8 +207,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
         }
 
         if let (catchall, subpaths) = currentCatchall {
-            var altParameters = Parameters()
-            altParameters.setCatchall(matched: subpaths)
+            parameters.setCatchall(matched: subpaths)
             return catchall.output
         }
 
