@@ -2,6 +2,7 @@ name: benchmark
 
 permissions:
   contents: read
+  id-token: write
 
 on:
   workflow_dispatch:
