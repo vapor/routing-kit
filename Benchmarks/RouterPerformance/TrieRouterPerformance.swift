@@ -39,7 +39,7 @@ let benchmarks = { @Sendable () -> Void in
     }
 
     Benchmark("Case-insensitive") { benchmark in
-        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
+        var builder = TrieRouterBuilder(String.self, config: .caseInsensitive)
         for letter in ["a", "b", "c", "d", "e", "f", "g"] {
             builder.register(
                 letter,
@@ -58,7 +58,7 @@ let benchmarks = { @Sendable () -> Void in
     }
 
     Benchmark("Case-insensitive_Match_First") { benchmark in
-        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
+        var builder = TrieRouterBuilder(String.self, config: .caseInsensitive)
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
             builder.register(
                 letter,
@@ -77,7 +77,7 @@ let benchmarks = { @Sendable () -> Void in
     }
 
     Benchmark("Case-insensitive_Match_Last") { benchmark in
-        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
+        var builder = TrieRouterBuilder(String.self, config: .caseInsensitive)
         for letter in ["aaaaaaaa", "aaaaaaab", "aaaaaaac", "aaaaaaad", "aaaaaaae", "aaaaaaaf", "aaaaaaag"] {
             builder.register(
                 letter,
@@ -114,7 +114,7 @@ let benchmarks = { @Sendable () -> Void in
     }
 
     Benchmark("Case-insensitive_Minimal") { benchmark in
-        var builder = TrieRouterBuilder(String.self, options: [.caseInsensitive])
+        var builder = TrieRouterBuilder(String.self, config: .caseInsensitive)
         for letter in ["a"] {
             builder.register(
                 letter,
