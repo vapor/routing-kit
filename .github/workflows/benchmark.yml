@@ -1,5 +1,4 @@
 name: benchmark
-
 on:
   workflow_dispatch:
     inputs:

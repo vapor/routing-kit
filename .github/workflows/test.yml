@@ -5,13 +5,11 @@ concurrency:
 on:
   pull_request: { types: [opened, reopened, synchronize, ready_for_review] }
   push: { branches: [ main ] }
-env:
-  LOG_LEVEL: info
-permissions:
-  contents: read
 
 jobs:
   unit-tests:
+    permissions:
+      contents: read
     uses: vapor/ci/.github/workflows/run-unit-tests.yml@main
     secrets: inherit
     with:
@@ -20,8 +18,10 @@ jobs:
       with_linting: true
   
   upstream-check:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
-    container: swift:6.2-noble
+    container: swift:6.3-noble
     steps:
       - name: Check out self
         uses: actions/checkout@v6
@@ -36,3 +36,10 @@ jobs:
         run: swift package --package-path vapor edit routing-kit --path routing-kit
       - name: Run tests
         run: swift test --package-path vapor
+
+  submit-dependencies:
+    permissions:
+      contents: write
+    if: ${{ github.event_name == 'push' }}
+    uses: vapor/ci/.github/workflows/submit-deps.yml@main
+    secrets: inherit
