@@ -32,6 +32,7 @@ jobs:
         with:
           repository: vapor/vapor
           path: vapor
+          ref: vapor4
       - name: Use local package
         run: swift package --package-path vapor edit routing-kit --path routing-kit
       - name: Run tests
