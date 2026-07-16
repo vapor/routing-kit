@@ -3,15 +3,15 @@ on:
   push:
     branches:
       - main
+      - v4
 permissions:
   contents: read
   id-token: write
 
 jobs:
   build-and-deploy:
-    uses: vapor/api-docs/.github/workflows/build-and-deploy-docs-workflow.yml@main
+    uses: vapor/api-docs/.github/workflows/deploy.yml@main
     secrets: inherit
     with:
-      package_name: routing-kit
-      modules: RoutingKit
-      pathsToInvalidate: /routingkit/*
+      package: routing-kit
+      ref: ${{ github.ref_name }}
