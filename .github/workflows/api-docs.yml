@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - v4
 permissions:
   contents: read
   id-token: write
