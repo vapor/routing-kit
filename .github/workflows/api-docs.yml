@@ -13,5 +13,5 @@ jobs:
     uses: vapor/api-docs/.github/workflows/deploy.yml@main
     secrets: inherit
     with:
-      package: console-kit
+      package: routing-kit
       ref: ${{ github.ref_name }}
