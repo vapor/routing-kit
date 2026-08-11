@@ -1,4 +1,8 @@
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 public import Logging
 
 /// Holds dynamic path components that were discovered while routing.

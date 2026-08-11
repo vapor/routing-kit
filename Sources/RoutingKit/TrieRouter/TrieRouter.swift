@@ -1,5 +1,9 @@
 import Algorithms
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import Logging
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
