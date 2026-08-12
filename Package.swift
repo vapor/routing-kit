@@ -37,6 +37,7 @@ let package = Package(
 
 var swiftSettings: [SwiftSetting] {
     [
+        .treatAllWarnings(as: .error),
         .strictMemorySafety(),
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
