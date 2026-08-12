@@ -363,7 +363,8 @@ struct RouterTests {
         #expect(params.get("b") == "bar")
     }
 
-    #if swift(>=6.2) && !os(Android)
+    // Exit tests are not available on these platforms
+    #if swift(>=6.2) && !os(Android) && !os(iOS)
         @Test("Partial Unclosed Parameter Fails")
         func testPartialUnclosedParameterFails() async throws {
             await #expect(processExitsWith: .failure) {
