@@ -4,7 +4,7 @@ concurrency:
   cancel-in-progress: true
 on:
   pull_request: { types: [opened, reopened, synchronize, ready_for_review] }
-  push: { branches: [ main ] }
+  push: { branches: [main] }
 
 jobs:
   unit-tests:
@@ -16,7 +16,10 @@ jobs:
       with_musl: true
       with_android: true
       with_linting: true
-  
+      with_windows: true
+      with_wasm: true
+      ios_scheme_name: routing-kit
+
   upstream-check:
     permissions:
       contents: read
@@ -44,3 +47,10 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     uses: vapor/ci/.github/workflows/submit-deps.yml@main
     secrets: inherit
+
+  foundation-linking:
+    uses: vapor/ci/.github/workflows/check-foundation-linking.yml@main
+    permissions:
+      contents: read
+    with:
+      swift_image: swift:6.3-noble
