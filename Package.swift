@@ -1,4 +1,4 @@
-// swift-tools-version:6.1
+// swift-tools-version:6.2
 import PackageDescription
 
 let package = Package(
@@ -37,11 +37,16 @@ let package = Package(
 
 var swiftSettings: [SwiftSetting] {
     [
+        .strictMemorySafety(),
         .enableUpcomingFeature("ExistentialAny"),
-        .enableUpcomingFeature("MemberImportVisibility"),
         .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
         .enableUpcomingFeature("InferIsolatedConformances"),
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
         .enableUpcomingFeature("ImmutableWeakCaptures"),
+        .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
+        .enableExperimentalFeature("LifetimeDependence"),
+        .enableExperimentalFeature("Lifetimes"),
+        .enableUpcomingFeature("LifetimeDependence"),
     ]
 }

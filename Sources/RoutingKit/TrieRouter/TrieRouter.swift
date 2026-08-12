@@ -1,10 +1,11 @@
 import Algorithms
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
 import Logging
+
+#if canImport(FoundationEssentials)
+    import FoundationEssentials
+#else
+    import Foundation
+#endif
 
 /// Generic ``TrieRouter`` built using the "trie" tree algorithm.
 ///
@@ -245,7 +246,7 @@ public final class TrieRouter<Output: Sendable>: Router, Sendable, CustomStringC
                 if componentIndex < lastComponentIndex {
                     let nextElement = partial.components[partial.components.index(after: componentIndex)]
                     // greedy matching
-                    guard let range = path.range(of: nextElement, options: .backwards, range: index..<path.endIndex) else { return nil }
+                    guard let range = path.range(of: nextElement, backwardsIn: index..<path.endIndex) else { return nil }
                     endIndex = range.lowerBound
                 } else {
                     endIndex = path.endIndex
