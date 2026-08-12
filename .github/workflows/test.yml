@@ -17,6 +17,8 @@ jobs:
       with_android: true
       with_linting: true
       with_windows: true
+      with_wasm: true
+      ios_scheme_name: routing-kit
 
   upstream-check:
     permissions:
