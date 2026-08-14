@@ -5,8 +5,8 @@ extension String {
     func lastUTF8Range(of needle: Substring, in searchRange: Range<Int>) -> Range<Int>? {
         var haystack = self
         var needle = needle
-        return haystack.withSpan_Compatibility { haystack in
-            needle.withSpan_Compatibility { needle in
+        return haystack.withSpanCompatibility { haystack in
+            needle.withSpanCompatibility { needle in
                 return Self._lastUTF8Range(of: needle, in: searchRange, haystack: haystack)
             }
         }
@@ -44,8 +44,8 @@ extension String {
     ) -> Range<String.Index>? {
         var haystack = self
         var needle = needle
-        return haystack.withSpan_Compatibility { haystack in
-            needle.withSpan_Compatibility { needle in
+        return haystack.withSpanCompatibility { haystack in
+            needle.withSpanCompatibility { needle in
                 let utf8 = self.utf8
                 let lower = utf8.distance(from: utf8.startIndex, to: searchRange.lowerBound)
                 let upper = utf8.distance(from: utf8.startIndex, to: searchRange.upperBound)
