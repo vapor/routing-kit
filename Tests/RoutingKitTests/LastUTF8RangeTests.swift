@@ -47,19 +47,11 @@ struct LastUTF8RangeTests {
         .init(haystack: "🇮🇹/🇮🇹", needle: "🇮🇹", range: nil, expected: 9..<17),
     ]
 
-    @Test("lastUTF8Range Index Walking Variant", arguments: cases)
-    func indicesVariant(_ searchCase: SearchCase) {
-        #expect(
-            searchCase.haystack.lastUTF8RangeUsingIndices(of: searchCase.needle[...], in: searchCase.searchRange)
-                == searchCase.expected
-        )
-    }
-
     @available(macOS 26, iOS 26, tvOS 26, watchOS 26, visionOS 26, *)
-    @Test("lastUTF8Range Span Variant", arguments: cases)
-    func spanVariant(_ searchCase: SearchCase) {
+    @Test("lastUTF8Range", arguments: cases)
+    func lastUTF8Range(_ searchCase: SearchCase) {
         #expect(
-            searchCase.haystack.lastUTF8RangeUsingSpan(of: searchCase.needle[...], in: searchCase.searchRange)
+            searchCase.haystack.lastUTF8Range(of: searchCase.needle[...], in: searchCase.searchRange)
                 == searchCase.expected
         )
     }
