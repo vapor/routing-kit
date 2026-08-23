@@ -3,9 +3,7 @@ extension String {
     /// `range(of: needle, options: [.backwards, .literal], range:)`
     /// over UTF-8 offsets.
     func lastUTF8Range(of needle: Substring, in searchRange: Range<Int>) -> Range<Int>? {
-        var haystack = self
-        var needle = needle
-        return haystack.withSpanCompatibility { haystack in
+        self.withSpanCompatibility { haystack in
             needle.withSpanCompatibility { needle in
                 let n = needle.count
 
