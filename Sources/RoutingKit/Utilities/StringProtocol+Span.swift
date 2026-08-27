@@ -1,10 +1,17 @@
 extension String {
     /// Calls `body` with a `Span` of this String's utf8 bytes.
+    ///
+    /// `UnnecessaryUnsafe` is used because Swift 6.3 requires it for `withContiguousStorageIfAvailable`.
+    /// Swift 6.4 though has fixed this and we can remove the `UnnecessaryUnsafe` diagnostic.
+    /// We can remove this when we drop support for Swift 6.3.
+    #if swift(>=6.4)
+        @diagnose(UnnecessaryUnsafe, as: ignored)
+    #endif
     @inlinable
     func withSpanCompatibility<T>(_ body: (Span<UInt8>) -> T) -> T {
         /// Fast path: Currently always the case for non-Darwin.
         /// On Darwin, always the case unless for some objc-bridged strings.
-        if let fastResult = self.utf8.withContiguousStorageIfAvailable({
+        if let fastResult = unsafe self.utf8.withContiguousStorageIfAvailable({
             body(unsafe $0.span)
         }) {
             return fastResult
