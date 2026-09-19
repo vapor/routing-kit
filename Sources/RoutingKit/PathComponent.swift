@@ -42,6 +42,14 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
 
     // See `ExpressibleByStringLiteral.init(stringLiteral:)`.
     public init(stringLiteral value: String) {
+        // A single path component cannot contain `/`; callers should pass
+        // separate components (e.g. app.get("te", "st") not app.get("te/st")).
+        // Accepting a slash registers an unreachable route (vapor/vapor#3349).
+        if value.contains("/") {
+            preconditionFailure(
+                "Path component \"\(value)\" contains a '/'. Use separate path components instead."
+            )
+        }
         if value.starts(with: ":") && value.firstIndex(of: "{") != nil {
             var components: [Substring] = []
             var parameters: [Substring] = []
