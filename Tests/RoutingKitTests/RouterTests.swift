@@ -457,6 +457,7 @@ struct RouterTests {
             (":id/edit", ["42", "edit"], ["id": "42"]),
             ("files/**", ["files", "a", "b"], [:]),
             ("docs/:{name}.md", ["docs", "intro.md"], ["name": "intro"]),
+            (":{name}.md/raw", ["intro.md", "raw"], ["name": "intro"]),
         ] as [(String, [String], [String: String])]
     )
     func slashesSeparateComponents(registered: String, request: [String], expectedParameters: [String: String]) {
