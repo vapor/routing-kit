@@ -56,10 +56,15 @@ public struct TrieRouterBuilder<Output: Sendable>: RouterBuilder {
     ///     let router = TrieRouter<Route>()
     ///     router.register(route, at: [.constant("users"), User.parameter])
     ///
+    /// A component containing `/`, such as `"users/:id"`, is registered as the components it spells out,
+    /// the same as `["users", ":id"]`.
+    ///
     /// - Parameters:
     ///   - output: Output to register.
     ///   - path: Path to register output at.
     public mutating func register(_ output: Output, at path: [PathComponent]) {
+        // Request paths are split on `/` before routing, so a component that still contains one could never match.
+        let path = path.flatMap(\.splitAtSlashes)
         assert(!path.isEmpty, "Cannot register a route with an empty path.")
         root = insertRoute(node: root, path: path[...], output: output)
     }

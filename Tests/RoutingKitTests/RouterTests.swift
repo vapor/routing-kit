@@ -448,6 +448,31 @@ struct RouterTests {
         #expect(p.get("x") == "a")
     }
 
+    @Test(
+        "Slashes in a path component separate components",
+        .bug("https://github.com/vapor/vapor/issues/3349"),
+        arguments: [
+            ("te/st", ["te", "st"], [:]),
+            ("/users/:id/", ["users", "42"], ["id": "42"]),
+            (":id/edit", ["42", "edit"], ["id": "42"]),
+            ("files/**", ["files", "a", "b"], [:]),
+            ("docs/:{name}.md", ["docs", "intro.md"], ["name": "intro"]),
+        ] as [(String, [String], [String: String])]
+    )
+    func slashesSeparateComponents(registered: String, request: [String], expectedParameters: [String: String]) {
+        var b = TrieRouterBuilder<Int>()
+        b.register(1, at: [.init(stringLiteral: registered)])
+        let r = b.build()
+
+        var p = Parameters()
+        #expect(r.route(path: request, parameters: &p) == 1)
+        for (name, value) in expectedParameters {
+            #expect(p.get(name) == value)
+        }
+        // The slashed text is no longer registered as a single component.
+        #expect(r.route(path: [request.joined(separator: "/")], parameters: &p) == nil)
+    }
+
     @Test("Multiple wildcard alternatives")
     func multipleWildcards() throws {
         var b = TrieRouterBuilder<Int>()

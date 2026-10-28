@@ -92,6 +92,22 @@ public enum PathComponent: ExpressibleByStringInterpolation, CustomStringConvert
     }
 }
 
+extension PathComponent {
+    /// The components this one spells out when it contains `/`, or just itself when it doesn't.
+    var splitAtSlashes: [PathComponent] {
+        switch self {
+        case .constant(let constant) where constant.contains("/"):
+            constant.pathComponents
+        case .parameter(let name) where name.contains("/"):
+            (":" + name).pathComponents
+        case .partialParameter(let template, _, _) where template.contains("/"):
+            (":" + template).pathComponents
+        default:
+            [self]
+        }
+    }
+}
+
 extension String {
     /// Converts a string into an array of ``PathComponent``.
     public var pathComponents: [PathComponent] {
