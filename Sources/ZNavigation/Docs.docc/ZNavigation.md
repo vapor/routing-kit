@@ -65,6 +65,11 @@ struct HomeScreen: View {
 - ``ZNavigationHub``
 - ``ZPageViewReporter``
 
+### Gating a route
+
+- ``ZRouteGate``
+- ``ZRouteGateDecision``
+
 ### Design and adoption
 
 - <doc:UnifiedNavigationDesign>

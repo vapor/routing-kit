@@ -53,7 +53,8 @@ public struct ZNavigationStack<Root: View>: View {
 /// the environment if there is one, and renders a ``ZNavigationStack``.
 ///
 /// For containers that cannot own a `@StateObject` built from environment objects, such as a view modifier whose
-/// resolver comes from an environment object: the `resolver` closure runs once, on the first render.
+/// resolver comes from an environment object: the `resolver` closure runs once, on the first render. `gate`, if any,
+/// is handed to the navigator (see ``ZRouteGate``).
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 @MainActor
 public struct ZNavigationScope<Root: View>: View {
@@ -65,11 +66,18 @@ public struct ZNavigationScope<Root: View>: View {
         root: ZRoute,
         backend: ZNavigationBackend = .automatic,
         staggerDelay: TimeInterval = 0.65,
+        gate: (any ZRouteGate)? = nil,
         resolver: @escaping () -> any ZRouteResolver,
         @ViewBuilder content: () -> Root
     ) {
         self._navigator = StateObject(
-            wrappedValue: ZNavigator(root: root, resolver: resolver(), backend: backend, staggerDelay: staggerDelay)
+            wrappedValue: ZNavigator(
+                root: root,
+                resolver: resolver(),
+                backend: backend,
+                staggerDelay: staggerDelay,
+                gate: gate
+            )
         )
         self.root = content()
     }

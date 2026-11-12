@@ -7,6 +7,10 @@ import SwiftUI
 /// no counterpart on iOS 15, and a button is the only form whose destination is never evaluated eagerly. This single
 /// change removes the per-render route lookups for every visible link.
 ///
+/// With a ``ZRouteGate`` installed, a tap asks ``ZNavigator/canPass(_:)`` once before pushing and does nothing when the
+/// gate denies: the gate reports its own failure. The disabled state reflects ``ZNavigator/canRoute(_:)`` only, so
+/// rendering a link never consults the gate.
+///
 /// Reads the ``ZNavigator`` that ``ZNavigationStack`` puts in the environment.
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 @MainActor
@@ -46,7 +50,9 @@ public struct ZRouteLink<Label: View>: View {
 
     public var body: some View {
         Button {
-            self.navigator.push(self.destination, carrying: self.carrying)
+            let destination = self.destination
+            guard self.navigator.canPass(destination) else { return }
+            self.navigator.push(destination, carrying: self.carrying)
         } label: {
             self.label
         }

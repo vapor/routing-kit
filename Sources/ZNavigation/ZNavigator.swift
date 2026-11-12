@@ -28,6 +28,9 @@ public final class ZNavigator: ObservableObject {
     /// Delay between two consecutive pushes on the legacy backend (FlowStacks uses 0.65 s).
     public let staggerDelay: TimeInterval
 
+    /// Consulted by ``ZRouteLink`` before a push and wrapped around every pushed screen; `nil` gates nothing.
+    public let gate: (any ZRouteGate)?
+
     /// Pushed levels, excluding root. The only writers are ``setStack(_:)`` and the legacy link bindings.
     @Published public private(set) var stack: [ZRoute] = []
 
@@ -52,12 +55,14 @@ public final class ZNavigator: ObservableObject {
         resolver: any ZRouteResolver,
         backend: ZNavigationBackend = .automatic,
         staggerDelay: TimeInterval = 0.65,
+        gate: (any ZRouteGate)? = nil,
         logger: Logger = Logger(label: "ztron.znavigation")
     ) {
         self.root = root
         self.resolver = resolver
         self.backend = backend.resolved
         self.staggerDelay = staggerDelay
+        self.gate = gate
         self.logger = logger
     }
 
@@ -77,6 +82,26 @@ public final class ZNavigator: ObservableObject {
     /// `true` when `route` is strictly below ``root`` and the resolver has a screen for it.
     public func canRoute(_ route: ZRoute) -> Bool {
         route.hasPrefix(self.root) && route.segments.count > self.root.segments.count && self.resolver.canResolve(route)
+    }
+
+    /// What ``gate`` decides for `route`; `true` without a gate. Asking may make the gate report a failure, so call it
+    /// once per user intent, not from a view body. Nothing in the navigator calls it: ``ZRouteLink`` does, and so may
+    /// a host that wants to check before `navigate(to:)`.
+    public func canPass(_ route: ZRoute) -> Bool {
+        switch self.gate?.decision(for: route) ?? .open {
+        case .open:
+            return true
+        case .denied:
+            return false
+        }
+    }
+
+    /// `true` while `route` is on ``stack``: emits the current value on subscription, then only changes.
+    public func presence(of route: ZRoute) -> AnyPublisher<Bool, Never> {
+        self.$stack
+            .map { $0.contains(route) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     /// Models carried by the pushing screen, else whatever the model resolver already has synchronously.

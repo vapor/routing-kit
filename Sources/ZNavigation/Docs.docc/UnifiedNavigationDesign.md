@@ -144,6 +144,18 @@ counterpart on iOS 15, and a button is the only form whose destination is never 
 disabled when `canRoute` says the destination does not resolve. This single change removes the per-render route
 lookups for every visible link (N games, M maps, T tools).
 
+### 2.7 `ZRouteGate`: the boundary for something outside the kit
+
+The kit does not know what a paywall is. It declares ``ZRouteGate``, which the host conforms its own engine to and
+passes as `gate:` to ``ZNavigator`` or ``ZNavigationScope``. `gate == nil` is the default and changes nothing: no hook
+runs and the parity suite is untouched. With a gate there are exactly two touch points: ``ZRouteLink`` asks
+`decision(for:)` once per tap and does nothing on `.denied`, and the destination wraps the resolved screen with
+`wrap(_:for:presence:)` once per push, on the carried and on the async path. `presence` is
+``ZNavigator/presence(of:)``, `true` while the route is on the stack, because the two backends deliver
+`onDisappear` at different moments. `push`, `navigate(to:)` and the hub do not ask: the wrap catches whatever they
+materialise, and ``ZNavigator/canPass(_:)`` lets a host ask first. `NavigationGateHostedTests` taps the real link on
+both backends and counts decisions and wraps with a probe gate.
+
 ## 3. The container
 
 ``ZNavigationStack`` takes an existing navigator; ``ZNavigationScope`` creates and owns one for its lifetime and
