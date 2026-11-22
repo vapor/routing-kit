@@ -271,21 +271,21 @@ final class TrieRouterExtensionTests: XCTestCase {
 
         router.register(
             1,
-            at: [.constant("home"), .constant("black ops 6"), .parameter("map")]
+            at: [.constant("home"), .parameter("game"), .parameter("map"), .parameter("tool")]
         )
 
         router.register(
             0,
-            at: [.constant("home"), .parameter("game"), .parameter("map")]
+            at: [.constant("home"), .parameter("game"), .constant("the tortured path"), .parameter("map"), .parameter("tool")]
         )
 
         var params: Parameters = .init()
-        let result = router.route(path: ["home", "infinite warfare", "spaceland"], parameters: &params)
+        let result = router.route(path: ["home", "wwii", "the tortured path", "beneath the ice", "fish"], parameters: &params)
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result, 0)
 
-        let bo6output = router.route(path: ["home", "black ops 6", "spaceland"], parameters: &params)
+        let bo6output = router.route(path: ["home", "iw", "spaceland", "seti"], parameters: &params)
         XCTAssertNotNil(bo6output)
         XCTAssertEqual(bo6output, 1)
     }
